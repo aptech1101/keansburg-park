@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Câu hỏi chung
+    url: https://github.com/
+    about: Dùng Discussions/Chat của nhóm thay vì Issue nếu không phải việc cụ thể.

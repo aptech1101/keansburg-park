@@ -1,0 +1,22 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# Design / Large
+*.mwb
+*.fig
+*.pdf
+*.png
+*.drawio
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
