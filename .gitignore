@@ -12,8 +12,6 @@ build/
 # Design / Large
 *.mwb
 *.fig
-*.pdf
-*.png
 *.drawio
 
 # Logs
