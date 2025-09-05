@@ -30,7 +30,7 @@ Issue → create branch → commit/push → Pull Request → Review/CI → Appro
 ```
 
 ## Hướng dẫn xem Figma/ERD/SQL
-- Link Figma (view-only): TODO
+- Link Figma (view-only): [Link](https://www.figma.com/design/nHRMR9VYLt11fqwu3sXRK9/Keansburg-Park?node-id=0-1&t=FWuO7E2jEoDuT61F-1)
 - ERD: xem PNG/PDF ở `/database/erd/`, file nguồn .drawio/.dbml kèm theo
 - Import SQL:
   1. Mở MySQL
