@@ -7,14 +7,10 @@ Thumbs.db
 # Node / Frontend
 node_modules/
 dist/
-build/
+
 
 # Design / Large
-*.mwb
-*.fig
-*.pdf
-*.png
-*.drawio
+
 
 # Logs
 npm-debug.log*
