@@ -83,7 +83,7 @@ export default function Home() {
               <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-instagram"></i></a>
               <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-linkedin-in"></i></a>
             </div>
-            <a href="#" className="btn btn-primary rounded-pill py-2 px-4 flex-shrink-0">Get Started</a>
+            <Link to="/signup" className="btn btn-primary rounded-pill py-2 px-4 flex-shrink-0">Sign up/Sign in</Link>
           </div>
         </nav>
       </div>
