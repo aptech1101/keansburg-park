@@ -3,6 +3,19 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 
+require __DIR__ . '/../vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+
+$secret_key = "keansburg_secret_key";
+$issuer     = "http://localhost";
+$audience   = "http://localhost";
+$issued_at  = time();
+$expire     = $issued_at + (60 * 60);
+
+
 $servername = "localhost";
 $username   = "root";
 $password   = "123456";
@@ -35,7 +48,7 @@ $result = $conn->query($sql);
 
 if ($result->num_rows == 0) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Invalid email or password 111"]);
+    echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
     exit();
 }
 
@@ -43,19 +56,32 @@ $user = $result->fetch_assoc();
 
 if (!password_verify($password, $user['password_hash'])) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Invalid email or password 222"]);
+    echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
     exit();
 }
 
+$payload = [
+    "iss"  => $issuer,
+    "aud"  => $audience,
+    "iat"  => $issued_at,
+    "exp"  => $expire,
+    "data" => [
+        "id"    => $user['user_id'],
+        "email" => $user['email']
+    ]
+];
+
+$jwt = JWT::encode($payload, $secret_key, 'HS256');
+
 http_response_code(200);
 echo json_encode([
-    "status" => "success",
+    "status"  => "success",
     "message" => "Login successful",
-    "user" => [
+    "token"   => $jwt,
+    "user"    => [
         "id"    => $user['user_id'],
         "email" => $user['email']
     ]
 ]);
 
 $conn->close();
-?>
