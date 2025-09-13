@@ -24,3 +24,5 @@ Backend được viết bằng PHP thuần, sử dụng MySQL để lưu dữ li
    Server sẽ chạy ở: http://localhost:8000
    Các API có thể gọi như: http://localhost:8000/api/...
    ```
+
+Khi code frontend, mỗi request cần gửi kèm Authorization: Bearer <token> để kết hợp với middleware ở backend

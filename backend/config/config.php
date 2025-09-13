@@ -12,6 +12,5 @@ return [
         'pass' => getenv('DB_PASS') ?: '',
         'charset' => 'utf8mb4',
     ],
+    'jwt_secret' => getenv('JWT_SECRET') ?: 'my_super_secret_key_123',
 ];
-
-
