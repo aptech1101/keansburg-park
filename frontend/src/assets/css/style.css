@@ -929,3 +929,16 @@
 /*** copyright end ***/
 
 
+/*** Hover Lift Utility Start ***/
+.hover-lift {
+    transition: transform .25s ease, box-shadow .25s ease;
+    will-change: transform, box-shadow;
+}
+
+.hover-lift:hover,
+.hover-lift:focus {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+/*** Hover Lift Utility End ***/
+

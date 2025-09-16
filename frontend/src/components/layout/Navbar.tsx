@@ -25,6 +25,10 @@ const Navbar: React.FC = () => {
             <NavLink to="/team" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Team</NavLink>
             <NavLink to="/review" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Review</NavLink>
             <NavLink to="/contact" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Contact</NavLink>
+            {/* Added links for Son's pages without altering existing items */}
+            <NavLink to="/restaurants" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Restaurants</NavLink>
+            <NavLink to="/info" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Info</NavLink>
+            <NavLink to="/policy" className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}>Policy</NavLink>
           </div>
           <div className="team-icon d-none d-xl-flex justify-content-center me-3">
             <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-facebook-f"></i></a>

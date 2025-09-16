@@ -30,23 +30,23 @@ const Footer: React.FC = () => {
             <div className="col-md-6 col-lg-6 col-xl-2">
               <div className="footer-item">
                 <h4 className="text-white mb-4">Quick Links</h4>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> About Us</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Feature</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Attractions</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Tickets</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Blog</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Contact us</a>
+                <Link to="/about"><i className="fas fa-angle-right me-2"></i> About Us</Link>
+                <Link to="/features"><i className="fas fa-angle-right me-2"></i> Features</Link>
+                <Link to="/attractions"><i className="fas fa-angle-right me-2"></i> Attractions</Link>
+                <Link to="/ticket"><i className="fas fa-angle-right me-2"></i> Tickets</Link>
+                <Link to="/restaurants"><i className="fas fa-angle-right me-2"></i> Restaurants</Link>
+                <Link to="/contact"><i className="fas fa-angle-right me-2"></i> Contact us</Link>
               </div>
             </div>
             <div className="col-md-6 col-lg-6 col-xl-2">
               <div className="footer-item">
                 <h4 className="text-white mb-4">Support</h4>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Privacy Policy</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Terms & Conditions</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Disclaimer</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Support</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> FAQ</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Help</a>
+                <Link to="/policy"><i className="fas fa-angle-right me-2"></i> Privacy Policy</Link>
+                <Link to="/policy"><i className="fas fa-angle-right me-2"></i> Terms & Conditions</Link>
+                <Link to="/policy"><i className="fas fa-angle-right me-2"></i> Disclaimer</Link>
+                <Link to="/info"><i className="fas fa-angle-right me-2"></i> FAQ</Link>
+                <Link to="/contact"><i className="fas fa-angle-right me-2"></i> Support</Link>
+                <Link to="/info"><i className="fas fa-angle-right me-2"></i> Help</Link>
               </div>
             </div>
             <div className="col-md-6 col-lg-6 col-xl-4">
