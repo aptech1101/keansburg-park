@@ -1,9 +1,9 @@
 -- 00_schema.sql
 -- MySQL 8.x | InnoDB | utf8mb4
-CREATE DATABASE IF NOT EXISTS keansburg
+CREATE DATABASE IF NOT EXISTS keansburgpark
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
-USE keansburg;
+USE keansburgpark;
 
 -- Users
 CREATE TABLE IF NOT EXISTS users (
@@ -76,4 +76,14 @@ CREATE TABLE IF NOT EXISTS reviews (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id)
     ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Feedbacks (public website feedback form)
+CREATE TABLE IF NOT EXISTS feedbacks (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  rating INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;

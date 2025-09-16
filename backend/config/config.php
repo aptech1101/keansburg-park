@@ -9,7 +9,7 @@ return [
         'port' => (int)(getenv('DB_PORT') ?: 3306),
         'name' => getenv('DB_NAME') ?: 'keansburgpark',
         'user' => getenv('DB_USER') ?: 'root',
-        'pass' => getenv('DB_PASS') ?: '',
+        'pass' => getenv('DB_PASS') ?: '12345678',
         'charset' => 'utf8mb4',
     ],
 ];

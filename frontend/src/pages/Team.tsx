@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Team1 from '../assets/img/team-1.jpg';
-import Team2 from '../assets/img/team-2.jpg';
-import Team3 from '../assets/img/team-3.jpg';
+import Team1 from '../assets/img/home-testimonial-1.jpg';
+import Team2 from '../assets/img/home-testimonial-2.jpg';
+import Team3 from '../assets/img/home-testimonial-3.jpg';
 import PaymentImg from '../assets/img/payment.png';
 
 const Team: React.FC = () => {

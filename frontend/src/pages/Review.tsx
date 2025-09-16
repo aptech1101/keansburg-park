@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Testimonial1 from '../assets/img/testimonial-1.jpg';
-import Testimonial2 from '../assets/img/testimonial-2.jpg';
-import Testimonial3 from '../assets/img/testimonial-3.jpg';
+import Testimonial1 from '../assets/img/home-testimonial-1.jpg';
+import Testimonial2 from '../assets/img/home-testimonial-2.jpg';
+import Testimonial3 from '../assets/img/home-testimonial-3.jpg';
 import PaymentImg from '../assets/img/payment.png';
 
 const Review: React.FC = () => {
@@ -31,13 +31,13 @@ const Review: React.FC = () => {
                     <ol className="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
                         <li className="breadcrumb-item"><a href="index.html">Home</a></li>
                         <li className="breadcrumb-item"><a href="#">Pages</a></li>
-                        <li className="breadcrumb-item active text-primary">Testimonial</li>
+                        <li className="breadcrumb-item active text-primary">Customer Reviews</li>
                     </ol>    
                 </div>
             </div>
             {/* Header End */}
 
-            {/* Testimonial Start */}
+            {/* Customer Reviews Start */}
             <div className="container-fluid testimonial py-5" style={{ marginTop: 100 }}>
                 <div className="container py-5">
                     <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: 800 }}>
@@ -117,7 +117,7 @@ const Review: React.FC = () => {
                     </div>
                 </div>
             </div>
-            {/* Testimonial End */}
+            {/* Customer Reviews End */}
 
             {/* Footer removed: using global layout Footer */}
 

@@ -1,12 +1,12 @@
 /// <reference types="vite/client" />
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import imgFeature1 from "../assets/img/feature-1.jpg";
-import imgFeature2 from "../assets/img/feature-2.jpg";
-import imgFeature3 from "../assets/img/feature-3.jpg";
-import imgTestimonial1 from "../assets/img/testimonial-1.jpg";
-import imgTestimonial2 from "../assets/img/testimonial-2.jpg";
-import imgTestimonial3 from "../assets/img/testimonial-3.jpg";
+import imgFeature1 from "../assets/img/home-attraction-1.jpg";
+import imgFeature2 from "../assets/img/home-attraction-2.jpg";
+import imgFeature3 from "../assets/img/home-attraction-3.jpg";
+import imgTestimonial1 from "../assets/img/home-testimonial-1.jpg";
+import imgTestimonial2 from "../assets/img/home-testimonial-2.jpg";
+import imgTestimonial3 from "../assets/img/home-testimonial-3.jpg";
 import imgPayment from "../assets/img/payment.png";
 
 export default function Services() {

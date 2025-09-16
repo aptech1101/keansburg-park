@@ -1,40 +1,173 @@
 /// <reference types="vite/client" />
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import imgCarousel1 from "../assets/img/carousel-1.jpg";
-import imgCarousel2 from "../assets/img/carousel-2.jpg";
-import imgFeature1 from "../assets/img/feature-1.jpg";
-import imgFeature2 from "../assets/img/feature-2.jpg";
-import imgFeature3 from "../assets/img/feature-3.jpg";
-import imgAbout from "../assets/img/about.jpg";
-import imgAttraction1 from "../assets/img/attraction-1.jpg";
-import imgAttraction2 from "../assets/img/attraction-2.jpg";
-import imgAttraction3 from "../assets/img/attraction-3.jpg";
-import imgAttraction4 from "../assets/img/attraction-4.jpg";
-import imgGallery1 from "../assets/img/gallery-1.jpg";
-import imgGallery2 from "../assets/img/gallery-2.jpg";
-import imgGallery3 from "../assets/img/gallery-3.jpg";
-import imgGallery4 from "../assets/img/gallery-4.jpg";
-import imgGallery5 from "../assets/img/gallery-5.jpg";
-import imgGallery6 from "../assets/img/gallery-6.jpg";
-import imgBlog1 from "../assets/img/blog-1.jpg";
-import imgBlog2 from "../assets/img/blog-2.jpg";
-import imgBlog3 from "../assets/img/blog-3.jpg";
-import imgTeam1 from "../assets/img/team-1.jpg";
-import imgTeam2 from "../assets/img/team-2.jpg";
-import imgTeam3 from "../assets/img/team-3.jpg";
-import imgTestimonial1 from "../assets/img/testimonial-1.jpg";
-import imgTestimonial2 from "../assets/img/testimonial-2.jpg";
-import imgTestimonial3 from "../assets/img/testimonial-3.jpg";
-import imgPayment from "../assets/img/payment.png";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import PromotionBanner from "../components/PromotionBanner";
+import ScrollAnimation from "../components/ScrollAnimation";
+import CountUp from "../components/CountUp";
+import imgBanner from "../assets/img/home-banner.png";
+import imgFeature1 from "../assets/img/home-attraction-1.jpg";
+import imgFeature2 from "../assets/img/home-attraction-2.jpg";
+import imgFeature3 from "../assets/img/home-attraction-3.jpg";
+import imgAbout from "../assets/img/home-about.png";
+import imgAttraction from "../assets/img/home-attraction.jpg";
+import imgAttraction1 from "../assets/img/home-attraction-1.jpg";
+import imgAttraction2 from "../assets/img/home-attraction-2.jpg";
+import imgAttraction3 from "../assets/img/home-attraction-3.jpg";
+import imgAttraction4 from "../assets/img/home-attraction-4.jpg";
+import imgAttraction5 from "../assets/img/home-attraction-5.jpg";
+import imgGallery1 from "../assets/img/home-gallery-1.png";
+import imgGallery2 from "../assets/img/home-gallery-2.png";
+import imgGallery3 from "../assets/img/home-gallery-3.png";
+import imgGallery4 from "../assets/img/home-gallery-4.jpg";
+import imgGallery5 from "../assets/img/home-gallery-5.png";
+import imgGallery6 from "../assets/img/home-gallery-6.png";
+import imgRes1 from "../assets/img/home-res-1.jpg";
+import imgRes2 from "../assets/img/home-res-2.jpg";
+import imgRes3 from "../assets/img/home-res-3.jpeg";
+import imgBlog1 from "../assets/img/home-gallery-1.png";
+import imgBlog2 from "../assets/img/home-gallery-2.png";
+import imgBlog3 from "../assets/img/home-gallery-3.png";
+import imgTestimonial1 from "../assets/img/home-testimonial-1.jpg";
+import imgTestimonial2 from "../assets/img/home-testimonial-2.jpg";
+import imgTestimonial3 from "../assets/img/home-testimonial-3.jpg";
+import imgTestimonial from "../assets/img/home-testmonial.jpg";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [sliderRef, setSliderRef] = useState<Slider | null>(null);
+  const [restaurantSliderRef, setRestaurantSliderRef] = useState<Slider | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Array<{id:number;name:string;email:string;message:string;rating:number;created_at:string}>>([]);
+  const [submitState, setSubmitState] = useState<{status:'idle'|'loading'|'success'|'error'; message?:string}>({status:'idle'});
+
+  // Cấu hình endpoint ứng viên: nếu đang chạy Vite (5173) thì ưu tiên 8000; nếu chạy qua Apache thì ưu tiên /keansburg-park
+  const isViteDev = window.location.port === '5173';
+  const API_CANDIDATES = isViteDev
+    ? [
+        'http://localhost:8000',
+        'http://localhost/keansburg-park/backend/public'
+      ]
+    : [
+        `${window.location.origin}/keansburg-park/backend/public`,
+        'http://localhost:8000'
+      ];
+
+  const fetchJson = async (path: string, init?: RequestInit) => {
+    let lastErr: unknown = null;
+    for (const base of API_CANDIDATES) {
+      try {
+        const url = `${base}${path}`.replace(/([^:])\/\//g, '$1/');
+        const res = await fetch(url, init);
+        if (res.ok) return res.json();
+        lastErr = new Error(`HTTP ${res.status}`);
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr ?? new Error('All API endpoints failed');
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
     return () => clearTimeout(timer);
   }, []);
+
+  // Fetch latest reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const json = await fetchJson('/api/reviews?limit=8');
+        if (json && json.status === 'success') setReviews(json.data || []);
+      } catch {}
+    };
+    fetchReviews();
+    const id = setInterval(fetchReviews, 10000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Slider settings cho Customer Reviews
+  const reviewSliderSettings = {
+    dots: true,
+    arrows: false,
+    infinite: true,
+    speed: 600,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    pauseOnHover: true,
+    adaptiveHeight: true
+  } as const;
+
+  // Carousel settings
+  const carouselSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    pauseOnHover: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        }
+      }
+    ]
+  };
+
+  // Restaurant carousel settings
+  const restaurantCarouselSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    pauseOnHover: true,
+    fade: true,
+    cssEase: "linear",
+    customPaging: function(i: number) {
+      return (
+        <span 
+          className="dot mx-1" 
+          style={{ 
+            height: '8px', 
+            width: '8px', 
+            backgroundColor: i === 0 ? '#3CBEEE' : 'rgba(255,255,255,0.5)', 
+            borderRadius: '50%', 
+            display: 'inline-block',
+            cursor: 'pointer'
+          }}
+        ></span>
+      );
+    }
+  };
+
 
   return (
     <>
@@ -48,82 +181,51 @@ export default function Home() {
       )}
       {/* Spinner End */}
 
-      {/* Navbar & Hero Start */}
-      <div className="container-fluid nav-bar sticky-top px-4 py-2 py-lg-0">
-        <nav className="navbar navbar-expand-lg navbar-light">
-          <Link to="/" className="navbar-brand p-0">
-            <h1 className="display-6 text-dark"><i className="fas fa-swimmer text-primary me-3"></i>WaterLand</h1>
-          </Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span className="fa fa-bars"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarCollapse">
-            <div className="navbar-nav mx-auto py-0">
-              <Link to="/" className="nav-item nav-link active">Home</Link>
-              <Link to="/about" className="nav-item nav-link">About</Link>
-              <Link to="/services" className="nav-item nav-link">Service</Link>
-              <Link to="/blog" className="nav-item nav-link">Blog</Link>
-              <div className="nav-item dropdown">
-                <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                <div className="dropdown-menu m-0">
-                  <Link to="/features" className="dropdown-item">Our Feature</Link>
-                  <Link to="/gallery" className="dropdown-item">Our Gallery</Link>
-                  <Link to="/attractions" className="dropdown-item">Attractions</Link>
-                  <Link to="/ticket" className="dropdown-item">Ticket Packages</Link>
-                  <Link to="/team" className="dropdown-item">Our Team</Link>
-                  <Link to="/review" className="dropdown-item">Review</Link>
-                  <Link to="/404" className="dropdown-item">404 Page</Link>
-                </div>
-              </div>
-              <Link to="/contact" className="nav-item nav-link">Contact</Link>
-            </div>
-            <div className="team-icon d-none d-xl-flex justify-content-center me-3">
-              <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-facebook-f"></i></a>
-              <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-twitter"></i></a>
-              <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-instagram"></i></a>
-              <a className="btn btn-square btn-light rounded-circle mx-1" href=""><i className="fab fa-linkedin-in"></i></a>
-            </div>
-            <a href="#" className="btn btn-primary rounded-pill py-2 px-4 flex-shrink-0">Get Started</a>
-          </div>
-        </nav>
-      </div>
-      {/* Navbar & Hero End */}
+      {/* Promotion Banner */}
+      <PromotionBanner />
 
-      {/* Carousel Start */}
-      {/* TODO: Replace with React lib (Swiper/Lightbox) */}
-      <div className="header-carousel owl-carousel">
-        <div className="header-carousel-item">
-          <img src={imgCarousel1} className="img-fluid w-100" alt="Carousel 1" />
-          <div className="carousel-caption">
-            <div className="container align-items-center py-4">
-              <div className="row g-5 align-items-center">
+      {/* Hero Section Start */}
+
+      {/* Hero Section with Booking Form */}
+      <div className="header-carousel">
+        <div className="header-carousel-item position-relative">
+          <img src={imgBanner} className="img-fluid w-100" alt="Keansburg Park" style={{ height: '100vh', objectFit: 'cover' }} />
+          <div className="carousel-caption position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+            <div className="container">
+              <div className="row g-5 align-items-center h-100">
                 <div className="col-xl-7 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1s" style={{ animationDelay: "1s" }}>
                   <div className="text-start">
-                    <h4 className="text-primary text-uppercase fw-bold mb-4">Welcome To WaterLand</h4>
-                    <h1 className="display-4 text-uppercase text-white mb-4">The Biggest Theme & Amusement Park</h1>
-                    <p className="mb-4 fs-5">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy... 
+                    <h1 className="display-4 text-uppercase text-white mb-4 fw-bold" style={{ lineHeight: '1.2' }}>
+                      THE GREATEST WATER & AMUSEMENT PARK – KEANSBURG
+                    </h1>
+                    <p className="mb-4 fs-5 text-white" style={{ maxWidth: '600px' }}>
+                      Thrill-seeking slides, family-friendly pools, and over 100 years of summer fun!
                     </p>
                     <div className="d-flex flex-shrink-0">
-                      <a className="btn btn-primary rounded-pill text-white py-3 px-5" href="#">Our Packages</a>
+                      <Link to="/ticket" className="btn rounded-pill text-white py-3 px-5" style={{ backgroundColor: '#3CBEEE', fontSize: '16px', fontWeight: '600' }}>
+                        Our Packages
+                      </Link>
                     </div>
                   </div>
                 </div>
                 <div className="col-xl-5 fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style={{ animationDelay: "1s" }}>
-                  <div className="ticket-form p-5">
-                    <h2 className="text-dark text-uppercase mb-4">book your ticket</h2>
+                  <div className="ticket-form p-5 bg-white rounded" style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+                    <h2 className="text-dark text-uppercase mb-4 fw-bold text-center" style={{ fontSize: '24px' }}>
+                      BOOK YOUR TICKET
+                    </h2>
                     <form>
                       <div className="row g-4">
                         <div className="col-12">
-                          <input type="text" className="form-control border-0 py-2" id="name" placeholder="Your Name" />
+                          <input type="text" className="form-control border-0 py-3" id="name" placeholder="Your Name" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12 col-xl-6">
-                          <input type="email" className="form-control border-0 py-2" id="email" placeholder="Your Email" />
+                          <input type="email" className="form-control border-0 py-3" id="email" placeholder="Your Email" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12 col-xl-6">
-                          <input type="tel" className="form-control border-0 py-2" id="phone" placeholder="Phone" />
+                          <input type="tel" className="form-control border-0 py-3" id="phone" placeholder="Phone" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12">
-                          <select className="form-select border-0 py-2" aria-label="Default select example" defaultValue="Select Packages">
+                          <select className="form-select border-0 py-3" aria-label="Default select example" defaultValue="Select Packages" style={{ backgroundColor: '#f8f9fa' }}>
                             <option value="Select Packages">Select Packages</option>
                             <option value="1">Family Packages</option>
                             <option value="2">Basic Packages</option>
@@ -131,13 +233,15 @@ export default function Home() {
                           </select>
                         </div>
                         <div className="col-12">
-                          <input className="form-control border-0 py-2" type="date" />
+                          <input className="form-control border-0 py-3" type="date" placeholder="dd/mm/yy" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12">
-                          <input type="number" className="form-control border-0 py-2" id="number" placeholder="Guest" />
+                          <input type="number" className="form-control border-0 py-3" id="number" placeholder="Number of Guests" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12">
-                          <button type="button" className="btn btn-primary w-100 py-2 px-5">Book Now</button>
+                          <button type="button" className="btn w-100 py-3 px-5 text-white fw-bold" style={{ backgroundColor: '#3CBEEE', fontSize: '16px' }}>
+                            Book Now
+                          </button>
                         </div>
                       </div>
                     </form>
@@ -147,676 +251,689 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="header-carousel-item">
-          <img src={imgCarousel2} className="img-fluid w-100" alt="Carousel 2" />
-          <div className="carousel-caption">
-            <div className="container py-4">
-              <div className="row g-5 align-items-center">
-                <div className="col-xl-7 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1s" style={{ animationDelay: "1s" }}>
-                  <div className="text-start">
-                    <h4 className="text-primary text-uppercase fw-bold mb-4">Welcome To WaterLand</h4>
-                    <h1 className="display-4 text-uppercase text-white mb-4">The Greatest Water and Amusement Park</h1>
-                    <p className="mb-4 fs-5">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy... 
-                    </p>
-                    <div className="d-flex flex-shrink-0">
-                      <a className="btn btn-primary rounded-pill text-white py-3 px-5" href="#">Our Packages</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-xl-5 fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style={{ animationDelay: "1s" }}>
-                  <div className="ticket-form p-5">
-                    <h2 className="text-dark text-uppercase mb-4">book your ticket</h2>
-                    <form>
-                      <div className="row g-4">
-                        <div className="col-12">
-                          <input type="text" className="form-control border-0 py-2" id="name" placeholder="Your Name" />
-                        </div>
-                        <div className="col-12 col-xl-6">
-                          <input type="email" className="form-control border-0 py-2" id="email" placeholder="Your Email" />
-                        </div>
-                        <div className="col-12 col-xl-6">
-                          <input type="tel" className="form-control border-0 py-2" id="phone" placeholder="Phone" />
-                        </div>
-                        <div className="col-12">
-                          <select className="form-select border-0 py-2" aria-label="Default select example" defaultValue="Select Packages">
-                            <option value="Select Packages">Select Packages</option>
-                            <option value="1">Family Packages</option>
-                            <option value="2">Basic Packages</option>
-                            <option value="3">Premium Packages</option>
-                          </select>
-                        </div>
-                        <div className="col-12">
-                          <input className="form-control border-0 py-2" type="date" />
-                        </div>
-                        <div className="col-12">
-                          <input type="number" className="form-control border-0 py-2" id="number" placeholder="Guest" />
-                        </div>
-                        <div className="col-12">
-                          <button type="button" className="btn btn-primary w-100 py-2 px-5">Book Now</button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>  
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-      {/* Carousel End */}
-
-      {/* Feature Start */}
-      <div className="container-fluid feature py-5">
-        <div className="container py-5">
-          <div className="row g-4">
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="feature-item">
-                <img src={imgFeature1} className="img-fluid rounded w-100" alt="Feature 1" />
-                <div className="feature-content p-4">
-                  <div className="feature-content-inner">
-                    <h4 className="text-white">Best Pools</h4>
-                    <p className="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis porro soluta voluptatum laborum mollitia blanditiis suscipit,
-                    </p>
-                    <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fa fa-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="feature-item">
-                <img src={imgFeature2} className="img-fluid rounded w-100" alt="Feature 2" />
-                <div className="feature-content p-4">
-                  <div className="feature-content-inner">
-                    <h4 className="text-white">Waterslides</h4>
-                    <p className="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis porro soluta voluptatum laborum mollitia blanditiis suscipit,
-                    </p>
-                    <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fa fa-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="feature-item">
-                <img src={imgFeature3} className="img-fluid rounded w-100" alt="Feature 3" />
-                <div className="feature-content p-4">
-                  <div className="feature-content-inner">
-                    <h4 className="text-white">River Rides</h4>
-                    <p className="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis porro soluta voluptatum laborum mollitia blanditiis suscipit,
-                    </p>
-                    <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fa fa-arrow-right ms-1"></i></a>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Feature End */}
+      {/* Hero Section End */}
 
       {/* About Start */}
-      <div className="container-fluid about pb-5">
-        <div className="container pb-5">
-          <div className="row g-5">
-            <div className="col-xl-6 wow fadeInUp" data-wow-delay="0.2s">
+      <div className="container-fluid about py-5" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="container py-5">
+          <div className="row g-5 align-items-center">
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-xl-6">
               <div>
-                <h4 className="text-primary">About Waterland</h4>
-                <h1 className="display-5 mb-4">The Best Theme & Amusement Park For Your Family</h1>
-                <p className="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis eligendi illum inventore maiores incidunt vero id. Est ipsam, distinctio veritatis earum inventore ab fugit officiis ut ullam, laudantium facere sapiente?
+                <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>About Amusement Park & Water Park</h4>
+                <h1 className="display-5 mb-4 fw-bold">The Best Theme & Amusement Park For Your Family</h1>
+                <p className="mb-5 fs-5" style={{ color: '#666666', lineHeight: '1.6' }}>
+                  Keansburg Amusement Park & Runaway Rapids Waterpark have been family favorites for decades. With exciting rides, refreshing water attractions, and safe spaces for kids, it's the perfect summer destination.
                 </p>
                 <div className="row g-4">
                   <div className="col-md-6">
-                    <div className="d-flex">
-                      <div className="me-3"><i className="fas fa-glass-cheers fa-3x text-primary"></i></div>
+                    <div className="feature-item d-flex align-items-start">
+                      <div className="me-3" style={{ color: '#3CBEEE' }}>
+                        <i className="fas fa-glass-cheers fa-2x"></i>
+                      </div>
                       <div>
-                        <h4>Food & Drinks</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                        <h5 className="fw-bold mb-2">Food & Drinks</h5>
+                        <p className="mb-1" style={{ color: '#666666', fontSize: '14px' }}>Enjoy Tasty Bites</p>
+                        <p className="mb-0" style={{ color: '#666666', fontSize: '13px' }}>From quick snacks to family meals, Keansburg offers plenty of food & drink options to recharge your energy.</p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6">
-                    <div className="d-flex">
-                      <div className="me-3"><i className="fas fa-dot-circle fa-3x text-primary"></i></div>
+                    <div className="feature-item d-flex align-items-start">
+                      <div className="me-3" style={{ color: '#3CBEEE' }}>
+                        <i className="fas fa-dot-circle fa-2x"></i>
+                      </div>
                       <div>
-                        <h4>Many Attractions</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                        <h5 className="fw-bold mb-2">Many Attractions</h5>
+                        <p className="mb-1" style={{ color: '#666666', fontSize: '14px' }}>Fun for All Ages</p>
+                        <p className="mb-0" style={{ color: '#666666', fontSize: '13px' }}>Over 50 rides & water attractions – from thrilling slides to safe kiddie lagoons, there's something for everyone.</p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6">
-                    <div className="d-flex">
-                      <div className="me-3"><i className="fas fa-hand-holding-usd fa-3x text-primary"></i></div>
+                    <div className="feature-item d-flex align-items-start">
+                      <div className="me-3" style={{ color: '#3CBEEE' }}>
+                        <i className="fas fa-hand-holding-usd fa-2x"></i>
+                      </div>
                       <div>
-                        <h4>Affordable Price</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                        <h5 className="fw-bold mb-2">Affordable Price</h5>
+                        <p className="mb-1" style={{ color: '#666666', fontSize: '14px' }}>Family-Friendly Pricing</p>
+                        <p className="mb-0" style={{ color: '#666666', fontSize: '13px' }}>Budget-friendly daily passes, season tickets, and special family packages to make your trip affordable.</p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6">
-                    <div className="d-flex">
-                      <div className="me-3"><i className="fas fa-lock fa-3x text-primary"></i></div>
+                    <div className="feature-item d-flex align-items-start">
+                      <div className="me-3" style={{ color: '#3CBEEE' }}>
+                        <i className="fas fa-lock fa-2x"></i>
+                      </div>
                       <div>
-                        <h4>Safety Lockers</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                        <h5 className="fw-bold mb-2">Safety Lockers</h5>
+                        <p className="mb-1" style={{ color: '#666666', fontSize: '14px' }}>Safe & Convenient</p>
+                        <p className="mb-0" style={{ color: '#666666', fontSize: '13px' }}>Secure lockers and changing rooms are available, so you can relax and enjoy your day worry-free.</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-xl-6 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="position-relative rounded">
-                <div className="rounded" style={{ marginTop: "40px" }}>
-                  <div className="row g-0">
-                    <div className="col-lg-12">
-                      <div className="rounded mb-4">
-                        <img src={imgAbout} className="img-fluid rounded w-100" alt="About" />
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-xl-6">
+              <div className="position-relative">
+                {/* Banner 100+ Years Experience */}
+                <div className="position-absolute top-50 start-50 translate-middle-x" style={{ zIndex: 2, width: '75%' }}>
+                  <div className="experience-banner text-white text-center py-4 px-5 rounded">
+                    <i className="fas fa-award me-3 fa-2x"></i>
+                    <span className="fw-bold" style={{ fontSize: '24px' }}>100+ Years Experience</span>
+                  </div>
+                </div>
+                
+                <div className="rounded mt-4">
+                  <img src={imgAbout} className="img-fluid rounded w-100" alt="About Keansburg Park" style={{ height: '400px', objectFit: 'cover' }} />
+                </div>
+                
+                <div className="row g-4 mt-4">
+                  <div className="col-6">
+                    <div className="stats-card bg-primary rounded text-center p-4 h-100" style={{ backgroundColor: '#3CBEEE' }}>
+                      <div className="mb-3">
+                        <i className="fas fa-thumbs-up fa-3x text-white"></i>
                       </div>
-                      <div className="row gx-4 gy-0">
-                        <div className="col-6">
-                          <div className="counter-item bg-primary rounded text-center p-4 h-100">
-                            <div className="counter-item-icon mx-auto mb-3">
-                              <i className="fas fa-thumbs-up fa-3x text-white"></i>
-                            </div>
-                            <div className="counter-counting mb-3">
-                              <span className="text-white fs-2 fw-bold" data-toggle="counter-up">150</span>
-                              <span className="h1 fw-bold text-white">K +</span>
-                            </div>
-                            <h5 className="text-white mb-0">Happy Visitors</h5>
-                          </div>
-                        </div>
-                        <div className="col-6">
-                          <div className="counter-item bg-dark rounded text-center p-4 h-100">
-                            <div className="counter-item-icon mx-auto mb-3">
-                              <i className="fas fa-certificate fa-3x text-white"></i>
-                            </div>
-                            <div className="counter-counting mb-3">
-                              <span className="text-white fs-2 fw-bold" data-toggle="counter-up">122</span>
-                              <span className="h1 fw-bold text-white"> +</span>
-                            </div>
-                            <h5 className="text-white mb-0">Awwards Winning</h5>
-                          </div>
-                        </div>
+                      <h2 className="text-white mb-2 fw-bold count-up">
+                        <CountUp end={150} suffix="K+" duration={2000} />
+                      </h2>
+                      <p className="text-white mb-0" style={{ fontSize: '14px' }}>Visitors Every Summer</p>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="stats-card bg-dark rounded text-center p-4 h-100">
+                      <div className="mb-3">
+                        <i className="fas fa-certificate fa-3x text-white"></i>
                       </div>
+                      <h2 className="text-white mb-2 fw-bold count-up">
+                        <CountUp end={50} suffix="+" duration={2000} />
+                      </h2>
+                      <p className="text-white mb-0" style={{ fontSize: '14px' }}>Rides & Attractions</p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded bg-primary p-4 position-absolute d-flex justify-content-center" style={{ width: "90%", height: "80px", top: "-40px", left: "50%", transform: "translateX(-50%)" }}>
-                  <h3 className="mb-0 text-white">20 Years Experiance</h3>
-                </div>
               </div>
-            </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
       {/* About End */}
 
-      {/* Service Start */}
-      <div className="container-fluid service py-5">
-        <div className="container service-section py-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Our Service</h4>
-            <h1 className="display-5 text-white mb-4">Explore Waterland Park service</h1>
-            <p className="mb-0 text-white">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
-            </p>
-          </div>
-          <div className="row g-4">
-            <div className="col-0 col-md-1 col-lg-2 col-xl-2"></div>
-            <div className="col-md-10 col-lg-8 col-xl-8 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="service-days p-4">
-                <div className="py-2 border-bottom border-top d-flex align-items-center justify-content-between flex-wrap"><h4 className="mb-0 pb-2 pb-sm-0">Monday - Friday</h4> <p className="mb-0"><i className="fas fa-clock text-primary me-2"></i>11:00 AM - 16:00 PM</p></div>
-                <div className="py-2 border-bottom d-flex align-items-center justify-content-between flex-shrink-1 flex-wrap"><h4 className="mb-0 pb-2 pb-sm-0">Saturday - Sunday</h4> <p className="mb-0"><i className="fas fa-clock text-primary me-2"></i>09:00 AM - 17:00 PM</p></div>
-                <div className="py-2 border-bottom d-flex align-items-center justify-content-between flex-shrink-1 flex-wrap"><h4 className="mb-0">Holiday</h4> <p className="mb-0"><i className="fas fa-clock text-primary me-2"></i>09:00 AM - 17:00 PM</p></div>
-              </div>
-            </div>
-            <div className="col-0 col-md-1 col-lg-2 col-xl-2"></div>
-
-            <div className="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="service-item p-4">
-                <div className="service-content">
-                  <div className="mb-4">
-                    <i className="fas fa-home fa-4x"></i>
-                  </div>
-                  <a href="#" className="h4 d-inline-block mb-3">Private Gazebo</a>
-                  <p className="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Amet vel beatae numquam.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="service-item p-4">
-                <div className="service-content">
-                  <div className="mb-4">
-                    <i className="fas fa-utensils fa-4x"></i>
-                  </div>
-                  <a href="#" className="h4 d-inline-block mb-3">Delicious Food</a>
-                  <p className="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Amet vel beatae numquam.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="service-item p-4">
-                <div className="service-content">
-                  <div className="mb-4">
-                    <i className="fas fa-door-closed fa-4x"></i>
-                  </div>
-                  <a href="#" className="h4 d-inline-block mb-3">Safety Lockers</a>
-                  <p className="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Amet vel beatae numquam.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.8s">
-              <div className="service-item p-4">
-                <div className="service-content">
-                  <div className="mb-4">
-                    <i className="fas fa-swimming-pool fa-4x"></i>
-                  </div>
-                  <a href="#" className="h4 d-inline-block mb-3">River Rides</a>
-                  <p className="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Amet vel beatae numquam.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Service End */}
-
-      {/* Ticket Packages Start */}
-      <div className="container-fluid py-5">
-        <div className="container py-5">
-          <div className="row g-5 align-items-center">
-            <div className="col-lg-12 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="packages-item h-100">
-                <h4 className="text-primary">Ticket Packages</h4>
-                <h1 className="display-5 mb-4">Choose The Best Packages For Your Family</h1>
-                <p className="mb-4">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
-                </p>
-                <p><i className="fa fa-check text-primary me-2"></i>Best Waterpark in the world</p>
-                <p><i className="fa fa-check text-primary me-2"></i>Best Packages For Your Family</p>
-                <p><i className="fa fa-check text-primary me-2"></i>Enjoy Various Kinds of Water Park</p>
-                <p className="mb-5"><i className="fa fa-check text-primary me-2"></i>Win Up To 3 Free All Day Tickets</p>
-                <a href="#" className="btn btn-primary rounded-pill py-3 px-5"> Book Now</a>
-              </div>
-            </div>
-            <div className="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="pricing-item bg-dark rounded text-center p-5 h-100">
-                <div className="pb-4 border-bottom">
-                  <h2 className="mb-4 text-primary">Family Packages</h2>
-                  <p className="mb-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus, dolorum!</p>
-                  <h2 className="mb-0 text-primary">$260,90<span className="text-body fs-5 fw-normal">/family</span></h2>
-                </div>
-                <div className="py-4">
-                  <p className="mb-4"><i className="fa fa-check text-primary me-2"></i>All Access To Waterpark</p>
-                  <p className="mb-4"><i className="fa fa-check text-primary me-2"></i>Get Two Gazebo</p>
-                  <p className="mb-4"><i className="fa fa-check text-primary me-2"></i>Free Soft Drinks</p>
-                  <p className="mb-4"><i className="fa fa-check text-primary me-2"></i>Get Four Lockers</p>
-                  <p className="mb-4"><i className="fa fa-check text-primary me-2"></i>Free Four Towels</p>
-                </div>
-                <a href="#" className="btn btn-light rounded-pill py-3 px-5"> Book Now</a>
-              </div>
-            </div>
-            <div className="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="pricing-item bg-primary rounded text-center p-5 h-100">
-                <div className="pb-4 border-bottom">
-                  <h2 className="text-dark mb-4">Basic Packages</h2>
-                  <p className="text-white mb-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus, dolorum!</p>
-                  <h2 className="text-dark mb-0">$60,90<span className="text-white fs-5 fw-normal">/person</span></h2>
-                </div>
-                <div className="text-white py-4">
-                  <p className="mb-4"><i className="fa fa-check text-dark me-2"></i>Get Small Gazebo</p>
-                  <p className="mb-4"><i className="fa fa-check text-dark me-2"></i>Free Soft Drink</p>
-                  <p className="mb-4"><i className="fa fa-check text-dark me-2"></i>Get One Locker</p>
-                  <p className="mb-4"><i className="fa fa-check text-dark me-2"></i>Free Towel</p>
-                </div>
-                <a href="#" className="btn btn-dark rounded-pill py-3 px-5"> Book Now</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Ticket Packages End */}
-
       {/* Attractions Start */}
-      {/* TODO: Replace with React lib (Swiper/Lightbox) */}
-      <div className="container-fluid attractions py-5">
+      <div className="container-fluid attractions py-5" style={{ marginTop: '100px' }}>
         <div className="container attractions-section py-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Attractions</h4>
-            <h1 className="display-5 text-white mb-4">Explore WaterLand Park Attractions</h1>
-            <p className="text-white mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
+          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: '800px' }}>
+            <h4 className="text-primary mb-3">Attractions</h4>
+            <h1 className="display-5 text-white mb-4 fw-bold">Explore WaterLand Park Attractions</h1>
+            <p className="text-white mb-0 fs-5" style={{ lineHeight: '1.6' }}>
+              Keansburg Amusement Park & Runaway Rapids Waterpark have been family favorites for decades. With exciting rides, refreshing water attractions, and safe spaces for kids, it's the perfect summer destination.
             </p>
           </div>
+          
           <div className="owl-carousel attractions-carousel wow fadeInUp" data-wow-delay="0.1s">
-            <div className="attractions-item wow fadeInUp" data-wow-delay="0.2s">
-              <img src={imgAttraction1} className="img-fluid rounded w-100" alt="Attraction 1" />
-              <a href="#" className="attractions-name">Roller Coaster</a>
-            </div>
-            <div className="attractions-item wow fadeInUp" data-wow-delay="0.4s">
-              <img src={imgAttraction2} className="img-fluid rounded w-100" alt="Attraction 2" />
-              <a href="#" className="attractions-name">Carousel</a>
-            </div>
-            <div className="attractions-item wow fadeInUp" data-wow-delay="0.6s">
-              <img src={imgAttraction3} className="img-fluid rounded w-100" alt="Attraction 3" />
-              <a href="#" className="attractions-name">Arcade Game</a>
-            </div>
-            <div className="attractions-item wow fadeInUp" data-wow-delay="0.8s">
-              <img src={imgAttraction4} className="img-fluid rounded w-100" alt="Attraction 4" />
-              <a href="#" className="attractions-name">Hanging Carousel</a>
-            </div>
-            <div className="attractions-item wow fadeInUp" data-wow-delay="1s">
-              <img src={imgAttraction2} className="img-fluid rounded w-100" alt="Attraction 2" />
-              <a href="#" className="attractions-name">Carousel</a>
-            </div>
+            {/* Custom Navigation Arrows */}
+            <button 
+              className="btn btn-primary position-absolute owl-prev" 
+              style={{ 
+                top: '43%',
+                left: '3%',
+                backgroundColor: '#3CBEEE', 
+                color: 'white',
+                padding: '6px 35px',
+                borderRadius: '30px',
+                transition: '0.5s',
+                border: 'none'
+              }}
+              onClick={() => sliderRef?.slickPrev()}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.color = '#3CBEEE';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3CBEEE';
+                e.currentTarget.style.color = 'white';
+              }}
+            >
+              <i className="fas fa-chevron-left"></i>
+            </button>
+            <button 
+              className="btn btn-primary position-absolute owl-next" 
+              style={{ 
+                top: '43%',
+                right: '3%',
+                backgroundColor: '#3CBEEE', 
+                color: 'white',
+                padding: '6px 35px',
+                borderRadius: '30px',
+                transition: '0.5s',
+                border: 'none'
+              }}
+              onClick={() => sliderRef?.slickNext()}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.color = '#3CBEEE';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3CBEEE';
+                e.currentTarget.style.color = 'white';
+              }}
+            >
+              <i className="fas fa-chevron-right"></i>
+            </button>
+
+            <Slider 
+              ref={setSliderRef}
+              {...carouselSettings}
+              prevArrow={<div></div>}
+              nextArrow={<div></div>}
+            >
+              {/* Carousel Item 1 */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="0.2s">
+                  <img src={imgAttraction1} className="img-fluid rounded w-100" alt="Roller Coaster" style={{ height: '320px', objectFit: 'cover' }} />
+                  <a href="#" className="attractions-name">Carousel</a>
+                </div>
+              </div>
+
+              {/* Carousel Item 2 */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="0.4s">
+                  <img src={imgAttraction2} className="img-fluid rounded w-100" alt="Swing Ride" style={{ height: '320px', objectFit: 'cover' }} />
+                  <a href="#" className="attractions-name">Arcades</a>
+                </div>
+              </div>
+
+              {/* Carousel Item 3 */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="0.6s">
+                  <img src={imgAttraction3} className="img-fluid rounded w-100" alt="Arcade Games" style={{ height: '320px', objectFit: 'cover' }} />
+                  <a href="#" className="attractions-name">Hanging Carousel</a>
+                </div>
+              </div>
+
+              {/* Carousel Item 4 */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="0.8s">
+                  <img src={imgAttraction4} className="img-fluid rounded w-100" alt="Carousel" style={{ height: '320px', objectFit: 'cover' }} />
+                  <a href="#" className="attractions-name">Soaring Thunder</a>
+                </div>
+              </div>
+
+              {/* Carousel Item 5 */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="1s">
+                  <img src={imgAttraction5} className="img-fluid rounded w-100" alt="Water Slides" style={{ height: '320px', objectFit: 'cover' }} />
+                  <a href="#" className="attractions-name">Go Karts</a>
+                </div>
+              </div>
+            </Slider>
           </div>
         </div>
       </div>
       {/* Attractions End */}
 
-      {/* Gallery Start */}
-      {/* TODO: Replace with React lib (Swiper/Lightbox) */}
-      <div className="container-fluid gallery pb-5">
-        <div className="container pb-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Our Gallery</h4>
-            <h1 className="display-5 mb-4">Captured Moments In Waterland</h1>
-            <p className="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
-            </p>
+      {/* Restaurant & Dining Start */}
+     <div className="container-fluid restaurant py-5">
+  <div className="container py-5">
+    <ScrollAnimation
+      animation="fadeInUp"
+      delay={200}
+      className="text-center mx-auto pb-5"
+      style={{ maxWidth: "800px" }}
+    >
+      <h4
+        className="text-primary mb-3"
+        style={{ fontSize: "16px", letterSpacing: "1px" }}
+      >
+        Restaurant & Dining
+      </h4>
+      <h1 className="display-5 mb-4 fw-bold">Taste the Flavors at Keansburg</h1>
+      <p className="mb-0 fs-5" style={{ color: "#666666", lineHeight: "1.6" }}>
+        From quick bites to family dining – we've got it all.
+      </p>
+    </ScrollAnimation>
+
+    {/* Row chỉnh stretch để 2 ô cao bằng nhau */}
+    <div className="row g-5 align-items-stretch">
+      
+      {/* Card bên trái */}
+      <ScrollAnimation animation="fadeInLeft" delay={200} className="col-lg-6">
+        <div
+          className="bg-primary rounded p-5 h-100 text-center"
+          style={{ backgroundColor: "#3CBEEE" }}
+        >
+          <div className="d-flex flex-column h-100">
+            <div className="dining-options mb-4">
+              <div className="d-flex align-items-center justify-content-center mb-4">
+                <i className="fas fa-utensils fa-2x text-white me-3"></i>
+                <div className="text-center">
+                  <h5 className="text-white fw-bold mb-1">Boardwalk Bites</h5>
+                  <p className="text-white-50 mb-0">Quick snacks & drinks</p>
+                </div>
+              </div>
+              <div className="d-flex align-items-center justify-content-center mb-4">
+                <i className="fas fa-pizza-slice fa-2x text-white me-3"></i>
+                <div className="text-center">
+                  <h5 className="text-white fw-bold mb-1">Pizza Palace</h5>
+                  <p className="text-white-50 mb-0">Family pizza dining</p>
+                </div>
+              </div>
+              <div className="d-flex align-items-center justify-content-center mb-4">
+                <i className="fas fa-hamburger fa-2x text-white me-3"></i>
+                <div className="text-center">
+                  <h5 className="text-white fw-bold mb-1">Burger Shack</h5>
+                  <p className="text-white-50 mb-0">Classic burgers & fries</p>
+                </div>
+              </div>
+              <div className="d-flex align-items-center justify-content-center mb-4">
+                <i className="fas fa-cocktail fa-2x text-white me-3"></i>
+                <div className="text-center">
+                  <h5 className="text-white fw-bold mb-1">Refreshing Drinks</h5>
+                  <p className="text-white-50 mb-0">Sodas, juices & mocktails</p>
+                </div>
+              </div>
+              <div className="d-flex align-items-center justify-content-center mb-5">
+                <i className="fas fa-ice-cream fa-2x text-white me-3"></i>
+                <div className="text-center">
+                  <h5 className="text-white fw-bold mb-1">Sweet Treats</h5>
+                  <p className="text-white-50 mb-0">Ice cream & desserts</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-auto d-flex justify-content-center">
+              <Link to="/restaurant" className="btn btn-dark rounded-pill py-2 px-4">
+                View All <i className="fas fa-arrow-right ms-2"></i>
+              </Link>
+            </div>
           </div>
+        </div>
+      </ScrollAnimation>
+
+      {/* Card bên phải */}
+      <ScrollAnimation animation="fadeInRight" delay={400} className="col-lg-6">
+        <div
+          className="bg-primary rounded p-5 text-center h-100"
+          style={{ backgroundColor: "#3CBEEE" }}
+        >
+          <h3 className="text-white mb-4 fw-bold">Taste the Fun!</h3>
+          <div className="position-relative mb-4">
+            <Slider ref={setRestaurantSliderRef} {...restaurantCarouselSettings}>
+              <div>
+                <img
+                  src={imgRes1}
+                  className="img-fluid rounded"
+                  alt="Featured Pizza"
+                  style={{ height: "300px", objectFit: "cover", width: "100%" }}
+                />
+              </div>
+              <div>
+                <img
+                  src={imgRes2}
+                  className="img-fluid rounded"
+                  alt="Gourmet Burger"
+                  style={{ height: "300px", objectFit: "cover", width: "100%" }}
+                />
+              </div>
+              <div>
+                <img
+                  src={imgRes3}
+                  className="img-fluid rounded"
+                  alt="Ice Cream Sundae"
+                  style={{ height: "300px", objectFit: "cover", width: "100%" }}
+                />
+              </div>
+            </Slider>
+          </div>
+          <Link to="/restaurant" className="btn btn-dark rounded-pill py-2 px-4">
+            View Full Menu <i className="fas fa-arrow-right ms-2"></i>
+          </Link>
+        </div>
+      </ScrollAnimation>
+    </div>
+  </div>
+</div>
+{/* Restaurant & Dining End */}
+
+
+      {/* Gallery Start */}
+      <div className="container-fluid gallery py-5">
+        <div className="container py-5">
+          <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
+            <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Our Gallery</h4>
+            <h1 className="display-5 mb-4 fw-bold">Captured Moments in Keansburg</h1>
+            <p className="mb-0 fs-5" style={{ color: '#666666', lineHeight: '1.6' }}>
+              Discover the joy and excitement through our visitors' favorite moments. From thrilling water slides and relaxing pools to family fun at the kiddie lagoon, every picture tells a story of summer fun memories at Keansburg.
+            </p>
+          </ScrollAnimation>
           <div className="row g-4">
-            <div className="col-md-6 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="gallery-item">
-                <img src={imgGallery1} className="img-fluid rounded w-100 h-100" alt="Gallery 1" />
-                <div className="search-icon">
-                  <a href={imgGallery1} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-1"><i className="fas fa-search-plus"></i></a>
+            <ScrollAnimation animation="zoomIn" delay={200} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery1} className="img-fluid rounded w-100" alt="Gallery 1" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery1)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="gallery-item">
-                <img src={imgGallery2} className="img-fluid rounded w-100 h-100" alt="Gallery 2" />
-                <div className="search-icon">
-                  <a href={imgGallery2} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-2"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery2} className="img-fluid rounded w-100" alt="Gallery 2" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery2)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="gallery-item">
-                <img src={imgGallery3} className="img-fluid rounded w-100 h-100" alt="Gallery 3" />
-                <div className="search-icon">
-                  <a href={imgGallery3} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-3"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery3} className="img-fluid rounded w-100" alt="Gallery 3" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery3)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="gallery-item">
-                <img src={imgGallery4} className="img-fluid rounded w-100 h-100" alt="Gallery 4" />
-                <div className="search-icon">
-                  <a href={imgGallery4} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-4"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery4} className="img-fluid rounded w-100" alt="Gallery 4" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery4)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="gallery-item">
-                <img src={imgGallery5} className="img-fluid rounded w-100 h-100" alt="Gallery 5" />
-                <div className="search-icon">
-                  <a href={imgGallery5} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-5"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery5} className="img-fluid rounded w-100" alt="Gallery 5" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery5)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="gallery-item">
-                <img src={imgGallery6} className="img-fluid rounded w-100 h-100" alt="Gallery 6" />
-                <div className="search-icon">
-                  <a href={imgGallery6} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-6"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="zoomIn" delay={600} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery6} className="img-fluid rounded w-100" alt="Gallery 6" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery6)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
       {/* Gallery End */}
 
-      {/* Blog Start */}
-      <div className="container-fluid blog pb-5">
-        <div className="container pb-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Our Blog</h4>
-            <h1 className="display-5 mb-4">Latest Blog & Articles</h1>
-            <p className="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
-            </p>
-          </div>
-          <div className="row g-4">
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="blog-item">
-                <div className="blog-img">
-                  <a href="#">
-                    <img src={imgBlog2} className="img-fluid w-100 rounded-top" alt="Blog 2" />
-                  </a>
-                  <div className="blog-category py-2 px-4">Vacation</div>
-                  <div className="blog-date"><i className="fas fa-clock me-2"></i>August 19, 2025</div>
-                </div>
-                <div className="blog-content p-4">
-                  <a href="#" className="h4 d-inline-block mb-4">Why Children Dont Like Getting Out Of The Water</a>
-                  <p className="mb-4">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam aspernatur nam quidem porro sapiente, neque a quibusdam....
-                  </p>
-                  <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fas fa-arrow-right ms-2"></i></a>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="blog-item">
-                <div className="blog-img">
-                  <a href="#">
-                    <img src={imgBlog3} className="img-fluid w-100 rounded-top" alt="Blog 3" />
-                  </a>
-                  <div className="blog-category py-2 px-4">Insight</div>
-                  <div className="blog-date"><i className="fas fa-clock me-2"></i>August 19, 2025</div>
-                </div>
-                <div className="blog-content p-4">
-                  <a href="#" className="h4 d-inline-block mb-4">5 Ways To Enjoy Waterland This Spring Break</a>
-                  <p className="mb-4">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam aspernatur nam quidem porro sapiente, neque a quibusdam....
-                  </p>
-                  <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fas fa-arrow-right ms-2"></i></a>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="blog-item">
-                <div className="blog-img">
-                  <a href="#">
-                    <img src={imgBlog1} className="img-fluid w-100 rounded-top" alt="Blog 1" />
-                  </a>
-                  <div className="blog-category py-2 px-4">Insight</div>
-                  <div className="blog-date"><i className="fas fa-clock me-2"></i>August 19, 2025</div>
-                </div>
-                <div className="blog-content p-4">
-                  <a href="#" className="h4 d-inline-block mb-4">3 Tips for Your Family Spring Break at Amusement Park</a>
-                  <p className="mb-4">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam aspernatur nam quidem porro sapiente, neque a quibusdam....
-                  </p>
-                  <a href="#" className="btn btn-primary rounded-pill py-2 px-4">Read More <i className="fas fa-arrow-right ms-2"></i></a>
-                </div>
-              </div>
-            </div>
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1050 }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div
+            className="bg-white rounded position-relative"
+            style={{ padding: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={selectedImage} alt="Preview" style={{ display: 'block', maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain' }} />
+            <button
+              type="button"
+              className="btn btn-light position-absolute"
+              style={{ top: 8, right: 8 }}
+              onClick={() => setSelectedImage(null)}
+              aria-label="Close"
+            >
+              <i className="fas fa-times"></i>
+            </button>
           </div>
         </div>
-      </div>
-      {/* Blog End */}
+      )}
 
       {/* Team Start */}
-      <div className="container-fluid team pb-5">
-        <div className="container pb-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Meet Our Team</h4>
-            <h1 className="display-5 mb-4">Our Waterland Park Dedicated Team Member</h1>
-            <p className="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
+      <div className="container-fluid team py-5" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="container py-5">
+          <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
+            <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Meet Our Team</h4>
+            <h1 className="display-5 mb-4 fw-bold">The Creative Minds Behind This Website</h1>
+            <p className="mb-0 fs-5" style={{ color: '#666666', lineHeight: '1.6' }}>
+              We're not just coders - we're bug fighters, coffee drinkers, and late-night debuggers. Here's the team who brought this project to life.
             </p>
-          </div>
+          </ScrollAnimation>
           <div className="row g-4 justify-content-center">
-            <div className="col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="team-item p-4">
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-6 col-lg-4 col-xl-2">
+              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
                 <div className="team-content">
-                  <div className="d-flex justify-content-between border-bottom pb-4">
-                    <div className="text-start">
-                      <h4 className="mb-0">David James</h4>
-                      <p className="mb-0">Profession</p>
-                    </div>
-                    <div>
-                      <img src={imgTeam1} className="img-fluid rounded" style={{ width: "100px", height: "100px" }} alt="Team 1" />
-                    </div>
-                  </div>
-                  <div className="team-icon rounded-pill my-4 p-3">
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-facebook-f"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-twitter"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-linkedin-in"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-0" href=""><i className="fab fa-instagram"></i></a>
-                  </div>
-                  <p className="text-center mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quibusdam eveniet itaque provident sequi deserunt.
-                  </p>
+                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Công Minh</h5>
+                  <p className="mb-0" style={{ color: '#666666' }}>Project Leader</p>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="team-item p-4">
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-6 col-lg-4 col-xl-2">
+              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
                 <div className="team-content">
-                  <div className="d-flex justify-content-between border-bottom pb-4">
-                    <div className="text-start">
-                      <h4 className="mb-0">William John</h4>
-                      <p className="mb-0">Profession</p>
-                    </div>
-                    <div>
-                      <img src={imgTeam2} className="img-fluid rounded" style={{ width: "100px", height: "100px" }} alt="Team 2" />
-                    </div>
-                  </div>
-                  <div className="team-icon rounded-pill my-4 p-3">
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-facebook-f"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-twitter"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-linkedin-in"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-0" href=""><i className="fab fa-instagram"></i></a>
-                  </div>
-                  <p className="text-center mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quibusdam eveniet itaque provident sequi deserunt.
-                  </p>
+                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Trường Tam</h5>
+                  <p className="mb-0" style={{ color: '#666666' }}>Frontend Developer</p>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="team-item p-4">
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-6 col-lg-4 col-xl-2">
+              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
                 <div className="team-content">
-                  <div className="d-flex justify-content-between border-bottom pb-4">
-                    <div className="text-start">
-                      <h4 className="mb-0">Michael John</h4>
-                      <p className="mb-0">Profession</p>
-                    </div>
-                    <div>
-                      <img src={imgTeam3} className="img-fluid rounded" style={{ width: "100px", height: "100px" }} alt="Team 3" />
-                    </div>
-                  </div>
-                  <div className="team-icon rounded-pill my-4 p-3">
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-facebook-f"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-twitter"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-3" href=""><i className="fab fa-linkedin-in"></i></a>
-                    <a className="btn btn-primary btn-sm-square rounded-circle me-0" href=""><i className="fab fa-instagram"></i></a>
-                  </div>
-                  <p className="text-center mb-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quibusdam eveniet itaque provident sequi deserunt.
-                  </p>
+                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Xuân Quang</h5>
+                  <p className="mb-0" style={{ color: '#666666' }}>Backend Developer</p>
                 </div>
               </div>
-            </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={800} className="col-md-6 col-lg-4 col-xl-2">
+              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+                <div className="team-content">
+                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Thái Hải</h5>
+                  <p className="mb-0" style={{ color: '#666666' }}>Designer</p>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={1000} className="col-md-6 col-lg-4 col-xl-2">
+              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+                <div className="team-content">
+                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Sỹ Sơn</h5>
+                  <p className="mb-0" style={{ color: '#666666' }}>Tester / QA</p>
+                </div>
+              </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
       {/* Team End */}
 
-      {/* Testimonial Start */}
-      {/* TODO: Replace with React lib (Swiper/Lightbox) */}
-      <div className="container-fluid testimonial py-5">
+      {/* Feedback Form Start */}
+      <div className="container-fluid feedback py-5" style={{ backgroundColor: '#f8f9fa' }}>
         <div className="container py-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Testimonials</h4>
-            <h1 className="display-5 text-white mb-4">Our Clients Riviews</h1>
-            <p className="text-white mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
-            </p>
-          </div>
-          <div className="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.2s">
-            <div className="testimonial-item p-4">
-              <p className="text-white fs-4 mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos mollitia fugiat, nihil autem reprehenderit aperiam maxime minima consequatur, nam iste eius velit perferendis voluptatem at atque neque soluta reiciendis doloremque.
-              </p>
-              <div className="testimonial-inner">
-                <div className="testimonial-img">
-                  <img src={imgTestimonial1} className="img-fluid" alt="Testimonial 1" />
-                  <div className="testimonial-quote btn-lg-square rounded-circle"><i className="fa fa-quote-right fa-2x"></i>
-                  </div>
+          <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
+            <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Feedback</h4>
+            <h1 className="display-5 mb-4 fw-bold">Leave Your Feedback and Review</h1>
+          </ScrollAnimation>
+          <div className="row justify-content-center">
+            <ScrollAnimation animation="slideInUp" delay={400} className="col-lg-10">
+              <div className="rounded p-5" style={{ backgroundColor: '#3CBEEE', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+                <div className="text-center mb-4">
+                  <h3 className="text-white fw-bold mb-0" style={{ fontSize: '24px' }}>Leave Your Feedback and Review</h3>
                 </div>
-                <div className="ms-4">
-                  <h4>Person Name</h4>
-                  <p className="text-start text-white">Profession</p>
-                  <div className="d-flex text-primary">
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star text-white"></i>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget as HTMLFormElement;
+                  const payload = {
+                    name: (form.querySelector('#fb-name') as HTMLInputElement)?.value || '',
+                    email: (form.querySelector('#fb-email') as HTMLInputElement)?.value || '',
+                    message: (form.querySelector('#fb-message') as HTMLTextAreaElement)?.value || '',
+                    rating: rating || 5,
+                  };
+                  setSubmitState({status:'loading'});
+                  try {
+                    const json = await fetchJson('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (json.status === 'success') {
+                      setSubmitState({status:'success', message:'Thanks for your feedback!'});
+                      form.reset();
+                      setRating(0);
+                      // refresh list
+                      const r = await fetchJson('/api/reviews?limit=8');
+                      if (r.status === 'success') setReviews(r.data || []);
+                    } else {
+                      setSubmitState({status:'error', message: json.message || 'Submit failed'});
+                    }
+                  } catch (err) {
+                    setSubmitState({status:'error', message:'Network error'});
+                  }
+                }}>
+                  <div className="row g-3">
+                    <div className="col-md-4">
+                      <input id="fb-name" type="text" className="form-control border-0 py-3 rounded" placeholder="Your Name" style={{ backgroundColor: 'white' }} />
+                    </div>
+                    <div className="col-md-4">
+                      <input id="fb-email" type="email" className="form-control border-0 py-3 rounded" placeholder="Your Email" style={{ backgroundColor: 'white' }} />
+                    </div>
+                    <div className="col-md-4">
+                      <div className="d-flex align-items-center h-100">
+                        <div className="rating d-flex align-items-center">
+                          <div className="d-flex">
+                            {[1,2,3,4,5].map((star) => (
+                              <i
+                                key={star}
+                                className={`fas fa-star fa-2x me-1 ${ (hoverRating || rating) >= star ? 'text-warning' : 'text-white' }`}
+                                style={{ cursor: 'pointer', transition: 'transform 0.15s ease' }}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                onClick={() => setRating(star)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setRating(star); }}
+                                onFocus={() => setHoverRating(star)}
+                                onBlur={() => setHoverRating(0)}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                                aria-label={`Đánh giá ${star} sao`}
+                              ></i>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <textarea 
+                        id="fb-message"
+                        className="form-control border-0 py-3 rounded" 
+                        rows={4} 
+                        placeholder="Your Feedback...." 
+                        style={{ backgroundColor: 'white' }}
+                      ></textarea>
+                    </div>
+                    <div className="col-12 d-flex align-items-center justify-content-between flex-wrap" style={{ rowGap: '10px' }}>
+                      <button
+                        type="submit"
+                        className="btn py-3 px-5 text-white fw-bold rounded"
+                        style={{ backgroundColor: '#021016', fontSize: '16px' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'white';
+                          e.currentTarget.style.borderColor = '#3CBEEE';
+                          e.currentTarget.classList.remove('text-white');
+                          e.currentTarget.classList.add('text-primary');
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#021016';
+                          e.currentTarget.style.borderColor = '#021016';
+                          e.currentTarget.classList.remove('text-primary');
+                          e.currentTarget.classList.add('text-white');
+                        }}
+                      >
+                        {submitState.status === 'loading' ? 'Sending...' : 'Send Feedback'}
+                      </button>
+                      {submitState.status !== 'idle' && (
+                        <span
+                          className="px-3 py-2 rounded"
+                          style={{
+                            backgroundColor: submitState.status === 'success' ? '#d1e7dd' : submitState.status === 'error' ? '#f8d7da' : '#e2e3e5',
+                            color: submitState.status === 'success' ? '#0f5132' : submitState.status === 'error' ? '#842029' : '#41464b',
+                            fontWeight: 600,
+                            minWidth: '220px',
+                            textAlign: 'center'
+                          }}
+                        >
+                          {submitState.message || (submitState.status === 'loading' ? 'Sending...' : '')}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </form>
               </div>
-            </div>
-            <div className="testimonial-item p-4">
-              <p className="text-white fs-4 mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos mollitia fugiat, nihil autem reprehenderit aperiam maxime minima consequatur, nam iste eius velit perferendis voluptatem at atque neque soluta reiciendis doloremque.
-              </p>
-              <div className="testimonial-inner">
-                <div className="testimonial-img">
-                  <img src={imgTestimonial2} className="img-fluid" alt="Testimonial 2" />
-                  <div className="testimonial-quote btn-lg-square rounded-circle"><i className="fa fa-quote-right fa-2x"></i>
-                  </div>
-                </div>
-                <div className="ms-4">
-                  <h4>Person Name</h4>
-                  <p className="text-start text-white">Profession</p>
-                  <div className="d-flex text-primary">
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star text-white"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="testimonial-item p-4">
-              <p className="text-white fs-4 mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos mollitia fugiat, nihil autem reprehenderit aperiam maxime minima consequatur, nam iste eius velit perferendis voluptatem at atque neque soluta reiciendis doloremque.
-              </p>
-              <div className="testimonial-inner">
-                <div className="testimonial-img">
-                  <img src={imgTestimonial3} className="img-fluid" alt="Testimonial 3" />
-                  <div className="testimonial-quote btn-lg-square rounded-circle"><i className="fa fa-quote-right fa-2x"></i>
-                  </div>
-                </div>
-                <div className="ms-4">
-                  <h4>Person Name</h4>
-                  <p className="text-start text-white">Profession</p>
-                  <div className="d-flex text-primary">
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star"></i>
-                    <i className="fas fa-star text-white"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
-      {/* Testimonial End */}
+      {/* Feedback Form End */}
+
+      {/* Customer Reviews Start */}
+      <div className="container-fluid testimonial py-5" style={{ 
+        backgroundImage: `url(${imgTestimonial})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center', 
+        position: 'relative',
+        animation: 'backgroundZoom 8s ease-in-out infinite'
+      }}>
+        <div className="container py-5 position-relative" style={{ zIndex: 2 }}>
+          <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
+            <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Customer Reviews</h4>
+            <h1 className="display-5 text-white mb-4 fw-bold">What Our Customers Say</h1>
+          </ScrollAnimation>
+          <ScrollAnimation animation="fadeInUp" delay={400} className="row justify-content-center">
+            <div className="col-lg-10">
+              {reviews.length === 0 ? (
+                <div className="text-center text-white-50">No reviews yet. Be the first to leave feedback!</div>
+              ) : (
+                <Slider {...reviewSliderSettings}>
+                  {reviews.map((r) => {
+                    const masked = r.email.replace(/(^.)[^@]*(@.*$)/, (_, a, b) => a + '***' + b);
+                    return (
+                      <div key={r.id}>
+                        <div className="testimonial-item bg-white rounded p-5 text-center" style={{ backdropFilter: 'blur(10px)', opacity: 0.95 }}>
+                          <div className="mb-3">
+                            <i className="fa fa-quote-right fa-2x" style={{ color: '#3CBEEE' }}></i>
+                          </div>
+                          <p className="fs-5 mb-3" style={{ color: '#666666', fontStyle: 'italic' }}>{r.message}</p>
+                          <div className="testimonial-author">
+                            <h5 className="fw-bold mb-1">{r.name}</h5>
+                            <p className="mb-2" style={{ color: '#666666' }}>{masked}</p>
+                            <div className="d-flex justify-content-center text-warning">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <i key={i} className={`fas fa-star${i < r.rating ? '' : '-o'}`}></i>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </Slider>
+              )}
+            </div>
+          </ScrollAnimation>
+        </div>
+        {/* Overlay */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1 }}></div>
+      </div>
+      {/* Customer Reviews End */}
 
       {/* Footer removed: using global layout Footer */}
 
-      {/* Back to Top */}
-      <a href="#" className="btn btn-primary btn-lg-square rounded-circle back-to-top"><i className="fa fa-arrow-up"></i></a>   
     </>
   );
 }

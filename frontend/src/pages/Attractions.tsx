@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import imgAttraction1 from "../assets/img/attraction-1.jpg";
-import imgAttraction2 from "../assets/img/attraction-2.jpg";
-import imgAttraction3 from "../assets/img/attraction-3.jpg";
-import imgAttraction4 from "../assets/img/attraction-4.jpg";
+import imgAttraction1 from "../assets/img/home-attraction-1.jpg";
+import imgAttraction2 from "../assets/img/home-attraction-2.jpg";
+import imgAttraction3 from "../assets/img/home-attraction-3.jpg";
+import imgAttraction4 from "../assets/img/home-attraction-4.jpg";
 import imgPayment from "../assets/img/payment.png";
 
 export default function Attractions() {

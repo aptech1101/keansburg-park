@@ -1,16 +1,19 @@
 /// <reference types="vite/client" />
+import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import imgGallery1 from "../assets/img/gallery-1.jpg";
-import imgGallery2 from "../assets/img/gallery-2.jpg";
-import imgGallery3 from "../assets/img/gallery-3.jpg";
-import imgGallery4 from "../assets/img/gallery-4.jpg";
-import imgGallery5 from "../assets/img/gallery-5.jpg";
-import imgGallery6 from "../assets/img/gallery-6.jpg";
-import imgPayment from "../assets/img/payment.png";
+import ScrollAnimation from "../components/ScrollAnimation";
+import imgBanner from "../assets/img/page-banner.png";
+import imgGallery1 from "../assets/img/home-gallery-1.png";
+import imgGallery2 from "../assets/img/home-gallery-2.png";
+import imgGallery3 from "../assets/img/home-gallery-3.png";
+import imgGallery4 from "../assets/img/home-gallery-4.jpg";
+import imgGallery5 from "../assets/img/home-gallery-5.png";
+import imgGallery6 from "../assets/img/home-gallery-6.png";
 
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
@@ -31,82 +34,137 @@ export default function Gallery() {
 
       {/* Navbar removed: using global layout Navbar */}
 
-      {/* Header Start */}
-      <div className="container-fluid bg-breadcrumb">
-        <div className="container text-center py-5" style={{ maxWidth: "900px" }}>
-          <h4 className="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Our Gallery</h4>
-          <ol className="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
-            <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-            <li className="breadcrumb-item"><a href="#">Pages</a></li>
-            <li className="breadcrumb-item active text-primary">Gallery</li>
-          </ol>    
+      {/* Banner Section */}
+      <div className="bg-breadcrumb position-relative" style={{
+        backgroundImage: `url(${imgBanner})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}></div>
+        <div className="container position-relative" style={{ zIndex: 2 }}>
+          <div className="row">
+            <div className="col-12 text-center text-white">
+               <h1 className="display-4 fw-bold mb-3 text-white">Our Gallery</h1>
+              <nav aria-label="breadcrumb">
+                <ol className="breadcrumb justify-content-center">
+                  <li className="breadcrumb-item">
+                    <Link to="/" className="text-white text-decoration-none">Home</Link>
+                  </li>
+                  <li className="breadcrumb-item">
+                    <Link to="/gallery" className="text-white text-decoration-none">Pages</Link>
+                  </li>
+                  <li className="breadcrumb-item active text-white" aria-current="page">Gallery</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Header End */}
 
       {/* Gallery Start */}
       <div className="container-fluid gallery py-5">
         <div className="container py-5">
-          <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{ maxWidth: "800px" }}>
-            <h4 className="text-primary">Our Gallery</h4>
-            <h1 className="display-5 mb-4">Captured Moments In Waterland</h1>
-            <p className="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
+          <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
+            <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Our Gallery</h4>
+            <h1 className="display-5 mb-4 fw-bold">Captured Moments in Keansburg</h1>
+            <p className="mb-0 fs-5" style={{ color: '#666666', lineHeight: '1.6' }}>
+              Discover the joy and excitement through our visitors' favorite moments. From thrilling water slides and relaxing pools to family fun at the kiddie lagoon, every picture tells a story of summer fun memories at Keansburg.
             </p>
-          </div>
-          {/* TODO: Replace with React Lightbox (e.g., yet-another-react-lightbox) */}
+          </ScrollAnimation>
           <div className="row g-4">
-            <div className="col-md-6 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="gallery-item">
-                <img src={imgGallery1} className="img-fluid rounded w-100 h-100" alt="Gallery 1" />
-                <div className="search-icon">
-                  <a href={imgGallery1} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-1"><i className="fas fa-search-plus"></i></a>
+            <ScrollAnimation animation="zoomIn" delay={200} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery1} className="img-fluid rounded w-100" alt="Gallery 1" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery1)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="gallery-item">
-                <img src={imgGallery2} className="img-fluid rounded w-100 h-100" alt="Gallery 2" />
-                <div className="search-icon">
-                  <a href={imgGallery2} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-2"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery2} className="img-fluid rounded w-100" alt="Gallery 2" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery2)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="gallery-item">
-                <img src={imgGallery3} className="img-fluid rounded w-100 h-100" alt="Gallery 3" />
-                <div className="search-icon">
-                  <a href={imgGallery3} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-3"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery3} className="img-fluid rounded w-100" alt="Gallery 3" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery3)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.2s">
-              <div className="gallery-item">
-                <img src={imgGallery4} className="img-fluid rounded w-100 h-100" alt="Gallery 4" />
-                <div className="search-icon">
-                  <a href={imgGallery4} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-4"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery4} className="img-fluid rounded w-100" alt="Gallery 4" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery4)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-3 wow fadeInUp" data-wow-delay="0.4s">
-              <div className="gallery-item">
-                <img src={imgGallery5} className="img-fluid rounded w-100 h-100" alt="Gallery 5" />
-                <div className="search-icon">
-                  <a href={imgGallery5} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-5"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery5} className="img-fluid rounded w-100" alt="Gallery 5" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery5)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 wow fadeInUp" data-wow-delay="0.6s">
-              <div className="gallery-item">
-                <img src={imgGallery6} className="img-fluid rounded w-100 h-100" alt="Gallery 6" />
-                <div className="search-icon">
-                  <a href={imgGallery6} className="btn btn-light btn-lg-square rounded-circle" data-lightbox="Gallery-6"><i className="fas fa-search-plus"></i></a>
+            </ScrollAnimation>
+            <ScrollAnimation animation="zoomIn" delay={600} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery6} className="img-fluid rounded w-100" alt="Gallery 6" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery6)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
                 </div>
               </div>
-            </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
       {/* Gallery End */}
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1050 }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div
+            className="bg-white rounded position-relative"
+            style={{ padding: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={selectedImage} alt="Preview" style={{ display: 'block', maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain' }} />
+            <button
+              type="button"
+              className="btn btn-light position-absolute"
+              style={{ top: 8, right: 8 }}
+              onClick={() => setSelectedImage(null)}
+              aria-label="Close"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer removed: using global layout Footer */}
 
