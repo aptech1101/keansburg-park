@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
                 <a href="#"><i className="fas fa-angle-right me-2"></i> Feature</a>
                 <a href="#"><i className="fas fa-angle-right me-2"></i> Attractions</a>
                 <a href="#"><i className="fas fa-angle-right me-2"></i> Tickets</a>
-                <a href="#"><i className="fas fa-angle-right me-2"></i> Blog</a>
+                <a href="#/cart"><i className="fas fa-angle-right me-2"></i> Cart</a>
                 <a href="#"><i className="fas fa-angle-right me-2"></i> Contact us</a>
               </div>
             </div>

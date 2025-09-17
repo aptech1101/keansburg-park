@@ -16,6 +16,8 @@ import NotFound from './pages/NotFound';
 import SignUp from './pages/SignUp';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
+import Cart from './pages/Cart';
+import CheckoutPage from './pages/Checkout';
 
 // Minimal account page placeholder (private route target)
 const AccountPage: React.FC = () => {
@@ -57,6 +59,8 @@ const AppRoutes: React.FC = () => {
           <Route path="/services" element={<Services />} />
           <Route path="/team" element={<Team />} />
           <Route path="/review" element={<Review />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
 
           {/* Auth routes */}
           <Route path="/signup" element={<SignUp />} />

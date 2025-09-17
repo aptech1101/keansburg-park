@@ -1,20 +1,23 @@
 <?php
-// backend/config/db.php
+$config  = require __DIR__ . '/config.php';
 
-declare(strict_types=1);
+$host    = $config['db']['host'];
+$port    = (int)$config['db']['port'];
+$name    = $config['db']['name'];
+$user    = $config['db']['user'];
+$pass    = $config['db']['pass'];
+$charset = $config['db']['charset'];
 
-$config = require __DIR__ . '/config.php';
-$db = $config['db'];
-
-$dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $db['host'], $db['port'], $db['name'], $db['charset']);
+$dsn = "mysql:host={$host};port={$port};dbname={$name};charset={$charset}";
 
 try {
-    $GLOBALS['pdo'] = new PDO($dsn, $db['user'], $db['pass'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
+  $pdo = new PDO($dsn, $user, $pass, [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+  ]);
+  return $pdo;
 } catch (Throwable $e) {
-    $GLOBALS['pdo'] = null;
+  error_log('[DB] ' . $e->getMessage());
+  // Để API còn trả lỗi chi tiết trong DEV (try/catch ở file API sẽ đọc message này)
+  throw new RuntimeException('DB_CONNECT_ERROR: ' . $e->getMessage(), 0, $e);
 }
-
-

@@ -62,7 +62,7 @@ export default function Home() {
               <Link to="/" className="nav-item nav-link active">Home</Link>
               <Link to="/about" className="nav-item nav-link">About</Link>
               <Link to="/services" className="nav-item nav-link">Service</Link>
-              <Link to="/blog" className="nav-item nav-link">Blog</Link>
+              <Link to="/cart" className="nav-item nav-link">Cart</Link>
               <div className="nav-item dropdown">
                 <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                 <div className="dropdown-menu m-0">
