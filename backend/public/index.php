@@ -26,7 +26,15 @@ function send_json($data, int $status = 200): void {
 switch ($path) {
     case '':
     case '/':
-        send_json(['ok' => true, 'service' => 'KeansburgPark API', 'routes' => ['/api/users', '/api/orders', '/api/tickets']]);
+        send_json(['ok' => true, 'service' => 'KeansburgPark API', 'routes' => ['/api/auth/login', '/api/auth/signup', '/api/users', '/api/orders', '/api/tickets']]);
+        break;
+
+    case '/api/auth/login':
+        require_once __DIR__ . '/api/auth/login.php';
+        break;
+
+    case '/api/auth/signup':
+        require_once __DIR__ . '/api/auth/signup.php';
         break;
 
     case '/api/users':
