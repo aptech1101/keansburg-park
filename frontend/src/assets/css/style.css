@@ -17,10 +17,24 @@
 
 .back-to-top {
     position: fixed;
-    right: 30px;
-    bottom: 30px;
-    transition: 0.5s;
-    z-index: 99;
+    right: 30px !important;
+    left: auto !important;
+    bottom: 30px !important;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.back-to-top.show { }
+
+.back-to-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 
 /*** Button Start ***/
@@ -395,7 +409,6 @@
 .bg-breadcrumb {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(../img/carousel-1.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -2152,6 +2165,33 @@ h4.text-primary.mb-3 {
     .header-carousel .ticket-form { max-width: 100%; width: 100% !important; margin: 12px auto !important; padding: 16px !important; }
 }
 
+/* ===== Hero banner & ticket form – mobile fit overrides ===== */
+@media (max-width: 576px) {
+    .header-carousel, 
+    .header-carousel .header-carousel-item {
+        height: auto !important;
+        max-height: none !important;
+    }
+    .header-carousel .header-carousel-item img {
+        height: auto !important;
+        min-height: 360px;
+        object-fit: cover !important;
+    }
+    .header-carousel .carousel-caption {
+        position: relative !important;
+        height: auto !important;
+        padding-top: 72px !important;
+        padding-bottom: 16px !important;
+        align-items: flex-start !important;
+    }
+    .header-carousel .carousel-caption h1 { font-size: 1.6rem !important; line-height: 1.25 !important; }
+    .header-carousel .carousel-caption p { font-size: 0.95rem !important; }
+    .header-carousel .ticket-form { width: 100% !important; max-width: 100% !important; padding: 16px !important; margin: 12px 0 !important; }
+    .header-carousel .ticket-form .form-control,
+    .header-carousel .ticket-form .form-select { height: 44px; font-size: 14px; }
+    .header-carousel .ticket-form .btn { padding: 10px 14px; font-size: 14px; }
+}
+
 /* Mobile: place two logos inline inside navbar brand */
 @media (max-width: 576px) {
     .navbar .navbar-brand { display: flex; align-items: center; gap: 8px; }
@@ -2524,7 +2564,8 @@ h4.text-primary.mb-3 {
 }
 
 .attractions .attractions-item:hover {
-    transform: translateY(-10px);
+    /* Keep position fixed on hover per request */
+    transform: none !important;
     box-shadow: 0 15px 35px rgba(0,0,0,0.3);
 }
 

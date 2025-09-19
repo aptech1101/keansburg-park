@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
                   <a href="#" className="text-white-50 mb-2 text-decoration-none">
                     <i className="fas fa-angle-right me-2" style={{ color: '#3CBEEE' }}></i> FAQ
                   </a>
-                  <Link to="/guide" className="text-white-50 mb-2 text-decoration-none">
+                  <Link to="/Guideline" className="text-white-50 mb-2 text-decoration-none">
                     <i className="fas fa-angle-right me-2" style={{ color: '#3CBEEE' }}></i> Guide
                   </Link>
                 </div>

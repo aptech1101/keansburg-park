@@ -123,9 +123,9 @@
    // Back to top button
    $(window).scroll(function () {
     if ($(this).scrollTop() > 300) {
-        $('.back-to-top').fadeIn('slow');
+        $('.back-to-top').addClass('show');
     } else {
-        $('.back-to-top').fadeOut('slow');
+        $('.back-to-top').removeClass('show');
     }
     });
     $('.back-to-top').click(function () {

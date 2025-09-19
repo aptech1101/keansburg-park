@@ -7,6 +7,7 @@ import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
 const Navbar: React.FC = () => {
   const [isZonesOpen, setIsZonesOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
+  const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
   useEffect(() => {
     const media = window.matchMedia('(min-width: 992px)');
     const update = () => setIsDesktop(media.matches);
@@ -14,6 +15,20 @@ const Navbar: React.FC = () => {
     media.addEventListener?.('change', update);
     return () => media.removeEventListener?.('change', update);
   }, []);
+  
+  useEffect(() => {
+    const handleClose = () => setIsNavOpen(false);
+    window.addEventListener('hashchange', handleClose);
+    window.addEventListener('popstate', handleClose);
+    return () => {
+      window.removeEventListener('hashchange', handleClose);
+      window.removeEventListener('popstate', handleClose);
+    };
+  }, []);
+
+  const handleNavLinkClick = () => {
+    if (!isDesktop) setIsNavOpen(false);
+  };
   const onlineUsers = useOnlineUsers();
 
   const zonesMenu = [
@@ -21,6 +36,18 @@ const Navbar: React.FC = () => {
     { name: 'Water Park', path: '/zones/water' },
     { name: 'Restaurant', path: '/zones/restaurant' },
   ];
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (!isDesktop) {
+      document.body.style.overflow = isNavOpen ? 'hidden' : '';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isNavOpen, isDesktop]);
 
   return (
     <>
@@ -33,14 +60,22 @@ const Navbar: React.FC = () => {
               <img 
                 src={keansburgLogo} 
                 alt="Keansburg Logo" 
-                style={{ height: '50px', width: 'auto' }}
+                style={{ 
+                  height: '50px', 
+                  width: 'auto',
+                  borderRadius: '8px'
+                }}
               />
             </Link>
             <Link to="/zones/water" className="d-inline-flex" aria-label="Go to Water Park">
               <img 
                 src={runawayRapidsLogo} 
                 alt="Runaway Rapids" 
-                style={{ height: '50px', width: 'auto' }}
+                style={{ 
+                  height: '50px', 
+                  width: 'auto',
+                  borderRadius: '8px'
+                }}
               />
             </Link>
           </div>
@@ -49,13 +84,15 @@ const Navbar: React.FC = () => {
           <button 
             className="navbar-toggler" 
             type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#navbarCollapse"
+            aria-controls="navbarCollapse"
+            aria-expanded={isNavOpen}
+            aria-label="Toggle navigation"
+            onClick={() => setIsNavOpen(prev => !prev)}
           >
             <span className="fa fa-bars"></span>
           </button>
 
-          <div className="collapse navbar-collapse" id="navbarCollapse">
+          <div className={`collapse navbar-collapse${isNavOpen ? ' show' : ''}${!isDesktop ? ' offcanvas-mobile' : ''}`} id="navbarCollapse">
             {/* Left Side - Empty for balance */}
             <div className="navbar-nav me-auto">
             </div>
@@ -67,6 +104,7 @@ const Navbar: React.FC = () => {
                 end 
                 className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
                 style={{ padding: '1rem 0' }}
+                onClick={handleNavLinkClick}
               >
                 Home
               </NavLink>
@@ -74,8 +112,9 @@ const Navbar: React.FC = () => {
                 to="/about" 
                 className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
                 style={{ padding: '1rem 0' }}
+                onClick={handleNavLinkClick}
               >
-                About
+                Information
               </NavLink>
               
               {/* Zones Dropdown */}
@@ -109,35 +148,65 @@ const Navbar: React.FC = () => {
                     transform: isDesktop ? 'translateX(-50%)' : undefined,
                     backgroundColor: '#FFFFFF',
                     border: '1px solid #e9ecef',
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     boxShadow: isDesktop ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none',
                     zIndex: 1000,
                     minWidth: isDesktop ? '200px' : undefined,
-                    marginTop: isDesktop ? '0.5rem' : 0
+                    marginTop: isDesktop ? '0.5rem' : 0,
+                    padding: '8px'
                   }}
                 >
-                  {zonesMenu.map((zone) => (
+                  {zonesMenu.map((zone, index) => (
                     <Link
                       key={zone.path}
                       to={zone.path}
-                      className="dropdown-item"
+                      className="dropdown-item position-relative overflow-hidden"
                       style={{ 
                         color: 'var(--bs-dark)',
                         padding: '12px 20px',
                         textDecoration: 'none',
-                        transition: 'all 0.3s ease'
+                        transition: 'color 0.3s ease',
+                        display: 'block',
+                        borderRadius: '8px',
+                        margin: '0 0 4px 0',
+                        backgroundColor: 'transparent'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#3CBEEE';
+                        const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                        if (overlay) {
+                          overlay.style.transform = 'translateY(0)';
+                        }
                         e.currentTarget.style.color = '#FFFFFF';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
+                        const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                        if (overlay) {
+                          overlay.style.transform = 'translateY(-100%)';
+                        }
                         e.currentTarget.style.color = 'var(--bs-dark)';
                       }}
-                      onClick={() => !isDesktop && setIsZonesOpen(false)}
+                      onClick={() => {
+                        if (!isDesktop) {
+                          setIsZonesOpen(false);
+                          setIsNavOpen(false);
+                        }
+                      }}
                     >
-                      {zone.name}
+                      {/* Hover overlay effect */}
+                      <div 
+                        className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                        style={{
+                          backgroundColor: '#3CBEEE',
+                          transform: 'translateY(-100%)',
+                          transition: 'transform 0.4s ease-in-out',
+                          zIndex: 1,
+                          borderRadius: '8px'
+                        }}
+                      ></div>
+                      
+                      <span className="position-relative" style={{ zIndex: 2 }}>
+                        {zone.name}
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -147,15 +216,9 @@ const Navbar: React.FC = () => {
                 to="/guide" 
                 className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
                 style={{ padding: '1rem 0' }}
+                onClick={handleNavLinkClick}
               >
-                Guide
-              </NavLink>
-              <NavLink 
-                to="/contact" 
-                className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
-                style={{ padding: '1rem 0' }}
-              >
-                Contact
+                Service & Guide
               </NavLink>
             </div>
 
@@ -171,6 +234,7 @@ const Navbar: React.FC = () => {
                   fontWeight: 'bold',
                   fontSize: '14px'
                 }}
+                onClick={handleNavLinkClick}
               >
                 BUY TICKET
               </Link>
@@ -190,6 +254,7 @@ const Navbar: React.FC = () => {
                   border: 'none',
                   fontSize: '14px'
                 }}
+                onClick={handleNavLinkClick}
               >
                 Sign up
               </Link>
@@ -204,16 +269,34 @@ const Navbar: React.FC = () => {
                   border: 'none',
                   fontSize: '14px'
                 }}
+                onClick={handleNavLinkClick}
               >
                 Login
               </Link>
 
               {/* Online Users Counter */}
-              <div className="text-muted" style={{ fontSize: '12px', color: '#666666' }}>
+              <div 
+                className="text-muted" 
+                style={{ 
+                  fontSize: '12px', 
+                  color: '#666666',
+                  minWidth: '80px',
+                  textAlign: 'right',
+                  transition: 'opacity 0.2s ease'
+                }}
+              >
                 {onlineUsers.toLocaleString()} Online
               </div>
             </div>
           </div>
+          {/* Backdrop for off-canvas on mobile */}
+          {!isDesktop && isNavOpen && (
+            <div
+              className="offcanvas-backdrop"
+              aria-hidden="true"
+              onClick={() => setIsNavOpen(false)}
+            ></div>
+          )}
         </nav>
       </div>
     </>

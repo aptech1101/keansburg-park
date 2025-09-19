@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const useOnlineUsers = () => {
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const targetRef = useRef<number>(0);
+  const animationRef = useRef<number | null>(null);
+
+  const clamp = useCallback((val: number, min: number, max: number) => Math.max(min, Math.min(max, val)), []);
 
   useEffect(() => {
-    const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
-
     // Giá trị khởi tạo 0 - 200
     const initial = Math.floor(Math.random() * 201);
     setOnlineUsers(initial);
@@ -18,21 +19,46 @@ export const useOnlineUsers = () => {
       targetRef.current = clamp(targetRef.current + delta, 0, 200);
     }, 5000);
 
-    // Mượt mà tiến về mục tiêu mỗi 500ms, bước nhỏ (1-3)
-    const tickTimer = setInterval(() => {
-      const current = onlineUsers;
-      const target = targetRef.current;
-      if (current === target) return;
-      const step = Math.max(1, Math.min(3, Math.abs(target - current)));
-      const next = current + (target > current ? step : -step);
-      setOnlineUsers(clamp(next, 0, 200));
-    }, 500);
+    // Smooth animation function
+    const animateToTarget = () => {
+      setOnlineUsers(current => {
+        const target = targetRef.current;
+        if (current === target) return current;
+        
+        const step = Math.max(1, Math.min(2, Math.abs(target - current)));
+        const next = current + (target > current ? step : -step);
+        const clampedNext = clamp(next, 0, 200);
+        
+        if (clampedNext !== target) {
+          animationRef.current = requestAnimationFrame(animateToTarget);
+        }
+        
+        return clampedNext;
+      });
+    };
+
+    // Start animation loop
+    const startAnimation = () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      animationRef.current = requestAnimationFrame(animateToTarget);
+    };
+
+    // Start initial animation
+    startAnimation();
+
+    // Restart animation every 100ms to ensure smooth updates
+    const animationTimer = setInterval(startAnimation, 100);
 
     return () => {
       clearInterval(targetTimer);
-      clearInterval(tickTimer);
+      clearInterval(animationTimer);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
-  }, [onlineUsers]);
+  }, [clamp]);
 
   return onlineUsers;
 };

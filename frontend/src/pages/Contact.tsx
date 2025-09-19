@@ -167,8 +167,6 @@ export default function Contact() {
 
       {/* Footer removed: using global layout Footer */}
 
-      {/* Back to Top */}
-      <a href="#" className="btn btn-primary btn-lg-square rounded-circle back-to-top"><i className="fa fa-arrow-up"></i></a>   
     </>
   );
 }

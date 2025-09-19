@@ -1,23 +1,63 @@
 # Design Guidelines
 
 ## Màu sắc (gợi ý)
-- Primary: #1E90FF
-- Secondary: #FFB800
-- Text: #222
-- Background: #ffffff
+- Primary Blue (#3CBEEE) – màu chủ đạo, dùng cho button, highlight, background section.
+- Dark (#021016) – dùng cho text tiêu đề đậm, footer, header topbar.
+- White (#FFFFFF) – nền chính, tạo cảm giác sạch sẽ, thoáng.
+- Gray (#666666) – nền phụ, border, placeholder input.
+- Red (#dc3545) – nhấn mạnh các action quan trọng (ví dụ “Buy Ticket”).
 
 ## Typography
-- Heading: Inter / Poppins, 600–700
-- Body: Inter 400–500
-- Base size: 16px; Scale: 1.25
+- Heading:
+    +Font: Montserrat (bold/semibold)
+    + Cỡ chữ:
+        + H1: 48px
+        + H2: 32px
+        + H3: 24px
+    + Màu: Chủ yếu Dark (#021016).
+- Body text:
+    + Font: Open Sans (regular, dễ đọc).
+    + Size: 16px – 18px.
+    + Màu: #ffffff hoặc #666666.
+- Button & Link:
+    + Font bold, chữ in hoa hoặc capitalize.
+    + Giữ độ tương phản mạnh (white text trên nền xanh hoặc đỏ).
 
-## Layout
-- Grid: 12 cols / 72–80px max content width (desktop)
-- Spacing: 8px scale
-- Buttons: min-height 40–44px (a11y)
-- Menu: hover/active rõ ràng; focus-visible
-
+## Layout & Component
+- Header:
+    + Thanh top bar chứa logo, menu, login/cart.
+    + CTA “Buy Ticket” nổi bật (đỏ).
+- Hero section:
+    + Background hình công viên nước.
+    + Form booking (input + button) đặt ở góc phải, bo góc tròn, nền trắng mờ.
+- About section:
+    + Chia 2 cột: text + hình ảnh.
+    + Có highlight box (100+ years, 150K visitors, 50+ attractions).
+- Attractions section:
+    + Grid/slider hiển thị card.
+    + Hover effect: tối mờ + hiện tên attraction.
+- Restaurant & Dining:
+    + 2 cột: list text menu + hình ảnh “Taste the Fun”.
+- Gallery:
+    + Grid ảnh (3x2).
+    + Giữ khoảng cách đều, bo góc nhẹ.
+- Team Section:
+    + Card đơn giản (tên + vai trò).
+    + Nền xanh (#3CBEEE).
+- Feedback & Reviews:
+    + Form feedback (input + star rating).
+    + Section review slider với quote.
+- Footer:
+    + Chia 3 cột: Quick Links, Support, Opening Hours.
+    + Nền dark (#003366), chữ trắng.
 ## Export Figma
-- Mỗi frame = 1 màn hình
-- Đặt tên frame rõ ràng: `Home`, `Tickets`, `Attractions`...
-- Export PNG 1x/2x; kèm link Figma view-only trong README
+- Tất cả component (header, button, card, form, footer) nên được tạo Component Figma để tái sử dụng.
+- Style Guide trong Figma:
+    + Color Styles: Primary, Secondary, Accent, Neutral.
+    + Text Styles: H1, H2, H3, Body, Button.
+    + Grid Layout: 12 cột (desktop), 4 cột (mobile).
+- Spacing chuẩn 8px system (4/8/16/24/32px).
+- Responsive breakpoint:
+    + Desktop ≥ 1200px
+    + Tablet 768px – 1199px
+    + Mobile ≤ 767px

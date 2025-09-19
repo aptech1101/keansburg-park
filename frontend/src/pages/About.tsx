@@ -5,12 +5,12 @@ import imgAbout from "../assets/img/home-about.png";
 import imgFeature1 from "../assets/img/home-attraction-1.jpg";
 import imgFeature2 from "../assets/img/home-attraction-2.jpg";
 import imgFeature3 from "../assets/img/home-attraction-3.jpg";
-import imgGallery1 from "../assets/img/home-gallery-1.png";
-import imgGallery2 from "../assets/img/home-gallery-2.png";
-import imgGallery3 from "../assets/img/home-gallery-3.png";
+import imgGallery1 from "../assets/img/home-gallery-1.jpg";
+import imgGallery2 from "../assets/img/home-gallery-2.jpg";
+import imgGallery3 from "../assets/img/home-gallery-3.jpg";
 import imgGallery4 from "../assets/img/home-gallery-4.jpg";
 import imgGallery5 from "../assets/img/home-gallery-5.png";
-import imgGallery6 from "../assets/img/home-gallery-6.png";
+import imgGallery6 from "../assets/img/home-gallery-6.jpg";
 import imgTeam1 from "../assets/img/home-testimonial-1.jpg";
 import imgTeam2 from "../assets/img/home-testimonial-2.jpg";
 import imgTeam3 from "../assets/img/home-testimonial-3.jpg";
@@ -351,8 +351,6 @@ export default function About() {
 
       {/* Footer removed: using global layout Footer */}
 
-      {/* Back to Top */}
-      <a href="#" className="btn btn-primary btn-lg-square rounded-circle back-to-top"><i className="fa fa-arrow-up"></i></a>   
     </>
   );
 }

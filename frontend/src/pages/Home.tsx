@@ -18,21 +18,18 @@ import imgAttraction2 from "../assets/img/home-attraction-2.jpg";
 import imgAttraction3 from "../assets/img/home-attraction-3.jpg";
 import imgAttraction4 from "../assets/img/home-attraction-4.jpg";
 import imgAttraction5 from "../assets/img/home-attraction-5.jpg";
-import imgGallery1 from "../assets/img/home-gallery-1.png";
-import imgGallery2 from "../assets/img/home-gallery-2.png";
-import imgGallery3 from "../assets/img/home-gallery-3.png";
+import imgGallery1 from "../assets/img/home-gallery-1.jpg";
+import imgGallery2 from "../assets/img/home-gallery-2.jpg";
+import imgGallery3 from "../assets/img/home-gallery-3.jpg";
 import imgGallery4 from "../assets/img/home-gallery-4.jpg";
 import imgGallery5 from "../assets/img/home-gallery-5.png";
-import imgGallery6 from "../assets/img/home-gallery-6.png";
+import imgGallery6 from "../assets/img/home-gallery-6.jpg";
 import imgRes1 from "../assets/img/home-res-1.jpg";
 import imgRes2 from "../assets/img/home-res-2.jpg";
 import imgRes3 from "../assets/img/home-res-3.jpeg";
-import imgBlog1 from "../assets/img/home-gallery-1.png";
-import imgBlog2 from "../assets/img/home-gallery-2.png";
-import imgBlog3 from "../assets/img/home-gallery-3.png";
-import imgTestimonial1 from "../assets/img/home-testimonial-1.jpg";
-import imgTestimonial2 from "../assets/img/home-testimonial-2.jpg";
-import imgTestimonial3 from "../assets/img/home-testimonial-3.jpg";
+import imgBlog1 from "../assets/img/home-gallery-1.jpg";
+import imgBlog2 from "../assets/img/home-gallery-2.jpg";
+import imgBlog3 from "../assets/img/home-gallery-3.jpg";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
 
 export default function Home() {
@@ -46,16 +43,10 @@ export default function Home() {
   const [submitState, setSubmitState] = useState<{status:'idle'|'loading'|'success'|'error'; message?:string}>({status:'idle'});
 
   // Cấu hình endpoint ứng viên: nếu đang chạy Vite (5173) thì ưu tiên 8000; nếu chạy qua Apache thì ưu tiên /keansburg-park
-  const isViteDev = window.location.port === '5173';
-  const API_CANDIDATES = isViteDev
-    ? [
-        'http://localhost:8000',
-        'http://localhost/keansburg-park/backend/public'
-      ]
-    : [
-        `${window.location.origin}/keansburg-park/backend/public`,
-        'http://localhost:8000'
-      ];
+  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
+  const fallbackUrlB = 'http://localhost:8000';
+  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -670,6 +661,43 @@ export default function Home() {
               </div>
             </ScrollAnimation>
           </div>
+          
+          {/* View More Button */}
+          <ScrollAnimation animation="fadeInUp" delay={800} className="text-center mt-5">
+            <Link 
+              to="/gallery" 
+              className="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill fw-bold"
+              style={{
+                border: '2px solid #3CBEEE',
+                color: '#3CBEEE',
+                background: 'rgba(60, 190, 238, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                textDecoration: 'none',
+                display: 'inline-block',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 4px 15px rgba(60, 190, 238, 0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(45deg, #3CBEEE, #007bff)';
+                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(60, 190, 238, 0.4)';
+                e.currentTarget.style.borderColor = '#3CBEEE';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(60, 190, 238, 0.1)';
+                e.currentTarget.style.color = '#3CBEEE';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(60, 190, 238, 0.2)';
+                e.currentTarget.style.borderColor = '#3CBEEE';
+              }}
+            >
+              <i className="fas fa-images me-2"></i>
+              View More Photos
+              <i className="fas fa-arrow-right ms-2"></i>
+            </Link>
+          </ScrollAnimation>
         </div>
       </div>
       {/* Gallery End */}
@@ -904,7 +932,7 @@ export default function Home() {
                     const masked = r.email.replace(/(^.)[^@]*(@.*$)/, (_, a, b) => a + '***' + b);
                     return (
                       <div key={r.id}>
-                        <div className="testimonial-item bg-white rounded p-5 text-center" style={{ backdropFilter: 'blur(10px)', opacity: 0.95 }}>
+                        <div className="testimonial-item rounded p-5 text-center" style={{  backdropFilter: 'blur(10px)',  backgroundColor: 'rgba(255, 255, 255, 0.8)' }}>
                           <div className="mb-3">
                             <i className="fa fa-quote-right fa-2x" style={{ color: '#3CBEEE' }}></i>
                           </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Blog1 from '../assets/img/home-gallery-1.png';
-import Blog2 from '../assets/img/home-gallery-2.png';
-import Blog3 from '../assets/img/home-gallery-3.png';
+import Blog1 from '../assets/img/home-gallery-1.jpg';
+import Blog2 from '../assets/img/home-gallery-2.jpg';
+import Blog3 from '../assets/img/home-gallery-3.jpg';
 import PaymentImg from '../assets/img/payment.png';
 
 const Blog: React.FC = () => {
@@ -107,8 +107,6 @@ const Blog: React.FC = () => {
 
             {/* Footer removed: using global layout Footer */}
 
-            {/* Back to Top */}
-            <a href="#" className="btn btn-primary btn-lg-square rounded-circle back-to-top"><i className="fa fa-arrow-up"></i></a>   
         </>
     );
 };

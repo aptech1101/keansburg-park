@@ -4,12 +4,21 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ScrollAnimation from "../components/ScrollAnimation";
 import imgBanner from "../assets/img/page-banner.png";
-import imgGallery1 from "../assets/img/home-gallery-1.png";
-import imgGallery2 from "../assets/img/home-gallery-2.png";
-import imgGallery3 from "../assets/img/home-gallery-3.png";
+import imgGallery1 from "../assets/img/home-gallery-1.jpg";
+import imgGallery2 from "../assets/img/home-gallery-2.jpg";
+import imgGallery3 from "../assets/img/home-gallery-3.jpg";
 import imgGallery4 from "../assets/img/home-gallery-4.jpg";
 import imgGallery5 from "../assets/img/home-gallery-5.png";
-import imgGallery6 from "../assets/img/home-gallery-6.png";
+import imgGallery6 from "../assets/img/home-gallery-6.jpg";
+import imgGallery7 from "../assets/img/gallery-7.jpg";
+import imgGallery8 from "../assets/img/gallery-8.png";
+import imgGallery9 from "../assets/img/gallery-9.jpg";
+import imgGallery10 from "../assets/img/gallery-10.jpg";
+import imgGallery11 from "../assets/img/gallery-11.jpg";
+import imgGallery12 from "../assets/img/gallery-12.png";
+import imgGallery13 from "../assets/img/gallery-13.jpg";
+import imgGallery14 from "../assets/img/gallery-14.jpg";
+import imgGallery15 from "../assets/img/gallery-15.jpg";
 
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(true);
@@ -135,6 +144,98 @@ export default function Gallery() {
                 </div>
               </div>
             </ScrollAnimation>
+
+            {/* New Gallery Images 7-15 */}
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-4">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery7} className="img-fluid rounded w-100" alt="Gallery 7" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery7)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-4">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery8} className="img-fluid rounded w-100" alt="Gallery 8" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery8)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-4">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery9} className="img-fluid rounded w-100" alt="Gallery 9" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery9)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="zoomIn" delay={200} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery10} className="img-fluid rounded w-100" alt="Gallery 10" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery10)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery11} className="img-fluid rounded w-100" alt="Gallery 11" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery11)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery12} className="img-fluid rounded w-100" alt="Gallery 12" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery12)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery13} className="img-fluid rounded w-100" alt="Gallery 13" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery13)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-3">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery14} className="img-fluid rounded w-100" alt="Gallery 14" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery14)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
+            <ScrollAnimation animation="zoomIn" delay={600} className="col-md-6">
+              <div className="gallery-item position-relative">
+                <img src={imgGallery15} className="img-fluid rounded w-100" alt="Gallery 15" style={{ height: '400px', objectFit: 'cover' }} />
+                <div className="search-icon position-absolute">
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery15)}>
+                    <i className="fas fa-search-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </ScrollAnimation>
           </div>
         </div>
       </div>
@@ -168,8 +269,7 @@ export default function Gallery() {
 
       {/* Footer removed: using global layout Footer */}
 
-      {/* Back to Top */}
-      <a href="#" className="btn btn-primary btn-lg-square rounded-circle back-to-top"><i className="fa fa-arrow-up"></i></a>   
+       
     </>
   );
 }
