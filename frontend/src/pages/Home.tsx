@@ -8,9 +8,6 @@ import PromotionBanner from "../components/PromotionBanner";
 import ScrollAnimation from "../components/ScrollAnimation";
 import CountUp from "../components/CountUp";
 import imgBanner from "../assets/img/home-banner.png";
-import imgFeature1 from "../assets/img/home-attraction-1.jpg";
-import imgFeature2 from "../assets/img/home-attraction-2.jpg";
-import imgFeature3 from "../assets/img/home-attraction-3.jpg";
 import imgAbout from "../assets/img/home-about.png";
 import imgAttraction from "../assets/img/home-attraction.jpg";
 import imgAttraction1 from "../assets/img/home-attraction-1.jpg";
@@ -27,9 +24,6 @@ import imgGallery6 from "../assets/img/home-gallery-6.jpg";
 import imgRes1 from "../assets/img/home-res-1.jpg";
 import imgRes2 from "../assets/img/home-res-2.jpg";
 import imgRes3 from "../assets/img/home-res-3.jpeg";
-import imgBlog1 from "../assets/img/home-gallery-1.jpg";
-import imgBlog2 from "../assets/img/home-gallery-2.jpg";
-import imgBlog3 from "../assets/img/home-gallery-3.jpg";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
 
 export default function Home() {
@@ -246,7 +240,7 @@ export default function Home() {
                     </p>
                     <div className="d-flex flex-shrink-0">
                       <Link to="/ticket" className="btn rounded-pill text-white py-3 px-5" style={{ backgroundColor: '#3CBEEE', fontSize: '16px', fontWeight: '600' }}>
-                        Our Packages
+                        Book Now
                       </Link>
                     </div>
                   </div>
@@ -269,10 +263,9 @@ export default function Home() {
                         </div>
                         <div className="col-12">
                           <select className="form-select border-0 py-3" aria-label="Default select example" defaultValue="Select Packages" style={{ backgroundColor: '#f8f9fa' }}>
-                            <option value="Select Packages">Select Packages</option>
-                            <option value="1">Family Packages</option>
-                            <option value="2">Basic Packages</option>
-                            <option value="3">Premium Packages</option>
+                            <option value="Select Zones">Select Zones</option>
+                            <option value="1">Zone A: Amusement Park</option>
+                            <option value="2">Zone B: Water Park</option>
                           </select>
                         </div>
                         <div className="col-12">
