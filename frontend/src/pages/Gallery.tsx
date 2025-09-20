@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ScrollAnimation from "../components/ScrollAnimation";
-import imgBanner from "../assets/img/page-banner.png";
+import imgBanner from "../assets/img/gallery-banner.jpg";
 import imgGallery1 from "../assets/img/home-gallery-1.jpg";
 import imgGallery2 from "../assets/img/home-gallery-2.jpg";
 import imgGallery3 from "../assets/img/home-gallery-3.jpg";
@@ -23,6 +23,60 @@ import imgGallery15 from "../assets/img/gallery-15.jpg";
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+
+  // Gallery images array for navigation
+  const galleryImages = [
+    imgGallery1, imgGallery2, imgGallery3, imgGallery4, imgGallery5, imgGallery6,
+    imgGallery7, imgGallery8, imgGallery9, imgGallery10, imgGallery11, imgGallery12,
+    imgGallery13, imgGallery14, imgGallery15
+  ];
+
+  // Navigation functions
+  const openImageModal = (imageSrc: string) => {
+    const index = galleryImages.indexOf(imageSrc);
+    setCurrentImageIndex(index);
+    setSelectedImage(imageSrc);
+  };
+
+  const goToPrevious = () => {
+    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(galleryImages[newIndex]);
+  };
+
+  const goToNext = () => {
+    const newIndex = currentImageIndex < galleryImages.length - 1 ? currentImageIndex + 1 : 0;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(galleryImages[newIndex]);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+    setCurrentImageIndex(0);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!selectedImage) return;
+      
+      switch (event.key) {
+        case 'Escape':
+          closeModal();
+          break;
+        case 'ArrowLeft':
+          goToPrevious();
+          break;
+        case 'ArrowRight':
+          goToNext();
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, currentImageIndex]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
@@ -88,7 +142,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery1} className="img-fluid rounded w-100" alt="Gallery 1" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery1)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery1)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -98,7 +152,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery2} className="img-fluid rounded w-100" alt="Gallery 2" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery2)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery2)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -108,7 +162,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery3} className="img-fluid rounded w-100" alt="Gallery 3" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery3)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery3)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -118,7 +172,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery4} className="img-fluid rounded w-100" alt="Gallery 4" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery4)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery4)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -128,7 +182,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery5} className="img-fluid rounded w-100" alt="Gallery 5" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery5)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery5)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -138,7 +192,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery6} className="img-fluid rounded w-100" alt="Gallery 6" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery6)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery6)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -150,7 +204,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery7} className="img-fluid rounded w-100" alt="Gallery 7" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery7)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery7)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -160,7 +214,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery8} className="img-fluid rounded w-100" alt="Gallery 8" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery8)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery8)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -170,7 +224,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery9} className="img-fluid rounded w-100" alt="Gallery 9" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery9)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery9)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -180,7 +234,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery10} className="img-fluid rounded w-100" alt="Gallery 10" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery10)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery10)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -190,7 +244,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery11} className="img-fluid rounded w-100" alt="Gallery 11" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery11)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery11)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -200,7 +254,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery12} className="img-fluid rounded w-100" alt="Gallery 12" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery12)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery12)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -210,7 +264,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery13} className="img-fluid rounded w-100" alt="Gallery 13" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery13)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery13)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -220,7 +274,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery14} className="img-fluid rounded w-100" alt="Gallery 14" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery14)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery14)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -230,7 +284,7 @@ export default function Gallery() {
               <div className="gallery-item position-relative">
                 <img src={imgGallery15} className="img-fluid rounded w-100" alt="Gallery 15" style={{ height: '400px', objectFit: 'cover' }} />
                 <div className="search-icon position-absolute">
-                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => setSelectedImage(imgGallery15)}>
+                  <button type="button" className="btn btn-light btn-lg-square rounded-circle" onClick={() => openImageModal(imgGallery15)}>
                     <i className="fas fa-search-plus"></i>
                   </button>
                 </div>
@@ -246,7 +300,7 @@ export default function Gallery() {
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
           style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1050 }}
-          onClick={() => setSelectedImage(null)}
+          onClick={closeModal}
         >
           <div
             className="bg-white rounded position-relative"
@@ -254,15 +308,79 @@ export default function Gallery() {
             onClick={(e) => e.stopPropagation()}
           >
             <img src={selectedImage} alt="Preview" style={{ display: 'block', maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain' }} />
+            
+            {/* Close Button */}
             <button
               type="button"
               className="btn btn-light position-absolute"
               style={{ top: 8, right: 8 }}
-              onClick={() => setSelectedImage(null)}
+              onClick={closeModal}
               aria-label="Close"
             >
               <i className="fas fa-times"></i>
             </button>
+
+            {/* Previous Button */}
+            <button
+              type="button"
+              className="btn btn-light position-absolute d-flex align-items-center justify-content-center"
+              style={{ 
+                top: '50%', 
+                left: 8, 
+                transform: 'translateY(-50%)',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                zIndex: 1051
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrevious();
+              }}
+              aria-label="Previous Image"
+            >
+              <i className="fas fa-chevron-left"></i>
+            </button>
+
+            {/* Next Button */}
+            <button
+              type="button"
+              className="btn btn-light position-absolute d-flex align-items-center justify-content-center"
+              style={{ 
+                top: '50%', 
+                right: 8, 
+                transform: 'translateY(-50%)',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                zIndex: 1051
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
+              aria-label="Next Image"
+            >
+              <i className="fas fa-chevron-right"></i>
+            </button>
+
+            {/* Image Counter */}
+            <div
+              className="position-absolute"
+              style={{ 
+                bottom: 8, 
+                left: '50%', 
+                transform: 'translateX(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                color: 'white',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                zIndex: 1051
+              }}
+            >
+              {currentImageIndex + 1} / {galleryImages.length}
+            </div>
           </div>
         </div>
       )}

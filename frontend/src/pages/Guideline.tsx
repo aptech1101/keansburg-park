@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ScrollAnimation from '../components/ScrollAnimation';
 import imgBanner from '../assets/img/service-banner.jpg';
 import imgDirections1 from '../assets/img/directions1.jpg';
 import imgServiceShoot from '../assets/img/shoot-Locations.jpg';
+import imgParkMap from '../assets/img/Keansburg-Map-1.png';
 
 export default function Guideline() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   return (
     <>
       {/* Hero Section Start */}
@@ -27,7 +30,7 @@ export default function Guideline() {
                 <li className="breadcrumb-item">
                   <Link to="/" className="text-white text-decoration-none">Home</Link>
                 </li>
-                <li className="breadcrumb-item text-white-50" aria-current="page">Guide</li>
+                <li className="breadcrumb-item text-white" aria-current="page">Guide</li>
               </ol>
             </nav>
           </div>
@@ -36,7 +39,7 @@ export default function Guideline() {
       {/* Hero Section End */}
 
       {/* Directions & Parking Section Start */}
-      <div className="container-fluid py-5" style={{ backgroundColor: '#f8f9fa' }}>
+      <div id="directions-parking" className="container-fluid py-5" style={{ backgroundColor: '#f8f9fa' }}>
         <div className="container py-5">
           <ScrollAnimation animation="fadeInUp" delay={200} className="mb-5">
             <h2 className="display-6 fw-bold mb-4" style={{ color: '#3CBEEE' }}>Directions & Parking</h2>
@@ -175,8 +178,59 @@ export default function Guideline() {
       </div>
       {/* Directions & Parking Section End */}
 
+      {/* Park Map Section Start */}
+      <div id="park-map" className="container-fluid py-5" style={{ backgroundColor: '#ffffff' }}>
+        <div className="container py-5">
+          <ScrollAnimation animation="fadeInUp" delay={200} className="mb-5">
+            <h2 className="display-6 fw-bold mb-4 text-center" style={{ color: '#3CBEEE' }}>Park Map</h2>
+            <p className="text-center fs-5 mb-5" style={{ color: '#666666', maxWidth: '800px', margin: '0 auto' }}>
+              Explore our park layout and discover all the amazing attractions, rides, and facilities we have to offer. 
+              Plan your visit and make the most of your day at Keansburg Amusement Park & Runaway Rapids Waterpark.
+            </p>
+          </ScrollAnimation>
+
+          <ScrollAnimation animation="fadeInUp" delay={400}>
+            <div className="row justify-content-center">
+              <div className="col-12">
+                <div className="position-relative">
+                  <img 
+                    src={imgParkMap} 
+                    className="img-fluid rounded shadow-lg" 
+                    alt="Keansburg Park Map" 
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto',
+                      objectFit: 'contain',
+                      border: '3px solid #f8f9fa',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setSelectedImage(imgParkMap)}
+                  />
+                  
+                  {/* Overlay with park information */}
+                  <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end justify-content-center" 
+                       style={{ 
+                         background: 'linear-gradient(transparent 60%, rgba(0,0,0,0.3))',
+                         borderRadius: '12px',
+                         pointerEvents: 'none'
+                       }}>
+                    <div className="text-center text-white p-4">
+                      <h5 className="fw-bold mb-2">Interactive Park Map</h5>
+                      <p className="mb-0" style={{ fontSize: '14px' }}>
+                        Click to view full size map
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ScrollAnimation>
+        </div>
+      </div>
+      {/* Park Map Section End */}
+
       {/* Location Shoots Section Start */}
-      <div className="container-fluid py-5">
+      <div id="location-shoots" className="container-fluid py-5">
         <div className="container py-5">
           <ScrollAnimation animation="fadeInUp" delay={200} className="mb-5">
             <h2 className="display-6 fw-bold mb-4" style={{ color: '#3CBEEE' }}>Location Shoots</h2>
@@ -240,6 +294,32 @@ export default function Guideline() {
         </div>
       </div>
       {/* Location Shoots Section End */}
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1050 }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div
+            className="bg-white rounded position-relative"
+            style={{ padding: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={selectedImage} alt="Park Map Preview" style={{ display: 'block', maxWidth: '98vw', maxHeight: '95vh', objectFit: 'contain' }} />
+            <button
+              type="button"
+              className="btn btn-light position-absolute"
+              style={{ top: 8, right: 8 }}
+              onClick={() => setSelectedImage(null)}
+              aria-label="Close"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

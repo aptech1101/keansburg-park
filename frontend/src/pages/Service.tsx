@@ -285,7 +285,7 @@ export default function Service() {
                   <h4 className="text-dark mb-3" style={{ fontWeight: '600' }}>Directions & Parking</h4>
                   <p className="text-muted mb-3">Find your way to Keansburg Park with easy directions and convenient parking options.</p>
                   <Link 
-                    to="/Guideline" 
+                    to="/Guideline#directions-parking" 
                     className="btn btn-primary rounded-pill py-2 px-4"
                     style={{
                       transition: 'all 0.3s ease'
@@ -319,10 +319,8 @@ export default function Service() {
                 <div className="p-4">
                   <h4 className="text-dark mb-3" style={{ fontWeight: '600' }}>Park Map</h4>
                   <p className="text-muted mb-3">Navigate the park easily with our detailed map showing all attractions and facilities.</p>
-                  <a 
-                    href="/src/assets/img/Keansburg-Map.pdf" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <Link 
+                    to="/Guideline#park-map" 
                     className="btn btn-primary rounded-pill py-2 px-4"
                     style={{
                       transition: 'all 0.3s ease'
@@ -337,7 +335,7 @@ export default function Service() {
                     }}
                   >
                     Read more <i className="fa fa-arrow-right ms-1"></i>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -357,7 +355,7 @@ export default function Service() {
                   <h4 className="text-dark mb-3" style={{ fontWeight: '600' }}>Location Shoot</h4>
                   <p className="text-muted mb-3">Discover the most photogenic spots in the park for your memorable moments.</p>
                   <Link 
-                    to="/Guideline" 
+                    to="/Guideline#location-shoots" 
                     className="btn btn-primary rounded-pill py-2 px-4"
                     style={{
                       transition: 'all 0.3s ease'

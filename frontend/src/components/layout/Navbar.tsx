@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useOnlineUsers } from '../../hooks/useOnlineUsers';
 import keansburgLogo from '../../assets/img/keansburg-logo.png';
 import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
@@ -8,6 +8,13 @@ const Navbar: React.FC = () => {
   const [isZonesOpen, setIsZonesOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
+  const location = useLocation();
+  
+  // Check if current route is a zones route
+  const isZonesRoute = location.pathname.startsWith('/zones/');
+  
+  // Check if current route is a service/guide route
+  const isServiceGuideRoute = location.pathname.toLowerCase() === '/service' || location.pathname.toLowerCase() === '/services' || location.pathname.toLowerCase() === '/guideline';
   useEffect(() => {
     const media = window.matchMedia('(min-width: 992px)');
     const update = () => setIsDesktop(media.matches);
@@ -51,17 +58,164 @@ const Navbar: React.FC = () => {
 
   return (
     <>
+      <style>{`
+        .navbar-nav .nav-link.active {
+          color: var(--bs-primary) !important;
+        }
+
+        .navbar-nav .nav-link {
+          position: relative;
+        }
+
+        .navbar-nav .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: #3CBEEE;
+          transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link.active::after {
+          width: 100% !important;
+        }
+
+        .zones-toggle {
+          position: relative;
+        }
+
+        /* Responsive logo sizing */
+        .navbar-logo {
+          height: 50px; /* Default desktop size */
+          width: auto;
+          flex-shrink: 0; /* Prevent logos from shrinking */
+        }
+
+        @media (max-width: 576px) {
+          .navbar-logo {
+            height: 35px; /* Mobile size */
+            width: auto;
+          }
+        }
+
+        /* Ensure navbar brand container never wraps */
+        .navbar-brand {
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        /* Mobile Off-canvas Slide Animation */
+        @media (max-width: 991.98px) {
+          .offcanvas-mobile {
+            position: fixed !important;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 400px;
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            z-index: 1050;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+          }
+
+          .offcanvas-mobile.show {
+            right: 0;
+          }
+
+          .offcanvas-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+          }
+
+          .offcanvas-backdrop.show {
+            opacity: 1;
+          }
+
+          /* Mobile menu items styling */
+          .offcanvas-mobile .navbar-nav {
+            flex-direction: column;
+            gap: 0;
+          }
+
+          .offcanvas-mobile .nav-item {
+            width: 100%;
+            border-bottom: 1px solid #f0f0f0;
+          }
+
+          .offcanvas-mobile .nav-link {
+            padding: 1rem 0 !important;
+            font-size: 1.1rem;
+            font-weight: 500;
+          }
+
+          .offcanvas-mobile .dropdown-menu {
+            position: static !important;
+            transform: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: #f8f9fa !important;
+            margin: 0.5rem 0 0 1rem;
+            padding: 0.5rem 0;
+          }
+
+          .offcanvas-mobile .dropdown-item {
+            padding: 0.75rem 1rem !important;
+            font-size: 1rem;
+            margin: 0 !important;
+            border-radius: 0 !important;
+          }
+
+          /* Mobile actions styling */
+          .offcanvas-mobile .d-flex.align-items-center {
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #f0f0f0;
+          }
+
+          .offcanvas-mobile .btn {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .offcanvas-mobile .text-muted {
+            text-align: center !important;
+            margin-top: 1rem;
+          }
+        }
+      `}</style>
       {/* Main Navbar */}
       <div className="container-fluid nav-bar sticky-top px-4 py-3 py-lg-2">
         <nav className="navbar navbar-expand-lg navbar-light" style={{ minHeight: '80px' }}>
           {/* Logo Section */}
-          <div className="navbar-brand p-0 d-flex align-items-center flex-nowrap">
-            <Link to="/zones/amusement" className="d-inline-flex me-3" aria-label="Go to Amusement Park">
+          <div 
+            className="navbar-brand p-0" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              flexWrap: 'nowrap'
+            }}
+          >
+            <Link to="/zones/amusement" className="d-inline-flex" aria-label="Go to Amusement Park">
               <img 
                 src={keansburgLogo} 
                 alt="Keansburg Logo" 
+                className="navbar-logo"
                 style={{ 
-                  height: '50px', 
                   width: 'auto',
                   borderRadius: '8px'
                 }}
@@ -71,8 +225,8 @@ const Navbar: React.FC = () => {
               <img 
                 src={runawayRapidsLogo} 
                 alt="Runaway Rapids" 
+                className="navbar-logo"
                 style={{ 
-                  height: '50px', 
                   width: 'auto',
                   borderRadius: '8px'
                 }}
@@ -125,7 +279,7 @@ const Navbar: React.FC = () => {
                 style={{ position: 'relative' }}
               >
                 <span 
-                  className="nav-link dropdown-toggle zones-toggle" 
+                  className={`nav-link dropdown-toggle zones-toggle${isZonesRoute ? ' active' : ''}`}
                   style={{ 
                     cursor: 'pointer',
                     padding: '1rem 0',
@@ -213,8 +367,8 @@ const Navbar: React.FC = () => {
               </div>
 
               <NavLink 
-                to="/guide" 
-                className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
+                to="/service" 
+                className={`nav-item nav-link${isServiceGuideRoute ? ' active' : ''}`}
                 style={{ padding: '1rem 0' }}
                 onClick={handleNavLinkClick}
               >
@@ -292,7 +446,7 @@ const Navbar: React.FC = () => {
           {/* Backdrop for off-canvas on mobile */}
           {!isDesktop && isNavOpen && (
             <div
-              className="offcanvas-backdrop"
+              className="offcanvas-backdrop show"
               aria-hidden="true"
               onClick={() => setIsNavOpen(false)}
             ></div>

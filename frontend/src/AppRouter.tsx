@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import About from './pages/About';
 import Gallery from './pages/Gallery';
@@ -42,6 +43,7 @@ const AppRouter: React.FC = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Navbar />
       <main style={{ minHeight: '70vh' }}>
         <Routes>
@@ -57,7 +59,6 @@ const AppRouter: React.FC = () => {
           <Route path="/team" element={<Team />} />
           <Route path="/review" element={<Review />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/guide" element={<Service />} />
           <Route path="/guideline" element={<Guideline />} />
           <Route path="/signup" element={<NotFound />} />
           <Route path="/login" element={<NotFound />} />

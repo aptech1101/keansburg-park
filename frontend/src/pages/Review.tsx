@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Testimonial1 from '../assets/img/home-testimonial-1.jpg';
-import Testimonial2 from '../assets/img/home-testimonial-2.jpg';
-import Testimonial3 from '../assets/img/home-testimonial-3.jpg';
 import PaymentImg from '../assets/img/payment.png';
-
 const Review: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
