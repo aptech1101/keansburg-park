@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 interface User {
-  user_id: number;
+  id: number;
   username: string;
+  email?: string;
+  phone?: string;
   role?: string;
+  lastProfileUpdate?: string;
 }
 
 interface AuthContextType {
@@ -11,6 +14,7 @@ interface AuthContextType {
   token: string | null;
   loginUser: (user: User, token: string, remember: boolean) => void;
   logoutUser: () => void;
+  updateUser: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,18 +22,44 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   loginUser: () => {},
   logoutUser: () => {},
+  updateUser: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  // Load user/token từ localStorage hoặc sessionStorage khi mount
+  useEffect(() => {
+    const lsUser = localStorage.getItem("auth_user");
+    const lsToken = localStorage.getItem("auth_token");
+    const ssUser = sessionStorage.getItem("auth_user");
+    const ssToken = sessionStorage.getItem("auth_token");
+    if (lsUser && lsToken) {
+      setUser(JSON.parse(lsUser));
+      setToken(lsToken);
+      return;
+    }
+    if (ssUser && ssToken) {
+      setUser(JSON.parse(ssUser));
+      setToken(ssToken);
+    }
+  }, []);
+
   const loginUser = (u: User, t: string, remember: boolean) => {
+    console.log("loginUser called with:", u, t, remember);
     setUser(u);
     setToken(t);
     if (remember) {
       localStorage.setItem("auth_user", JSON.stringify(u));
       localStorage.setItem("auth_token", t);
+      sessionStorage.removeItem("auth_user");
+      sessionStorage.removeItem("auth_token");
+    } else {
+      sessionStorage.setItem("auth_user", JSON.stringify(u));
+      sessionStorage.setItem("auth_token", t);
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_token");
     }
   };
 
@@ -38,10 +68,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     localStorage.removeItem("auth_user");
     localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("auth_user");
+    sessionStorage.removeItem("auth_token");
+  };
+
+  const updateUser = (data: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const updated: User = { ...prev, ...data };
+      // sync sang storage hiện hành (ưu tiên localStorage nếu có token ở đó)
+      const hasLS = !!localStorage.getItem("auth_token");
+      if (hasLS) {
+        localStorage.setItem("auth_user", JSON.stringify(updated));
+      } else {
+        sessionStorage.setItem("auth_user", JSON.stringify(updated));
+      }
+      return updated;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loginUser, logoutUser }}>
+    <AuthContext.Provider value={{ user, token, loginUser, logoutUser, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

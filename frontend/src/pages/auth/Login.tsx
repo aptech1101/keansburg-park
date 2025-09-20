@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../../services/api"; // đúng đường dẫn
+import { login } from "../../services/api"; // 
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -15,20 +15,26 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await login(email, password);
-
+      const res = await login(email, password, rememberMe); 
       if (res.status === "success" && res.user && res.token) {
         loginUser(
           {
-            user_id: res.user.user_id,
+            id: res.user.id,
             username: res.user.username,
+            email: res.user.email,      
+            phone: res.user.phone,
             role: res.user.role ?? "member",
           },
           res.token,
           rememberMe
         );
-        setMessage("✅ Login successful!");
-        navigate("/");
+
+        // điều hướng theo role
+        if (res.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       } else {
         setMessage(`❌ ${res.message ?? "Login failed"}`);
       }

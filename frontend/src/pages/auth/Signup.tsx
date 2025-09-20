@@ -5,8 +5,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const Signup: React.FC = () => {
   const [fullName, setFullName] = useState("");
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -23,13 +21,15 @@ const Signup: React.FC = () => {
       return;
     }
     try {
-      const res = await signup({ fullName, dob, gender, email, phone, password });
+      const res = await signup({ fullName, email, phone, password });
 
       if (res.status === "success" && res.user) {
         loginUser(
           {
-            user_id: res.user.user_id,
+            id: res.user.id,
             username: res.user.username,
+            email: res.user.email,
+            phone: res.user.phone,
             role: res.user.role ?? "member",
           },
           res.token ?? "",
@@ -41,8 +41,12 @@ const Signup: React.FC = () => {
         setMessage(`❌ ${res.message ?? "Signup failed"}`);
       }
     } catch (err) {
-      setMessage("❌ Server error");
-      console.error(err);
+      console.error("Signup error:", err);
+      if (err instanceof Error) {
+        setMessage(`❌ ${err.message}`);
+      } else {
+        setMessage("❌ Server error. Please try again.");
+      }
     }
   };
 
@@ -55,19 +59,6 @@ const Signup: React.FC = () => {
           <div className="mb-3">
             <label>Full Name</label>
             <input type="text" className="form-control" value={fullName} onChange={e => setFullName(e.target.value)} required />
-          </div>
-          <div className="mb-3">
-            <label>Date of Birth</label>
-            <input type="date" className="form-control" value={dob} onChange={e => setDob(e.target.value)} required />
-          </div>
-          <div className="mb-3">
-            <label>Gender</label>
-            <select className="form-select" value={gender} onChange={e => setGender(e.target.value)} required>
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
           </div>
           <div className="mb-3">
             <label>Email</label>

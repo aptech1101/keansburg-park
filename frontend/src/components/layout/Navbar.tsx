@@ -3,7 +3,10 @@ import { Link, NavLink } from 'react-router-dom';
 import { useOnlineUsers } from '../../hooks/useOnlineUsers';
 import { useAuth } from '../../contexts/AuthContext';
 import keansburgLogo from '../../assets/img/keansburg-logo.png';
-// import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
+
 
 const Navbar: React.FC = () => {
   const [isZonesOpen, setIsZonesOpen] = useState(false);
@@ -23,7 +26,6 @@ const Navbar: React.FC = () => {
         {/* Logo Section */}
         <Link to="/" className="navbar-brand p-0 d-flex align-items-center">
           <img src={keansburgLogo} alt="Keansburg Logo" className="me-3" style={{ height: '50px', width: 'auto' }} />
-          <img src={keansburgLogo} alt="Runaway Rapids" style={{ height: '50px', width: 'auto' }} />
         </Link>
 
         {/* Mobile Toggle */}
@@ -59,22 +61,57 @@ const Navbar: React.FC = () => {
             <div className="me-3" style={{ cursor: 'pointer' }}><i className="fas fa-shopping-cart"></i></div>
 
             {user ? (
-              <div className="nav-item dropdown" onMouseEnter={() => setIsAccountOpen(true)} onMouseLeave={() => setIsAccountOpen(false)} style={{ position: 'relative' }}>
-                <span className="nav-link dropdown-toggle" style={{ cursor: 'pointer' }}>Hello, {user.username}</span>
-                {isAccountOpen && (
-                  <div className="dropdown-menu show" style={{ position: 'absolute', top: '100%', right: 0 }}>
-                    <Link className="dropdown-item" to="/account/profile">Thông tin cá nhân</Link>
-                    <Link className="dropdown-item" to="/account/history">Lịch sử thanh toán</Link>
-                    <span className="dropdown-item" style={{ cursor: 'pointer' }} onClick={logoutUser}>Đăng xuất</span>
-                  </div>
-                )}
+              <div className="nav-item dropdown" style={{ position: 'relative' }}>
+                <span
+                  className="nav-link dropdown-toggle"
+                  style={{ cursor: 'pointer', paddingRight: '0' }}
+                  id="userDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Hello, {user.username}
+                  <i className="bi bi-person-circle" style={{ fontSize: '20px', color: '#3CBEEE' }}></i>
+                </span>
+
+                <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown"
+                style={{
+                  backgroundColor: '#fff',   
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                  borderRadius: '6px',       
+                  padding: '5px 0',          
+                  minWidth: '180px',        
+                }}
+                >
+                  <Link className="dropdown-item" to="/profile">Profile</Link>
+                  <Link className="dropdown-item" to="/orders">Orders</Link>
+                  <span
+                    className="dropdown-item text-danger"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => { logoutUser(); window.location.href = '/'; }}
+                  >
+                    Logout
+                  </span>
+                </div>
               </div>
             ) : (
               <>
-                <Link to="/signup" className="btn rounded-pill py-2 px-3 me-2" style={{ backgroundColor: '#3CBEEE', color: '#fff' }}>Sign up</Link>
-                <Link to="/login" className="btn rounded-pill py-2 px-3 me-3" style={{ backgroundColor: '#3CBEEE', color: '#fff' }}>Login</Link>
+                <Link
+                  to="/signup"
+                  className="btn rounded-pill py-2 px-3 me-2"
+                  style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                >
+                  Sign up
+                </Link>
+                <Link
+                  to="/login"
+                  className="btn rounded-pill py-2 px-3 me-3"
+                  style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                >
+                  Login
+                </Link>
               </>
             )}
+
 
             <div className="text-muted">{onlineUsers.toLocaleString()} Online</div>
           </div>

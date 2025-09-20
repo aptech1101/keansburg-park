@@ -37,6 +37,18 @@ switch ($path) {
         require_once __DIR__ . '/api/auth/signup.php';
         break;
 
+    case '/api/account/updateprofile':
+        require_once __DIR__ . '/api/account/updateprofile.php';
+        break;
+
+    case '/api/account/orders':
+        require_once __DIR__ . '/api/account/orders.php';
+        break;
+
+    case '/api/account/order-details':
+        require_once __DIR__ . '/api/account/order-details.php';
+        break;
+
     case '/api/users':
         send_json([
             ['id' => 1, 'name' => 'Alice'],

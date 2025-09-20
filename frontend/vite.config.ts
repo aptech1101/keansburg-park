@@ -10,6 +10,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+
+  // proxy để call đến backend ( backend đang chạy là trên xampp cổng 80)
+
   server: {
     proxy: {
       '/api': {

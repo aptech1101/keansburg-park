@@ -19,7 +19,9 @@ import Blog from './pages/Blog';
 import NotFound from './pages/NotFound';
 import Signup from './pages/auth/Signup';
 import Login from './pages/auth/Login';
-
+import Admin from './pages/account/Admin';
+import Profile from './pages/account/Profile';
+import Orders from './pages/account/Orders';
 
 const AppRouter: React.FC = () => {
   const location = useLocation();
@@ -46,7 +48,9 @@ const AppRouter: React.FC = () => {
           <Route path="/zones/amusement" element={<NotFound />} />
           <Route path="/zones/water" element={<NotFound />} />
           <Route path="/zones/restaurant" element={<NotFound />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </main>
       <Footer />

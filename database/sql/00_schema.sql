@@ -1,79 +1,184 @@
--- 00_schema.sql
--- MySQL 8.x | InnoDB | utf8mb4
-CREATE DATABASE IF NOT EXISTS keansburg
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_unicode_ci;
-USE keansburg;
-
 -- Users
-CREATE TABLE IF NOT EXISTS users (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(120) NOT NULL,
-  email VARCHAR(150) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+CREATE TABLE `users` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(100) NULL,
+  `full_name` VARCHAR(120) NOT NULL,
+  `email` VARCHAR(190) NOT NULL,
+  `phone` VARCHAR(30) NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `role` ENUM('user','admin') NOT NULL DEFAULT 'user',
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_users_email` (`email`),
+  UNIQUE KEY `uq_users_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Attractions
-CREATE TABLE IF NOT EXISTS attractions (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(150) NOT NULL,
-  description TEXT,
-  zone VARCHAR(100),
-  is_active TINYINT(1) DEFAULT 1
-) ENGINE=InnoDB;
+-- Zones
+CREATE TABLE `zones` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` ENUM('park','water') NOT NULL,
+  `name` VARCHAR(120) NOT NULL,
+  `description` TEXT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_zones_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tickets (pricing can vary by type/day)
-CREATE TABLE IF NOT EXISTS tickets (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(120) NOT NULL,        -- adult/child/family-weekend...
-  base_price DECIMAL(10,2) NOT NULL,
-  notes VARCHAR(255)
-) ENGINE=InnoDB;
+-- Attractions (per zone)
+CREATE TABLE `attractions` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `zone_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(150) NOT NULL,
+  `description` TEXT NULL,
+  `image_url` VARCHAR(255) NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `idx_attractions_zone` (`zone_id`),
+  CONSTRAINT `fk_attractions_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Orders
-CREATE TABLE IF NOT EXISTS orders (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id BIGINT NOT NULL,
-  order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  total_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
-  status ENUM('PENDING','PAID','CANCELLED') DEFAULT 'PENDING',
-  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB;
+-- Restaurants (per zone)
+CREATE TABLE `restaurants` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `zone_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(150) NOT NULL,
+  `description` TEXT NULL,
+  `image_url` VARCHAR(255) NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `idx_restaurants_zone` (`zone_id`),
+  CONSTRAINT `fk_restaurants_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Order items
-CREATE TABLE IF NOT EXISTS order_items (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  order_id BIGINT NOT NULL,
-  ticket_id BIGINT NOT NULL,
-  quantity INT NOT NULL DEFAULT 1,
-  unit_price DECIMAL(10,2) NOT NULL,
-  CONSTRAINT fk_items_order FOREIGN KEY (order_id) REFERENCES orders(id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_items_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB;
+-- Gallery
+CREATE TABLE `gallery` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `image_url` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tickets (pricing by zone)
+CREATE TABLE `tickets` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `zone_id` BIGINT UNSIGNED NOT NULL,
+  `weekday_price` DECIMAL(10,2) NOT NULL,
+  `weekend_price` DECIMAL(10,2) NOT NULL,
+  `description` TEXT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `idx_tickets_zone` (`zone_id`),
+  CONSTRAINT `fk_tickets_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================
+-- Booking flow (Guest + User)
+-- ============================
+
+-- Bookings (unify orders/bookings; user_id nullable for guest)
+CREATE TABLE `bookings` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `booking_code` VARCHAR(20) NOT NULL,
+  `user_id` BIGINT UNSIGNED NULL,       -- NULL for guest
+  `guest_token` CHAR(36) NULL,          -- guest lookup
+  `guest_name` VARCHAR(120) NULL,
+  `guest_email` VARCHAR(120) NULL,
+  `guest_phone` VARCHAR(30) NULL,
+  `visit_date` DATE NOT NULL,
+  `subtotal` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `discount_total` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `grand_total` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `currency` CHAR(3) NOT NULL DEFAULT 'USD',
+  `status` ENUM('PENDING','PAID','CANCELLED','FAILED') NOT NULL DEFAULT 'PENDING',
+  `payment_method` VARCHAR(40) NULL,
+  `idempotency_key` CHAR(36) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_bookings_code` (`booking_code`),
+  UNIQUE KEY `uq_bookings_idem` (`idempotency_key`),
+  KEY `idx_bookings_user_id` (`user_id`),
+  KEY `idx_bookings_guest_token` (`guest_token`),
+  KEY `idx_bookings_visit_date` (`visit_date`),
+  CONSTRAINT `fk_bookings_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Booking details (per ticket type)
+CREATE TABLE `bookingdetails` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `booking_id` BIGINT UNSIGNED NOT NULL,
+  `ticket_id` BIGINT UNSIGNED NOT NULL,
+  `using_date` DATE NOT NULL,
+  `quantity` INT NOT NULL,
+  `unit_price` DECIMAL(12,2) NOT NULL,
+  `discount_rate` DECIMAL(5,2) NOT NULL DEFAULT 0.00,  -- percent
+  `line_total` DECIMAL(12,2) NOT NULL,
+  `ticket_code` VARCHAR(40) NULL,                       -- YYMMDD-SEQ if issued
+  PRIMARY KEY (`id`),
+  KEY `idx_bd_booking` (`booking_id`),
+  KEY `idx_bd_ticket` (`ticket_id`),
+  CONSTRAINT `fk_bd_booking` FOREIGN KEY (`booking_id`) REFERENCES `bookings`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT `fk_bd_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Payments
-CREATE TABLE IF NOT EXISTS payments (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  order_id BIGINT NOT NULL,
-  amount DECIMAL(12,2) NOT NULL,
-  provider VARCHAR(50),
-  paid_at DATETIME,
-  status ENUM('INIT','SUCCESS','FAIL') DEFAULT 'INIT',
-  CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id)
-    ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE `payments` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `booking_id` BIGINT UNSIGNED NOT NULL,
+  `amount` DECIMAL(12,2) NOT NULL,
+  `provider` VARCHAR(50) NULL,
+  `paid_at` DATETIME NULL,
+  `status` ENUM('INIT','SUCCESS','FAIL') NOT NULL DEFAULT 'INIT',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_payments_booking` (`booking_id`),
+  CONSTRAINT `fk_payments_booking` FOREIGN KEY (`booking_id`) REFERENCES `bookings`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Reviews
-CREATE TABLE IF NOT EXISTS reviews (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id BIGINT NOT NULL,
-  rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-  comment TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id)
-    ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- ============================
+-- Feedback & Messages (public)
+-- ============================
+
+-- Feedbacks for both guest and user; single-admin policy => no approved_by/approved_at
+CREATE TABLE `feedbacks` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `rating` TINYINT NOT NULL,
+  `status` ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `created_by` BIGINT UNSIGNED NULL,              -- nullable if guest
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_feedbacks_created_by` (`created_by`),
+  CONSTRAINT `fk_feedbacks_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT `chk_feedbacks_rating` CHECK (`rating` BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Messages (Contact Us form) – no "Your Project" field
+CREATE TABLE `messages` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(120) NOT NULL,
+  `email` VARCHAR(190) NOT NULL,
+  `phone` VARCHAR(30) NULL,
+  `subject` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================
+-- Seeds (optional)
+-- ============================
+
+INSERT INTO `zones` (`code`, `name`, `description`) VALUES
+  ('park','Amusement Park','Dry rides and attractions'),
+  ('water','Water Park','Water slides and pools')
+ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description);
+
+INSERT INTO `tickets` (`zone_id`,`weekday_price`,`weekend_price`,`description`,`is_active`)
+SELECT z.id, 10.00, 12.00, 'Baseline per ticket', 1 FROM zones z WHERE z.code IN ('park','water')
+ON DUPLICATE KEY UPDATE weekday_price=VALUES(weekday_price), weekend_price=VALUES(weekend_price);

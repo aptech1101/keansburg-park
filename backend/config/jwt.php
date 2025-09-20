@@ -6,9 +6,7 @@ use Firebase\JWT\Key;
 
 require_once __DIR__ . '/env.php';
 
-/**
- * Tạo JWT token
- */
+// Tạo JWT token
 function createJWT(array $payload, int $expireSeconds = JWT_EXPIRE_TIME): string {
     $issuedAt = time();
     $expireAt = $issuedAt + $expireSeconds;
@@ -23,9 +21,7 @@ function createJWT(array $payload, int $expireSeconds = JWT_EXPIRE_TIME): string
     return JWT::encode($data, JWT_SECRET, "HS256");
 }
 
-/**
- * Xác thực JWT token
- */
+// Xác thực JWT token
 function verifyJWT(string $token) {
     try {
         $decoded = JWT::decode($token, new Key(JWT_SECRET, "HS256"));

@@ -13,70 +13,79 @@ use Firebase\JWT\Key;
 try {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    if (
-        !isset($data["email"], $data["password"], $data["fullName"],
-        $data["dob"], $data["gender"])
-    ) {
+    $fullName = trim($data['fullName'] ?? '');
+    $email    = trim($data['email'] ?? '');
+    $phone    = trim($data['phone'] ?? '');
+    $password = (string)($data['password'] ?? '');
+
+    if ($fullName === '' || $email === '' || $password === '') {
         http_response_code(400);
         echo json_encode(["status" => "error", "message" => "Missing required fields"]);
         exit;
     }
 
-    $email    = trim($data["email"]);
-    $password = $data["password"];
-    $fullName = trim($data["fullName"]);
-    $dob      = $data["dob"];
-    $gender   = $data["gender"];
-    $phone    = $data["phone"] ?? "";
-
     $pdo = Database::getInstance();
 
-    // Check if email exists
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
+    // Check email unique
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
         http_response_code(400);
-        echo json_encode(["status" => "error", "message" => "Email already registered"]);
+        echo json_encode(["status" => "error", "message" => "Email already exists"]);
         exit;
     }
 
+    // Generate username from email if not provided
+    $baseUsername = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode('@', $email)[0]));
+    if ($baseUsername === '') { $baseUsername = 'user'; }
+    $username = $baseUsername;
+    $suffix = 1;
+    while (true) {
+        $check = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+        $check->execute([$username]);
+        if (!$check->fetch()) break;
+        $username = $baseUsername . $suffix;
+        $suffix++;
+    }
+
+    // Insert
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+    $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, username, phone, role) VALUES (?, ?, ?, ?, ?, 'user')");
+    $stmt->execute([$fullName, $email, $passwordHash, $username, $phone]);
 
-    $username = explode("@", $email)[0]; 
-    $stmt = $pdo->prepare(
-        "INSERT INTO users (username, full_name, date_of_birth, gender, email, phone, password_hash, role)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-    );
-    $username = explode("@", $email)[0]; // auto-generate username
-    $role = "member";
-    $stmt->execute([$username, $fullName, $dob, $gender, $email, $phone, $passwordHash, $role]);
+    $userId = (int)$pdo->lastInsertId();
 
-    $userId = (int) $pdo->lastInsertId();
-
-    // Create JWT
+    // Issue JWT
     $payload = [
-        "iss" => "your-app",
-        "iat" => time(),
-        "exp" => time() + 3600,
         "sub" => $userId,
-        "email" => $email
+        "username" => $username,
+        "role" => 'user',
+        "iat" => time(),
+        "exp" => time() + 60*60*24*7
     ];
-    $token = JWT::encode($payload, $_ENV["JWT_SECRET"], "HS256");
+    $token = JWT::encode($payload, $_ENV["JWT_SECRET"], 'HS256');
 
     echo json_encode([
         "status" => "success",
-        "message" => "User created successfully",
+        "message" => "Signup successful",
         "token" => $token,
         "user" => [
-            "user_id" => $userId,
+            "id" => $userId,
             "username" => $username,
             "email" => $email,
-            "role" => $role
+            "phone" => $phone,
+            "role" => 'user',
+            "lastProfileUpdate" => null
         ]
     ]);
-    
-    
+
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(["status" => "error", "message" => "Server error", "error" => $e->getMessage()]);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Server error", 
+        "error" => $e->getMessage(),
+        "file" => $e->getFile(),
+        "line" => $e->getLine()
+    ]);
 }
