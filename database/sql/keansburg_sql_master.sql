@@ -223,18 +223,19 @@ INSERT INTO `tickets` (`zone_id`,`weekday_price`,`weekend_price`,`description`,`
 SELECT z.id, 10.00, 12.00, 'Baseline per ticket', 1 FROM zones z WHERE z.code IN ('park','water')
 ON DUPLICATE KEY UPDATE weekday_price=VALUES(weekday_price), weekend_price=VALUES(weekend_price);
 
-INSERT INTO `feedbacks` (`name`, `email`, `message`, `rating`, `created_by`)
+INSERT INTO `feedbacks` (`name`, `email`, `message`, `rating`, `status`, `created_by`)
 VALUES
-('Isabella Lopez', 'isabella@example.com', 'Fantastic Water Park with lots of attractions. Worth the visit!', 5, NULL),
-('David Brown', 'david@example.com', 'Fantastic atmosphere at the Amusement Park. Will come again!', 5, NULL),
-('Grace Wilson', 'grace@example.com', 'The Water Park was a perfect summer getaway. Safe and enjoyable!', 5, NULL),
-('Emily Davis', 'emily@example.com', 'Best day ever at the Amusement Park, staff were friendly and helpful.', 5, NULL),
-('Henry Clark', 'henry@example.com', 'Amazing Water Park experience. Kids enjoyed every moment.', 5, NULL),
-('Alice Johnson', 'alice@example.com', 'Amazing experience at the Amusement Park! The rides were thrilling and well maintained.', 5, NULL),
-('Jack Thompson', 'jack@example.com', 'The Water Park exceeded expectations. Great fun for the whole family.', 5, NULL),
-('Brian Smith', 'brian@example.com', 'Loved the Amusement Park! Great place for families and kids.', 5, NULL),
-('Frank Miller', 'frank@example.com', 'Loved the Water Park! The slides were fun and the pools were refreshing.', 5, NULL),
-('Catherine Lee', 'catherine@example.com', 'The Amusement Park was clean, fun, and exciting. Highly recommended!', 5, NULL);
+('Isabella Lopez', 'isabella@example.com', 'Fantastic Water Park with lots of attractions. Worth the visit!', 5, 'approved', NULL),
+('David Brown', 'david@example.com', 'Fantastic atmosphere at the Amusement Park. Will come again!', 5, 'approved', NULL),
+('Grace Wilson', 'grace@example.com', 'The Water Park was a perfect summer getaway. Safe and enjoyable!', 5, 'approved', NULL),
+('Emily Davis', 'emily@example.com', 'Best day ever at the Amusement Park, staff were friendly and helpful.', 5, 'approved', NULL),
+('Henry Clark', 'henry@example.com', 'Amazing Water Park experience. Kids enjoyed every moment.', 5, 'approved', NULL),
+('Alice Johnson', 'alice@example.com', 'Amazing experience at the Amusement Park! The rides were thrilling and well maintained.', 5, 'approved', NULL),
+('Jack Thompson', 'jack@example.com', 'The Water Park exceeded expectations. Great fun for the whole family.', 5, 'approved', NULL),
+('Brian Smith', 'brian@example.com', 'Loved the Amusement Park! Great place for families and kids.', 5, 'approved', NULL),
+('Frank Miller', 'frank@example.com', 'Loved the Water Park! The slides were fun and the pools were refreshing.', 5, 'approved', NULL),
+('Catherine Lee', 'catherine@example.com', 'The Amusement Park was clean, fun, and exciting. Highly recommended!', 5, 'approved', NULL);
+
 
 -- ============================
 -- Restore session vars
