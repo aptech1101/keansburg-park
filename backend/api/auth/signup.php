@@ -1,66 +1,102 @@
 <?php
-$host = "localhost";
-$db_name = "Keansburg_park";
-$username = "root";
-$password = "12345678";
+header("Content-Type: application/json");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die(json_encode(["error" => "Lỗi kết nối: " . $e->getMessage()]));
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-header("Content-Type: application/json");
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../utils/jwt.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['username'], $data['email'], $data['password'])) {
-    echo json_encode(["error" => "Missing required fields"]);
+if (!isset($data['username'], $data['email'], $data['password'], $data['full_name'])) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Missing required fields"
+    ]);
     exit;
 }
 
 $username = trim($data['username']);
 $email = trim($data['email']);
 $password = $data['password'];
+$full_name = trim($data['full_name']);
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["error" => "Invalid email format"]);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Invalid email format"
+    ]);
     exit;
 }
 
 if (strlen($password) < 6) {
-    echo json_encode(["error" => "Password must be at least 6 characters"]);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Password must be at least 6 characters"
+    ]);
     exit;
 }
-
-$stmt = $conn->prepare("SELECT COUNT(*) FROM Users WHERE email = ?");
-$stmt->execute([$email]);
-if ($stmt->fetchColumn() > 0) {
-    echo json_encode(["error" => "Email already exists"]);
-    exit;
-}
-
-$hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-$role = "member";
 
 try {
-    $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$username, $email, $hashedPassword, $role]);
+    $config = require __DIR__ . '/../../config/config.php';
+    $pdo = new PDO(
+        "mysql:host={$config['db']['host']};port={$config['db']['port']};dbname={$config['db']['name']};charset={$config['db']['charset']}",
+        $config['db']['user'],
+        $config['db']['pass'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
 
-    $user_id = $conn->lastInsertId();
+    // Check if email already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->fetchColumn() > 0) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Email already exists"
+        ]);
+        exit;
+    }
+
+    // Check if username already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    if ($stmt->fetchColumn() > 0) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Username already exists"
+        ]);
+        exit;
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    $role = "user";
+
+    $stmt = $pdo->prepare("INSERT INTO users (username, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$username, $full_name, $email, $hashedPassword, $role]);
+
+    $user_id = $pdo->lastInsertId();
 
     echo json_encode([
-        "success" => true,
+        "status" => "success",
         "message" => "User registered successfully",
         "user" => [
             "id" => $user_id,
             "username" => $username,
+            "full_name" => $full_name,
             "email" => $email,
             "role" => $role
         ]
     ]);
 } catch (PDOException $e) {
-    echo json_encode(["error" => "Registration failed: " . $e->getMessage()]);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Registration failed: " . $e->getMessage()
+    ]);
 }
 ?>

@@ -18,11 +18,15 @@ Backend được viết bằng PHP thuần, sử dụng MySQL để lưu dữ li
 1. Clone project hoặc pull từ GitHub:
    ```bash
    git clone <repo_url>
-   cd backend
+   cd D:\DOWNLOAD\keansburg-park\backend
    composer install
-   php -S localhost:8000 -t .
+   php -S 127.0.0.1:8000 -t public
    Server sẽ chạy ở: http://localhost:8000
    Các API có thể gọi như: http://localhost:8000/api/...
    ```
 
 Khi code frontend, mỗi request cần gửi kèm Authorization: Bearer <token> để kết hợp với middleware ở backend
+
+
+sau khi user login, phải lưu token của jwt vào local storage bằng câu lệnh:
+localStorage.setItem('token', respone.data.token)

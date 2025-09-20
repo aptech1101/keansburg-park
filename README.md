@@ -18,7 +18,3 @@ php -S 127.0.0.1:8000 -t public
 
 Env vars (optional): DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
 
-## API Routes
-- /api/users
-- /api/orders
-- /api/tickets
