@@ -7,6 +7,7 @@ import "slick-carousel/slick/slick-theme.css";
 import PromotionBanner from "../components/PromotionBanner";
 import ScrollAnimation from "../components/ScrollAnimation";
 import CountUp from "../components/CountUp";
+import { ReviewDisplay, FeedbackFormData } from "../types/feedback";
 import imgBanner from "../assets/img/home-banner.png";
 import imgAbout from "../assets/img/home-about.png";
 import imgAttraction from "../assets/img/home-attraction.jpg";
@@ -34,7 +35,7 @@ export default function Home() {
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const [reviews, setReviews] = useState<Array<{id:number;name:string;email:string;message:string;rating:number;created_at:string}>>([]);
+  const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [submitState, setSubmitState] = useState<{status:'idle'|'loading'|'success'|'error'; message?:string}>({status:'idle'});
 
   // Gallery images array for navigation
@@ -114,11 +115,11 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fetch latest reviews
+  // Fetch latest reviews (only approved ones)
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?limit=8');
+        const json = await fetchJson('/api/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };
@@ -909,21 +910,22 @@ export default function Home() {
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   const form = e.currentTarget as HTMLFormElement;
-                  const payload = {
+                  const payload: FeedbackFormData = {
                     name: (form.querySelector('#fb-name') as HTMLInputElement)?.value || '',
                     email: (form.querySelector('#fb-email') as HTMLInputElement)?.value || '',
                     message: (form.querySelector('#fb-message') as HTMLTextAreaElement)?.value || '',
                     rating: rating || 5,
+                    user_id: undefined, // TODO: Get from user context if logged in
                   };
                   setSubmitState({status:'loading'});
                   try {
                     const json = await fetchJson('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     if (json.status === 'success') {
-                      setSubmitState({status:'success', message:'Thanks for your feedback!'});
+                      setSubmitState({status:'success', message:'Thanks for your feedback! It will be reviewed before being published.'});
                       form.reset();
                       setRating(0);
                       // refresh list
-                      const r = await fetchJson('/api/reviews?limit=8');
+                      const r = await fetchJson('/api/reviews?status=approved&limit=8');
                       if (r.status === 'success') setReviews(r.data || []);
                     } else {
                       setSubmitState({status:'error', message: json.message || 'Submit failed'});

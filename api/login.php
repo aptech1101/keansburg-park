@@ -3,17 +3,17 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 
-$servername = "localhost";
-$username   = "root";
-$password   = "123456";
-$dbname     = "keansburg_park";
+// Include database configuration
+require_once __DIR__ . '/../backend/config/db.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname, "3306");
-if ($conn->connect_error) {
+// Check if database connection is available
+if (!$GLOBALS['pdo']) {
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Database connection failed"]);
     exit();
 }
+
+$pdo = $GLOBALS['pdo'];
 
 $rawData = file_get_contents("php://input");
 $data = json_decode($rawData);
@@ -30,20 +30,20 @@ if ($data && isset($data->email) && isset($data->password)) {
     exit();
 }
 
-$sql = "SELECT user_id, email, password_hash FROM users WHERE email = '$email' LIMIT 1";
-$result = $conn->query($sql);
+$sql = "SELECT user_id, email, password_hash FROM users WHERE email = ? LIMIT 1";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$email]);
+$user = $stmt->fetch();
 
-if ($result->num_rows == 0) {
+if (!$user) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Invalid email or password 111"]);
+    echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
     exit();
 }
 
-$user = $result->fetch_assoc();
-
 if (!password_verify($password, $user['password_hash'])) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Invalid email or password 222"]);
+    echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
     exit();
 }
 
@@ -56,6 +56,4 @@ echo json_encode([
         "email" => $user['email']
     ]
 ]);
-
-$conn->close();
 ?>

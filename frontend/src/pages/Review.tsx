@@ -1,11 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import PaymentImg from '../assets/img/payment.png';
+import Testimonial1 from '../assets/img/home-testimonial-1.jpg';
+import Testimonial2 from '../assets/img/home-testimonial-2.jpg';
+import Testimonial3 from '../assets/img/home-testimonial-3.jpg';
+import { ReviewDisplay } from '../types/feedback';
 const Review: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
+    const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
+    const [loadingReviews, setLoadingReviews] = useState(true);
+
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 0);
         return () => clearTimeout(timer);
     }, []);
+
+    // API configuration
+    const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+    const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
+    const fallbackUrlB = 'http://localhost:8000';
+    const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+
+    const fetchJson = async (path: string, init?: RequestInit) => {
+        let lastErr: unknown = null;
+        for (const base of API_CANDIDATES) {
+            try {
+                const url = `${base}${path}`.replace(/([^:])\/\//g, '$1/');
+                const res = await fetch(url, init);
+                if (res.ok) return res.json();
+                lastErr = new Error(`HTTP ${res.status}`);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr ?? new Error('All API endpoints failed');
+    };
+
+    // Fetch reviews from API
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                setLoadingReviews(true);
+                const json = await fetchJson('/api/reviews?status=approved&limit=20');
+                if (json && json.status === 'success') {
+                    setReviews(json.data || []);
+                }
+            } catch (error) {
+                console.error('Failed to fetch reviews:', error);
+                setReviews([]);
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+        fetchReviews();
+    }, []);
+
+    // Helper function to render stars
+    const renderStars = (rating: number) => {
+        return Array.from({ length: 5 }, (_, index) => (
+            <i 
+                key={index} 
+                className={`fas fa-star ${index < rating ? 'text-primary' : 'text-white'}`}
+            />
+        ));
+    };
     return (
         <>
             {/* Spinner Start */}

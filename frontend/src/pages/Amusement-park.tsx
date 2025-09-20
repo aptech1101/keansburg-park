@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ItemDetailsModal from "../components/ItemDetailsModal";
+import { ReviewDisplay } from "../types/feedback";
 import imgBanner from "../assets/img/amusement-banner.jpg";
 import imgRides from "../assets/img/amusement-rides.jpeg";
 import imgGoKarts from "../assets/img/amusement-go-karts.jpeg";
@@ -24,7 +25,7 @@ import imgAmusement6 from "../assets/img/amusement-6.png";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
 
 export default function AmusementPark() {
-  const [reviews, setReviews] = useState<Array<{id:number;name:string;email:string;message:string;rating:number;created_at:string}>>([]);
+  const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
 
@@ -271,7 +272,7 @@ export default function AmusementPark() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?limit=8');
+        const json = await fetchJson('/api/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };

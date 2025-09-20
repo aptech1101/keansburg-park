@@ -18,6 +18,7 @@ import Restaurant from './pages/Restaurant';
 import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
 import Guideline from './pages/Guideline';
+import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 
 const AppRouter: React.FC = () => {
@@ -65,6 +66,7 @@ const AppRouter: React.FC = () => {
           <Route path="/zones/amusement" element={<AmusementPark />} />
           <Route path="/zones/water" element={<WaterPark />} />
           <Route path="/zones/restaurant" element={<Restaurant />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

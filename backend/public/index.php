@@ -36,7 +36,7 @@ function send_json($data, int $status = 200): void {
 switch ($path) {
     case '':
     case '/':
-        send_json(['ok' => true, 'service' => 'KeansburgPark API', 'routes' => ['/api/users', '/api/orders', '/api/tickets']]);
+        send_json(['ok' => true, 'service' => 'Keansburg Park API', 'routes' => ['/api/users', '/api/orders', '/api/tickets']]);
         break;
 
     case '/api/users':
@@ -91,22 +91,31 @@ switch ($path) {
             break;
         }
 
-        // Ensure table exists
+        // Ensure table exists with new structure (without foreign key constraint)
         $pdo->exec("CREATE TABLE IF NOT EXISTS feedbacks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL,
             message TEXT NOT NULL,
-            rating INT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            rating TINYINT NOT NULL,
+            status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+            created_by BIGINT UNSIGNED NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_feedbacks_created_by (created_by),
+            CONSTRAINT chk_feedbacks_rating CHECK (rating BETWEEN 1 AND 5)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        $stmt = $pdo->prepare('INSERT INTO feedbacks (name, email, message, rating) VALUES (:name, :email, :message, :rating)');
+        // Get user_id from request if available (for logged-in users)
+        $created_by = isset($input['user_id']) ? (int)$input['user_id'] : null;
+        
+        $stmt = $pdo->prepare('INSERT INTO feedbacks (name, email, message, rating, created_by) VALUES (:name, :email, :message, :rating, :created_by)');
         $stmt->execute([
             ':name' => $name,
             ':email' => $email,
             ':message' => $message,
             ':rating' => $rating,
+            ':created_by' => $created_by,
         ]);
         send_json(['status' => 'success', 'id' => (int)$pdo->lastInsertId()]);
         break;
@@ -123,11 +132,40 @@ switch ($path) {
             break;
         }
         $limit = isset($_GET['limit']) ? max(1, min(50, (int)$_GET['limit'])) : 10;
-        $stmt = $pdo->prepare('SELECT id, name, email, message, rating, created_at FROM feedbacks ORDER BY created_at DESC, id DESC LIMIT :limit');
+        $status = $_GET['status'] ?? 'approved'; // Default to approved, admin can request all
+        
+        $stmt = $pdo->prepare('SELECT id, name, email, message, rating, created_at FROM feedbacks WHERE status = :status ORDER BY created_at DESC, id DESC LIMIT :limit');
+        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         $rows = $stmt->fetchAll();
         send_json(['status' => 'success', 'data' => $rows]);
+        break;
+
+    case '/api/admin/feedbacks':
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Get all feedbacks for admin management
+            $stmt = $pdo->prepare('SELECT id, name, email, message, rating, status, created_at FROM feedbacks ORDER BY created_at DESC');
+            $stmt->execute();
+            $rows = $stmt->fetchAll();
+            send_json(['status' => 'success', 'data' => $rows]);
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            // Update feedback status
+            $input = json_decode(file_get_contents('php://input'), true) ?: [];
+            $id = (int)($input['id'] ?? 0);
+            $status = $input['status'] ?? '';
+            
+            if (!in_array($status, ['pending', 'approved', 'rejected'])) {
+                send_json(['status' => 'error', 'message' => 'Invalid status'], 400);
+                break;
+            }
+            
+            $stmt = $pdo->prepare('UPDATE feedbacks SET status = :status WHERE id = :id');
+            $stmt->execute([':status' => $status, ':id' => $id]);
+            send_json(['status' => 'success', 'message' => 'Feedback status updated']);
+        } else {
+            send_json(['error' => 'Method Not Allowed'], 405);
+        }
         break;
 
     default:

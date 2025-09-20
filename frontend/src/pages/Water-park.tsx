@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ItemDetailsModal from "../components/ItemDetailsModal";
+import { ReviewDisplay } from "../types/feedback";
 import imgBanner from "../assets/img/water-banner.jpg";
 import imgSlides from "../assets/img/water-slides.jpg";
 import imgGLagoon from "../assets/img/water-kiddie-lagoon.png";
@@ -22,7 +23,7 @@ import imgWater5 from "../assets/img/water-5.jpg";
 import imgWater6 from "../assets/img/water-6.jpg";
 
 export default function WaterPark() {
-  const [reviews, setReviews] = useState<Array<{id:number;name:string;email:string;message:string;rating:number;created_at:string}>>([]);
+  const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
 
@@ -239,7 +240,7 @@ export default function WaterPark() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?limit=8');
+        const json = await fetchJson('/api/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };

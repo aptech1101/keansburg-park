@@ -1,4 +1,4 @@
-﻿# KeansburgPark Monorepo
+﻿# Keansburg Park Monorepo
 
 Monorepo with Vite + React frontend and PHP + MySQL backend.
 
@@ -8,12 +8,12 @@ Monorepo with Vite + React frontend and PHP + MySQL backend.
 - docs/: Project docs placeholders
 
 ## Frontend
-cd KeansburgPark/frontend
+cd keansburg-park/frontend
 npm install
 npm run dev
 
 ## Backend
-cd KeansburgPark/backend
+cd keansburg-park/backend
 php -S 127.0.0.1:8000 -t public
 
 Env vars (optional): DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS

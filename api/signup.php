@@ -1,17 +1,19 @@
 <?php
-$host = "localhost";
-$db_name = "Keansburg_park";
-$username = "root";
-$password = "12345678";
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST");
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die(json_encode(["error" => "Lỗi kết nối: " . $e->getMessage()]));
+// Include database configuration
+require_once __DIR__ . '/../backend/config/db.php';
+
+// Check if database connection is available
+if (!$GLOBALS['pdo']) {
+    http_response_code(500);
+    echo json_encode(["error" => "Database connection failed"]);
+    exit();
 }
 
-header("Content-Type: application/json");
+$conn = $GLOBALS['pdo'];
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -34,7 +36,7 @@ if (strlen($password) < 6) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT COUNT(*) FROM Users WHERE email = ?");
+$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
 $stmt->execute([$email]);
 if ($stmt->fetchColumn() > 0) {
     echo json_encode(["error" => "Email already exists"]);
@@ -45,7 +47,7 @@ $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 $role = "member";
 
 try {
-    $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
     $stmt->execute([$username, $email, $hashedPassword, $role]);
 
     $user_id = $conn->lastInsertId();
