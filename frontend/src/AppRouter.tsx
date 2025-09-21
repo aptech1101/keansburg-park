@@ -4,7 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
-import About from './pages/About';
+import Info from './pages/Info';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import Attractions from './pages/Attractions';
@@ -14,9 +14,10 @@ import Service from './pages/Service';
 import Team from './pages/Team';
 import Review from './pages/Review';
 import Blog from './pages/Blog';
-import Restaurant from './pages/Restaurant';
+import Restaurants from './pages/Restaurants';
 import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
+import Policy from './pages/Policy';
 import Guideline from './pages/Guideline';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
@@ -49,7 +50,7 @@ const AppRouter: React.FC = () => {
       <main style={{ minHeight: '70vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<Info />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/attractions" element={<Attractions />} />
@@ -61,11 +62,12 @@ const AppRouter: React.FC = () => {
           <Route path="/review" element={<Review />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/guideline" element={<Guideline />} />
+          <Route path="/policy" element={<Policy />} />
           <Route path="/signup" element={<NotFound />} />
           <Route path="/login" element={<NotFound />} />
           <Route path="/zones/amusement" element={<AmusementPark />} />
           <Route path="/zones/water" element={<WaterPark />} />
-          <Route path="/zones/restaurant" element={<Restaurant />} />
+          <Route path="/zones/restaurant" element={<Restaurants />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -374,6 +374,14 @@ const Navbar: React.FC = () => {
               >
                 Service & Guide
               </NavLink>
+              <NavLink 
+                to="/policy" 
+                className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
+                style={{ padding: '1rem 0' }}
+                onClick={handleNavLinkClick}
+              >
+                Policy
+              </NavLink>
             </div>
 
             {/* Right Side Actions */}

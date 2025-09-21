@@ -68,12 +68,12 @@ const Footer: React.FC = () => {
               <div className="footer-item">
                 <h4 className="text-white mb-4">Support</h4>
                 <div className="d-flex flex-column">
-                  <a href="#" className="text-white-50 mb-2 text-decoration-none">
+                  <Link to="/policy" className="text-white-50 mb-2 text-decoration-none">
                     <i className="fas fa-angle-right me-2" style={{ color: '#3CBEEE' }}></i> Privacy Policy
-                  </a>
-                  <a href="#" className="text-white-50 mb-2 text-decoration-none">
+                  </Link>
+                  <Link to="/about?tab=faq" className="text-white-50 mb-2 text-decoration-none">
                     <i className="fas fa-angle-right me-2" style={{ color: '#3CBEEE' }}></i> FAQ
-                  </a>
+                  </Link>
                   <Link to="/Guideline" className="text-white-50 mb-2 text-decoration-none">
                     <i className="fas fa-angle-right me-2" style={{ color: '#3CBEEE' }}></i> Guide
                   </Link>
