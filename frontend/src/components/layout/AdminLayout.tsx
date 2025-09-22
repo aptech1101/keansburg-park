@@ -16,7 +16,7 @@ const AdminLayout: React.FC = () => {
   };
 
   useEffect(() => {
-    const tempToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzU4Mzc0OTk1fQ._hGYKpFZ5OTYrY44NvPlf9IUwU5h3PAM7z_21HxMDuo";
+    const tempToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzU4NTQ4ODAyfQ.D0yFlJ36j4powZahw5RR0Vr7AnJriRHJwRpTYgWRja4";
       localStorage.setItem("token", tempToken);
   }, []);
 
