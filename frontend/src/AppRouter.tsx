@@ -7,13 +7,10 @@ import Home from './pages/Home';
 import Info from './pages/Info';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
-import Attractions from './pages/Attractions';
 import Ticket from './pages/Ticket';
-import Features from './pages/Features';
 import Service from './pages/Service';
 import Team from './pages/Team';
 import Review from './pages/Review';
-import Blog from './pages/Blog';
 import Restaurants from './pages/Restaurants';
 import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
@@ -53,14 +50,14 @@ const AppRouter: React.FC = () => {
           <Route path="/about" element={<Info />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/attractions" element={<Attractions />} />
+          {/* Attractions route removed */}
           <Route path="/ticket" element={<Ticket />} />
-          <Route path="/features" element={<Features />} />
+          {/* Features route removed */}
           <Route path="/services" element={<Service />} />
           <Route path="/service" element={<Service />} />
           <Route path="/team" element={<Team />} />
           <Route path="/review" element={<Review />} />
-          <Route path="/blog" element={<Blog />} />
+          {/* Blog route removed */}
           <Route path="/guideline" element={<Guideline />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/signup" element={<NotFound />} />
