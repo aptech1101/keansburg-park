@@ -276,9 +276,9 @@ export default function Home() {
                           <input type="number" className="form-control border-0 py-3" id="number" placeholder="Number of Guests" style={{ backgroundColor: '#f8f9fa' }} />
                         </div>
                         <div className="col-12">
-                          <button type="button" className="btn w-100 py-3 px-5 text-white fw-bold" style={{ backgroundColor: '#3CBEEE', fontSize: '16px' }}>
+                          <Link to="/ticket" className="btn w-100 py-3 px-5 text-white fw-bold" style={{ backgroundColor: '#3CBEEE', fontSize: '16px' }}>
                             Book Now
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     </form>

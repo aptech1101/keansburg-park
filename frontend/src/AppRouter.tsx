@@ -16,6 +16,8 @@ import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
 import Policy from './pages/Policy';
 import Guideline from './pages/Guideline';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 
@@ -55,6 +57,8 @@ const AppRouter: React.FC = () => {
           {/* Features route removed */}
           <Route path="/services" element={<Service />} />
           <Route path="/service" element={<Service />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/team" element={<Team />} />
           <Route path="/review" element={<Review />} />
           {/* Blog route removed */}

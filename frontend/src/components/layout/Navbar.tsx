@@ -402,9 +402,15 @@ const Navbar: React.FC = () => {
               </Link>
 
               {/* Cart Icon */}
-              <div className="me-3" style={{ cursor: 'pointer' }}>
+              <Link 
+                to="/cart" 
+                className="me-3" 
+                aria-label="View cart"
+                onClick={handleNavLinkClick}
+                style={{ cursor: 'pointer' }}
+              >
                 <i className="fas fa-shopping-cart" style={{ fontSize: '20px', color: '#666666' }}></i>
-              </div>
+              </Link>
 
               {/* Sign up Button */}
               <Link 
