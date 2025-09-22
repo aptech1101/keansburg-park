@@ -26,6 +26,7 @@ if ($uri !== null) {
     $path = '/';
 }
 
+
 require_once __DIR__ . '/../config/db.php';
 
 function send_json($data, int $status = 200): void {
@@ -36,7 +37,7 @@ function send_json($data, int $status = 200): void {
 switch ($path) {
     case '':
     case '/':
-        send_json(['ok' => true, 'service' => 'Keansburg Park API', 'routes' => ['/api/users', '/api/orders', '/api/tickets']]);
+        send_json(['ok' => true, 'service' => 'Keansburg Park API', 'routes' => ['/api/users', '/api/orders', '/api/tickets', '/api/messages']]);
         break;
 
     case '/api/users':
@@ -58,6 +59,69 @@ switch ($path) {
             ['id' => 'T-001', 'type' => 'Day Pass', 'price' => 49.99],
             ['id' => 'T-002', 'type' => 'Family Pack', 'price' => 149.99],
         ]);
+        break;
+
+    case '/api/ping':
+        send_json([
+            'status' => 'success',
+            'message' => 'API is working',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'server_time' => time(),
+            'php_version' => PHP_VERSION,
+            'memory_usage' => memory_get_usage(true),
+            'memory_peak' => memory_get_peak_usage(true)
+        ]);
+        break;
+
+    case '/api/messages':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            send_json(['error' => 'Method Not Allowed'], 405);
+            break;
+        }
+        $input = json_decode(file_get_contents('php://input'), true) ?: [];
+        $name = trim((string)($input['name'] ?? ''));
+        $email = trim((string)($input['email'] ?? ''));
+        $phone = trim((string)($input['phone'] ?? ''));
+        $subject = trim((string)($input['subject'] ?? ''));
+        $message = trim((string)($input['message'] ?? ''));
+
+        if ($name === '' || $email === '' || $subject === '' || $message === '') {
+            send_json(['status' => 'error', 'message' => 'Missing required fields'], 422);
+            break;
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            send_json(['status' => 'error', 'message' => 'Invalid email'], 422);
+            break;
+        }
+
+        /** @var PDO|null $pdo */
+        $pdo = $GLOBALS['pdo'] ?? null;
+        if (!$pdo) {
+            send_json(['status' => 'error', 'message' => 'Database connection failed'], 500);
+            break;
+        }
+
+        // Ensure messages table exists
+        $pdo->exec("CREATE TABLE IF NOT EXISTS messages (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(120) NOT NULL,
+            email VARCHAR(190) NOT NULL,
+            phone VARCHAR(30) NULL,
+            subject VARCHAR(255) NOT NULL,
+            message TEXT NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $stmt = $pdo->prepare('INSERT INTO messages (name, email, phone, subject, message) VALUES (:name, :email, :phone, :subject, :message)');
+        $stmt->execute([
+            ':name' => $name,
+            ':email' => $email,
+            ':phone' => $phone ?: null,
+            ':subject' => $subject,
+            ':message' => $message,
+        ]);
+        send_json(['status' => 'success', 'id' => (int)$pdo->lastInsertId(), 'message' => 'Message sent successfully']);
         break;
 
     case '/api/feedback':

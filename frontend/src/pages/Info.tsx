@@ -409,7 +409,7 @@ const Info: React.FC = () => {
                       setSubmitting(true);
                       setSubmitMsg(null);
                       try {
-                        const res = await fetch('/backend/public/api/contact', {
+                        const res = await fetch('http://localhost/keansburg-park/backend/public/api/messages', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(form)

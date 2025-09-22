@@ -3,13 +3,123 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import imgPayment from "../assets/img/payment.png";
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  project: string;
+  subject: string;
+  message: string;
+}
+
+interface ApiResponse {
+  status: string;
+  message: string;
+  id?: number;
+}
+
 export default function Contact() {
   const [isLoading, setIsLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    project: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateForm = (): string | null => {
+    if (!formData.name.trim()) return 'Name is required';
+    if (!formData.email.trim()) return 'Email is required';
+    if (!formData.subject.trim()) return 'Subject is required';
+    if (!formData.message.trim()) return 'Message is required';
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) return 'Please enter a valid email address';
+    
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setSubmitStatus('error');
+      setSubmitMessage(validationError);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      // API endpoint for contact form messages
+      const apiUrl = 'http://localhost/keansburg-park/backend/public/api/messages';
+      console.log('Sending request to:', apiUrl);
+      console.log('Current location:', window.location.href);
+      console.log('Full URL being used:', apiUrl);
+      console.log('This should be /api/messages, not /api/contact');
+      
+      // Force absolute URL
+      const absoluteUrl = new URL(apiUrl);
+      console.log('Absolute URL:', absoluteUrl.href);
+      const response = await fetch(absoluteUrl.href, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message
+        })
+      });
+
+      const result: ApiResponse = await response.json();
+
+      if (response.ok && result.status === 'success') {
+        setSubmitStatus('success');
+        setSubmitMessage('Message sent successfully! We will get back to you soon.');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          project: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(result.message || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -46,7 +156,7 @@ export default function Contact() {
               <div>
                 <div className="pb-5">
                   <h4 className="text-primary">Get in Touch</h4>
-                  <p className="mb-0">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a className="text-primary fw-bold" href="https://htmlcodex.com/contact-form">Download Now</a>.</p>
+                  <p className="mb-0">Send us a message using the contact form and we'll get back to you as soon as possible. We're here to help with any questions about our park, tickets, or services.</p>
                 </div>
                 <div className="row g-4">
                   <div className="col-lg-6">
@@ -107,47 +217,129 @@ export default function Contact() {
             <div className="col-xl-6 wow fadeInUp" data-wow-delay="0.4s">
               <div className="bg-light p-5 rounded h-100">
                 <h4 className="text-primary mb-4">Send Your Message</h4>
-                <form onSubmit={(e)=>e.preventDefault()}>
+                
+                {/* Status Messages */}
+                {submitStatus === 'success' && (
+                  <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    <i className="fas fa-check-circle me-2"></i>
+                    {submitMessage}
+                    <button type="button" className="btn-close" onClick={() => setSubmitStatus('idle')}></button>
+                  </div>
+                )}
+                
+                {submitStatus === 'error' && (
+                  <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i className="fas fa-exclamation-circle me-2"></i>
+                    {submitMessage}
+                    <button type="button" className="btn-close" onClick={() => setSubmitStatus('idle')}></button>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
                   <div className="row g-4">
                     <div className="col-lg-12 col-xl-6">
                       <div className="form-floating">
-                        <input type="text" className="form-control border-0" id="name" placeholder="Your Name" />
+                        <input 
+                          type="text" 
+                          className="form-control border-0" 
+                          id="name" 
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Your Name" 
+                          required
+                        />
                         <label htmlFor="name">Your Name</label>
                       </div>
                     </div>
                     <div className="col-lg-12 col-xl-6">
                       <div className="form-floating">
-                        <input type="email" className="form-control border-0" id="email" placeholder="Your Email" />
+                        <input 
+                          type="email" 
+                          className="form-control border-0" 
+                          id="email" 
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Your Email" 
+                          required
+                        />
                         <label htmlFor="email">Your Email</label>
                       </div>
                     </div>
                     <div className="col-lg-12 col-xl-6">
                       <div className="form-floating">
-                        <input type="phone" className="form-control border-0" id="phone" placeholder="Phone" />
+                        <input 
+                          type="tel" 
+                          className="form-control border-0" 
+                          id="phone" 
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="Phone" 
+                        />
                         <label htmlFor="phone">Your Phone</label>
                       </div>
                     </div>
                     <div className="col-lg-12 col-xl-6">
                       <div className="form-floating">
-                        <input type="text" className="form-control border-0" id="project" placeholder="Project" />
+                        <input 
+                          type="text" 
+                          className="form-control border-0" 
+                          id="project" 
+                          name="project"
+                          value={formData.project}
+                          onChange={handleInputChange}
+                          placeholder="Project" 
+                        />
                         <label htmlFor="project">Your Project</label>
                       </div>
                     </div>
                     <div className="col-12">
                       <div className="form-floating">
-                        <input type="text" className="form-control border-0" id="subject" placeholder="Subject" />
+                        <input 
+                          type="text" 
+                          className="form-control border-0" 
+                          id="subject" 
+                          name="subject"
+                          value={formData.subject}
+                          onChange={handleInputChange}
+                          placeholder="Subject" 
+                          required
+                        />
                         <label htmlFor="subject">Subject</label>
                       </div>
                     </div>
                     <div className="col-12">
                       <div className="form-floating">
-                        <textarea className="form-control border-0" placeholder="Leave a message here" id="message" style={{ height: "160px" }}></textarea>
+                        <textarea 
+                          className="form-control border-0" 
+                          placeholder="Leave a message here" 
+                          id="message" 
+                          name="message"
+                          value={formData.message}
+                          onChange={handleInputChange}
+                          style={{ height: "160px" }}
+                          required
+                        ></textarea>
                         <label htmlFor="message">Message</label>
                       </div>
-
                     </div>
                     <div className="col-12">
-                      <button className="btn btn-primary w-100 py-3" type="submit">Send Message</button>
+                      <button 
+                        className="btn btn-primary w-100 py-3" 
+                        type="submit"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Message'
+                        )}
+                      </button>
                     </div>
                   </div>
                 </form>
