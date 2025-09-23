@@ -63,6 +63,23 @@ const Profile: React.FC = () => {
     setPasswordData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Helper: lấy thông điệp lỗi thân thiện từ axios/fetch
+  const getFriendlyError = (err: any, fallback: string) => {
+    // Axios error
+    const msg = err?.response?.data?.message || err?.response?.data?.error;
+    if (typeof msg === 'string' && msg.trim().length > 0) return msg;
+    // Fetch error body as JSON string previously
+    const raw = err?.message;
+    if (typeof raw === 'string' && raw.length > 0) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed?.message) return parsed.message;
+      } catch {}
+      return raw;
+    }
+    return fallback;
+  };
+
   // Xử lý submit cập nhật profile
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,16 +102,7 @@ const Profile: React.FC = () => {
         });
       }
     } catch (err: any) {
-      let friendly = "Update failed";
-      const raw = err?.message;
-      if (typeof raw === "string" && raw.length > 0) {
-        try {
-          const parsed = JSON.parse(raw);
-          friendly = parsed?.message || raw;
-        } catch {
-          friendly = raw;
-        }
-      }
+      const friendly = getFriendlyError(err, "Update failed. Please check your information.");
       setMessage(friendly);
     } finally {
       setIsLoading(false);
@@ -131,13 +139,12 @@ const Profile: React.FC = () => {
     setPasswordMessage("");
 
     try {
-      // Gộp dữ liệu profile với mật khẩu mới
-      const profileDataWithPassword = {
-        ...formData,
-        password: passwordData.newPassword
-      };
-      
-      const res: UpdateProfileResponse = await updateProfile(profileDataWithPassword, token);
+      // Backend yêu cầu username và email -> gửi kèm giá trị hiện tại
+      const res: UpdateProfileResponse = await updateProfile({
+        username: formData.username,
+        email: formData.email,
+        password: passwordData.newPassword,
+      }, token);
       setPasswordMessage(res.message);
 
       if (res.logoutRequired) {
@@ -155,16 +162,7 @@ const Profile: React.FC = () => {
         setShowPasswordModal(false);
       }
     } catch (err: any) {
-      let friendly = "Password change failed";
-      const raw = err?.message;
-      if (typeof raw === "string" && raw.length > 0) {
-        try {
-          const parsed = JSON.parse(raw);
-          friendly = parsed?.message || raw;
-        } catch {
-          friendly = raw;
-        }
-      }
+      const friendly = getFriendlyError(err, "Password change failed. Please try again.");
       setPasswordMessage(friendly);
     } finally {
       setIsLoading(false);

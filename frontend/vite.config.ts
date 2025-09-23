@@ -1,26 +1,27 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'url';
 
+export default ({ mode }) => {
+  // load .env file dựa trên mode
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiBase = env.VITE_API_BASE_URL || 'http://localhost/keansburg-park/backend/public';
 
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-
-  // proxy để call đến backend ( backend đang chạy là trên xampp cổng 80)
-
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost/keansburg-park/backend/public',
-        changeOrigin: true,
-        
-        
+  return defineConfig({
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-  },
-});
+    server: {
+      proxy: {
+        '/api': {
+          target: apiBase,
+          changeOrigin: true,
+          // giữ nguyên đường dẫn, backend map /api/* ở index.php
+        },
+      },
+    },
+  });
+};

@@ -165,7 +165,7 @@ const CheckoutPage: FC = () => {
 
     (async () => {
       try {
-        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+        const res = await fetch(`/api/bookings/create`, { method: 'POST', headers, body: JSON.stringify(payload) });
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }

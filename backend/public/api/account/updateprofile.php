@@ -40,28 +40,38 @@ try {
     $phone = trim($data["phone"] ?? "");
     $newPassword = $data["password"] ?? "";
 
+    $pdo = Database::getInstance();
+
+    // Lấy dữ liệu hiện tại của user để dùng mặc định nếu client không gửi
+    $stmt = $pdo->prepare("SELECT username, email, phone FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    $current = $stmt->fetch(PDO::FETCH_ASSOC) ?: ["username" => null, "email" => null, "phone" => null];
+
+    // Nếu client không gửi username/email/phone thì dùng giá trị hiện tại
+    if ($username === "") { $username = (string)($current['username'] ?? ''); }
+    if ($email === "") { $email = (string)($current['email'] ?? ''); }
+    if ($phone === "") { $phone = (string)($current['phone'] ?? ''); }
+
     if (!$username || !$email) {
         http_response_code(400);
         echo json_encode(["status" => "error", "message" => "Username and email are required"]);
         exit;
     }
 
-    $pdo = Database::getInstance();
-
-    // Kiểm tra email trùng với user khác
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-    $stmt->execute([$email, $userId]);
-    if ($stmt->fetch()) {
-        http_response_code(400);
-        echo json_encode(["status" => "error", "message" => "Email already in use"]);
-        exit;
+    // Chỉ kiểm tra trùng username khi username thay đổi
+    if ($username !== ($current['username'] ?? '')) {
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+        $stmt->execute([$username, $userId]);
+        if ($stmt->fetch()) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "error",
+                "field" => "username",
+                "message" => "This username is already taken. Please choose another."
+            ]);
+            exit;
+        }
     }
-
-
-    // Lấy dữ liệu hiện tại của user để ghi nhận các trường thay đổi
-    $stmt = $pdo->prepare("SELECT username, email, phone FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $current = $stmt->fetch(PDO::FETCH_ASSOC) ?: ["username" => null, "email" => null, "phone" => null];
 
     $changed = [];
     if ($username !== '' && $username !== $current['username']) { $changed['username'] = ["from" => $current['username'], "to" => $username]; }

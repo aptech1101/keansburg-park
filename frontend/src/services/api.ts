@@ -1,9 +1,10 @@
-// src/services/api.ts
 import axios from "axios";
 
 // Inline apiConfig & auth headers so admin can import from services/api
 export const apiConfig = {
-  baseURL: (import.meta as any)?.env?.VITE_API_BASE_URL || "/api",
+ 
+  baseURL: "/api",
+
   timeout: parseInt(((import.meta as any)?.env?.VITE_API_TIMEOUT as string) || "10000", 10),
   headers: { "Content-Type": "application/json" },
 };
