@@ -18,8 +18,21 @@ import Policy from './pages/Policy';
 import Guideline from './pages/Guideline';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Admin from './pages/Admin';
-import NotFound from './pages/NotFound';
+// import NotFound from './pages/NotFound';
+import Signup from './pages/auth/Signup';
+import Login from './pages/auth/Login';
+import AdminLayout from "./components/layout/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminGallery from "./pages/admin/AdminGallery";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminFeedback from "./pages/admin/AdminFeedback";
+import AdminRestaurants from "./pages/admin/AdminRestaurants";
+import AdminZones from "./pages/admin/AdminZones";
+import AdminAttractions from "./pages/admin/AdminAttractions";
+
+import Profile from './pages/account/profile';
+import Orders from './pages/account/Orders';
 
 const AppRouter: React.FC = () => {
   const location = useLocation();
@@ -61,16 +74,26 @@ const AppRouter: React.FC = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/team" element={<Team />} />
           <Route path="/review" element={<Review />} />
-          {/* Blog route removed */}
           <Route path="/guideline" element={<Guideline />} />
           <Route path="/policy" element={<Policy />} />
-          <Route path="/signup" element={<NotFound />} />
-          <Route path="/login" element={<NotFound />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/zones/amusement" element={<AmusementPark />} />
           <Route path="/zones/water" element={<WaterPark />} />
           <Route path="/zones/restaurant" element={<Restaurants />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Orders />} />
+          
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="tickets" element={<AdminTickets />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="gallery" element={<AdminGallery />} />
+            <Route path="restaurants" element={<AdminRestaurants />} />
+            <Route path="attractions" element={<AdminAttractions />} />
+            <Route path="zones" element={<AdminZones />} />
+          </Route>
         </Routes>
       </main>
       <Footer />
