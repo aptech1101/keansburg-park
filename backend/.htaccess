@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Nếu file hoặc folder tồn tại thì dùng bình thường
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite tất cả request thành .php tương ứng
+RewriteRule ^(.*)$ $1.php [L]

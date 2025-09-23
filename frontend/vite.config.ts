@@ -1,15 +1,26 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import { fileURLToPath, URL } from 'url';
 
-// https://vitejs.dev/config/
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+
+  // proxy để call đến backend ( backend đang chạy là trên xampp cổng 80)
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost/keansburg-park/backend/public',
+        changeOrigin: true,
+        
+        
+      },
+    },
+  },
 });
-
-

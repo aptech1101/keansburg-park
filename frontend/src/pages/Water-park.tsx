@@ -218,9 +218,7 @@ export default function WaterPark() {
   };
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-  const fallbackUrlB = 'http://localhost:8000';
-  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+  const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -240,7 +238,7 @@ export default function WaterPark() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?status=approved&limit=8');
+        const json = await fetchJson('/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };

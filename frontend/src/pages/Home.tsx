@@ -89,11 +89,9 @@ export default function Home() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex]);
 
-  // Cấu hình endpoint ứng viên: nếu đang chạy Vite (5173) thì ưu tiên 8000; nếu chạy qua Apache thì ưu tiên /keansburg-park
+  // API base candidates: prefer Vite proxy '/api', fallback to explicit env or localhost:8000
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-  const fallbackUrlB = 'http://localhost:8000';
-  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+  const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -119,7 +117,7 @@ export default function Home() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?status=approved&limit=8');
+        const json = await fetchJson('/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };
@@ -145,6 +143,7 @@ export default function Home() {
   // Carousel settings
   const carouselSettings = {
     dots: false,
+    arrows: false,
     infinite: true,
     speed: 500,
     slidesToShow: 4,
@@ -180,6 +179,7 @@ export default function Home() {
   // Restaurant carousel settings
   const restaurantCarouselSettings = {
     dots: true,
+    arrows: false,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -464,8 +464,6 @@ export default function Home() {
             <Slider 
               ref={setSliderRef}
               {...carouselSettings}
-              prevArrow={<div></div>}
-              nextArrow={<div></div>}
             >
               {/* Carousel Item 1 */}
               <div className="px-2">
@@ -919,13 +917,13 @@ export default function Home() {
                   };
                   setSubmitState({status:'loading'});
                   try {
-                    const json = await fetchJson('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const json = await fetchJson('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     if (json.status === 'success') {
                       setSubmitState({status:'success', message:'Thanks for your feedback! It will be reviewed before being published.'});
                       form.reset();
                       setRating(0);
                       // refresh list
-                      const r = await fetchJson('/api/reviews?status=approved&limit=8');
+                      const r = await fetchJson('/reviews?status=approved&limit=8');
                       if (r.status === 'success') setReviews(r.data || []);
                     } else {
                       setSubmitState({status:'error', message: json.message || 'Submit failed'});

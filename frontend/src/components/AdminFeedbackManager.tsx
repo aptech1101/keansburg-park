@@ -16,8 +16,8 @@ export default function AdminFeedbackManager({ apiUrl }: AdminFeedbackManagerPro
       setLoading(true);
       setError(null);
       
-      const baseUrl = apiUrl || `${window.location.origin}/keansburg-park/backend/public`;
-      const response = await fetch(`${baseUrl}/api/admin/feedbacks`);
+      const baseUrl = apiUrl || '/api';
+      const response = await fetch(`${baseUrl}/admin/feedbacks`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -38,8 +38,8 @@ export default function AdminFeedbackManager({ apiUrl }: AdminFeedbackManagerPro
 
   const updateFeedbackStatus = async (id: number, status: 'pending' | 'approved' | 'rejected') => {
     try {
-      const baseUrl = apiUrl || `${window.location.origin}/keansburg-park/backend/public`;
-      const response = await fetch(`${baseUrl}/api/admin/feedbacks`, {
+      const baseUrl = apiUrl || '/api';
+      const response = await fetch(`${baseUrl}/admin/feedbacks`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

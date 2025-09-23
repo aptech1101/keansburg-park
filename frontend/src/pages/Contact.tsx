@@ -73,7 +73,7 @@ export default function Contact() {
 
     try {
       // API endpoint for contact form messages
-      const apiUrl = 'http://localhost/keansburg-park/backend/public/api/messages';
+      const apiUrl = '/api/messages';
       console.log('Sending request to:', apiUrl);
       console.log('Current location:', window.location.href);
       console.log('Full URL being used:', apiUrl);

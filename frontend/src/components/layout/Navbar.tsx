@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useOnlineUsers } from '../../hooks/useOnlineUsers';
+import { useAuth } from '../../contexts/AuthContext';
 import keansburgLogo from '../../assets/img/keansburg-logo.png';
 import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Navbar: React.FC = () => {
   const [isZonesOpen, setIsZonesOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
   const location = useLocation();
+  const { user, logoutUser } = useAuth();
   
-  // Check if current route is a zones route
   const isZonesRoute = location.pathname.startsWith('/zones/');
-  
-  // Check if current route is a service/guide route
   const isServiceGuideRoute = location.pathname.toLowerCase() === '/service' || location.pathname.toLowerCase() === '/services' || location.pathname.toLowerCase() === '/guideline';
+  
   useEffect(() => {
     const media = window.matchMedia('(min-width: 992px)');
     const update = () => setIsDesktop(media.matches);
@@ -412,35 +414,73 @@ const Navbar: React.FC = () => {
                 <i className="fas fa-shopping-cart" style={{ fontSize: '20px', color: '#666666' }}></i>
               </Link>
 
-              {/* Sign up Button */}
-              <Link 
-                to="/signup" 
-                className="btn rounded-pill py-2 px-3 me-2"
-                style={{ 
-                  backgroundColor: '#3CBEEE',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '14px'
-                }}
-                onClick={handleNavLinkClick}
-              >
-                Sign up
-              </Link>
+              {user ? (
+                <div className="nav-item dropdown" style={{ position: 'relative' }}>
+                  <span
+                    className="nav-link dropdown-toggle"
+                    style={{ cursor: 'pointer', paddingRight: '0' }}
+                    id="userDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Hello, {user.username}
+                    <i className="bi bi-person-circle" style={{ fontSize: '20px', color: '#3CBEEE' }}></i>
+                  </span>
 
-              {/* Login Button */}
-              <Link 
-                to="/login" 
-                className="btn rounded-pill py-2 px-3 me-3"
-                style={{ 
-                  backgroundColor: '#3CBEEE',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '14px'
-                }}
-                onClick={handleNavLinkClick}
-              >
-                Login
-              </Link>
+                  <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown"
+                    style={{
+                      backgroundColor: '#fff',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                      borderRadius: '6px',
+                      padding: '5px 0',
+                      minWidth: '180px',
+                    }}
+                  >
+                    {user.role === 'admin' ? (
+                      <>
+                      <Link className="dropdown-item" to="/admin/dashboard">Dashboard</Link>
+                      <span
+                        className="dropdown-item text-danger"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => { logoutUser(); window.location.href = '/'; }}
+                      >
+                        Logout
+                      </span>
+                    </>
+                    ) : (
+                      <>
+                        <Link className="dropdown-item" to="/profile">Profile</Link>
+                        <Link className="dropdown-item" to="/orders">Orders</Link>
+                        <span
+                          className="dropdown-item text-danger"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => { logoutUser(); window.location.href = '/'; }}
+                        >
+                          Logout
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    className="btn rounded-pill py-2 px-3 me-2"
+                    style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                  >
+                    Sign up
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn rounded-pill py-2 px-3 me-3"
+                    style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
+
 
               {/* Online Users Counter */}
               <div 
@@ -468,9 +508,8 @@ const Navbar: React.FC = () => {
         </nav>
       </div>
     </>
+ 
   );
 };
 
 export default Navbar;
-
-

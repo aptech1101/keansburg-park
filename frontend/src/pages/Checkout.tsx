@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { unitPriceOf, computeDiscount } from "../lib/pricing";
 
 const CheckoutPage: FC = () => {
+  const { token } = useAuth();
   // Lightweight QR placeholder to avoid extra dependency
   const QRCode: FC<{ value: string; size?: number }> = ({ value }) => (
     <div
@@ -130,8 +132,8 @@ const CheckoutPage: FC = () => {
     if (!canConfirm) return;
 
     const oc = buildOrderCode();
-    const baseUrl = (import.meta as any).env?.VITE_API_URL || `${window.location.origin}/keansburg-park/backend/public`;
-    const url = `${baseUrl.replace(/\/$/, '')}/api/bookings/create.php`;
+    const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
+    const url = `${baseUrl.replace(/\/$/, '')}/bookings/create.php`;
 
     const payload = {
       orderCode: oc,
@@ -151,6 +153,9 @@ const CheckoutPage: FC = () => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
     try {
       const idk = (window.crypto && 'randomUUID' in window.crypto)
         ? (window.crypto as any).randomUUID()

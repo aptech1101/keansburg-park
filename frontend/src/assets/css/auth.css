@@ -1,0 +1,21 @@
+/* Style cho input trong login/signup form */
+.auth-input {
+  border: 1.5px solid #ccc;      /* viền xám nhạt */
+  border-radius: 6px;            /* bo góc nhẹ */
+  padding: 10px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+/* Khi focus thì border nổi bật */
+.auth-input:focus {
+  border-color: #1570ef;         /* xanh đậm khi focus */
+  box-shadow: 0 0 4px rgba(21, 112, 239, 0.4);
+  outline: none;
+}
+
+/* Placeholder nhạt màu hơn */
+.auth-input::placeholder {
+  color: #aaa;                   /* xám nhạt */
+  font-size: 13px;
+}

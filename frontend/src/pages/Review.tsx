@@ -14,11 +14,9 @@ const Review: React.FC = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    // API configuration
+    // API configuration: prefer Vite proxy '/api' to keep same port
     const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-    const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-    const fallbackUrlB = 'http://localhost:8000';
-    const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+    const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
 
     const fetchJson = async (path: string, init?: RequestInit) => {
         let lastErr: unknown = null;
@@ -40,7 +38,7 @@ const Review: React.FC = () => {
         const fetchReviews = async () => {
             try {
                 setLoadingReviews(true);
-                const json = await fetchJson('/api/reviews?status=approved&limit=20');
+                const json = await fetchJson('/reviews?status=approved&limit=20');
                 if (json && json.status === 'success') {
                     setReviews(json.data || []);
                 }
