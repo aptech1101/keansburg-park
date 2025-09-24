@@ -18,6 +18,14 @@ try {
     exit();
 }
 
+// Database configuration (forced to requested values)
+$_ENV['DB_HOST']    = '127.0.0.1';
+$_ENV['DB_PORT']    = '3307';
+$_ENV['DB_NAME']    = 'keansburg';
+$_ENV['DB_USER']    = 'root';
+$_ENV['DB_PASS']    = '12345678';
+$_ENV['DB_CHARSET'] = 'utf8mb4';
+
 // JWT config
 define('JWT_SECRET', $_ENV['JWT_SECRET'] ?? 'changeme');
 define('JWT_ISSUER', $_ENV['JWT_ISSUER'] ?? 'yourdomain.com');
