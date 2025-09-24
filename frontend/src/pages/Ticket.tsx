@@ -1,8 +1,9 @@
 /// <reference types="vite/client" />
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import parkImg from "../assets/img/carousel-1.jpg";
-import waterImg from "../assets/img/gallery-1.jpg";
+import parkImg from "../assets/img/amusement-banner.jpg";
+import waterImg from "../assets/img/water-banner.jpg";
+import ticketCartBanner from "../assets/img/ticket-cart-banner.jpg";
 import { unitPriceOf, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
 
 export default function Ticket() {
@@ -306,33 +307,34 @@ export default function Ticket() {
 
       {/* Navbar removed: using global layout Navbar */}
 
-      {/* Header Start */}
-      <div className="container-fluid bg-breadcrumb">
-        <div
-          className="container text-center py-5"
-          style={{ maxWidth: "900px" }}
-        >
-          <h4
-            className="text-white display-4 mb-4 wow fadeInDown"
-            data-wow-delay="0.1s"
-          >
-            Ticket Packages
-          </h4>
-          <ol
-            className="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown"
-            data-wow-delay="0.3s"
-          >
-            <li className="breadcrumb-item">
-              <Link to="/">Home</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <a href="#">Pages</a>
-            </li>
-            <li className="breadcrumb-item active text-primary">Ticket</li>
-          </ol>
+      {/* Banner (Amusement style) */}
+      <div className="position-relative" style={{
+        backgroundImage: `url(${ticketCartBanner})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div className="position-absolute top-0 start-0 w-100 h-100 banner-overlay" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}></div>
+        <div className="container position-relative" style={{ zIndex: 2 }}>
+          <div className="row">
+            <div className="col-12 text-center text-white">
+              <h1 className="display-4 text-white fw-bold mb-3">Ticket Packages</h1>
+              <p className="lead mb-4">Choose your zone, pick a date, and enjoy the fun!</p>
+              <Link to="#booking-widget" className="btn btn-primary btn-lg px-4 py-3 rounded-pill fw-bold" style={{
+                background: 'linear-gradient(45deg, #3CBEEE, #007bff)',
+                border: 'none',
+                boxShadow: '0 8px 25px rgba(60, 190, 238, 0.3)',
+                transition: 'all 0.3s ease'
+              }} onClick={(e) => { e.preventDefault(); scrollToWidget(); }}>
+                Book Now
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Header End */}
+      {/* Banner End */}
 
       {/* Ticket Packages Start */}
       <div className="container-fluid py-5">
@@ -386,6 +388,7 @@ export default function Ticket() {
                     src={parkImg}
                     alt="Amusement Park"
                     className="img-fluid rounded"
+                    style={{ height: '220px', width: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 <h4 className="mb-2">Zone 1 – Amusement Park</h4>
@@ -416,6 +419,7 @@ export default function Ticket() {
                     src={waterImg}
                     alt="Water Park"
                     className="img-fluid rounded"
+                    style={{ height: '220px', width: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 <h4 className="mb-2">Zone 2 – Water Park</h4>
@@ -449,13 +453,7 @@ export default function Ticket() {
 
       {/* Footer removed: using global layout Footer */}
 
-      {/* Back to Top */}
-      <a
-        href="#"
-        className="btn btn-primary btn-lg-square rounded-circle back-to-top"
-      >
-        <i className="fa fa-arrow-up"></i>
-      </a>
+    
     </>
   );
 }

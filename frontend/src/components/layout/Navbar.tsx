@@ -429,34 +429,193 @@ const Navbar: React.FC = () => {
 
                   <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown"
                     style={{
-                      backgroundColor: '#fff',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-                      borderRadius: '6px',
-                      padding: '5px 0',
-                      minWidth: '180px',
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #e9ecef',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                      padding: '8px',
+                      minWidth: '200px'
                     }}
                   >
                     {user.role === 'admin' ? (
                       <>
-                      <Link className="dropdown-item" to="/admin/dashboard">Dashboard</Link>
-                      <span
-                        className="dropdown-item text-danger"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => { logoutUser(); window.location.href = '/'; }}
-                      >
-                        Logout
-                      </span>
-                    </>
-                    ) : (
-                      <>
-                        <Link className="dropdown-item" to="/profile">Profile</Link>
-                        <Link className="dropdown-item" to="/orders">Orders</Link>
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/admin/dashboard"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Dashboard</span>
+                        </Link>
+
                         <span
-                          className="dropdown-item text-danger"
-                          style={{ cursor: 'pointer' }}
+                          className="dropdown-item position-relative overflow-hidden text-danger"
+                          style={{
+                            cursor: 'pointer',
+                            padding: '12px 20px',
+                            display: 'block',
+                            borderRadius: '8px'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-danger)';
+                          }}
                           onClick={() => { logoutUser(); window.location.href = '/'; }}
                         >
-                          Logout
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Logout</span>
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/profile"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Profile</span>
+                        </Link>
+
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/orders"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Orders</span>
+                        </Link>
+
+                        <span
+                          className="dropdown-item position-relative overflow-hidden text-danger"
+                          style={{
+                            cursor: 'pointer',
+                            padding: '12px 20px',
+                            display: 'block',
+                            borderRadius: '8px'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-danger)';
+                          }}
+                          onClick={() => { logoutUser(); window.location.href = '/'; }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Logout</span>
                         </span>
                       </>
                     )}

@@ -9,8 +9,6 @@ import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import Ticket from './pages/Ticket';
 import Service from './pages/Service';
-import Team from './pages/Team';
-import Review from './pages/Review';
 import Restaurants from './pages/Restaurants';
 import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
@@ -72,8 +70,7 @@ const AppRouter: React.FC = () => {
           <Route path="/service" element={<Service />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/review" element={<Review />} />
+          {/* removed: team, review */}
           <Route path="/guideline" element={<Guideline />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/signup" element={<Signup />} />

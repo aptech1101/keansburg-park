@@ -15,7 +15,7 @@ import imgBeach from "../assets/img/amusement-beach.jpg";
 import imgBatting from "../assets/img/amusement-batting-cages.jpg";
 import imgArcades from "../assets/img/amusement-arcades.jpg";
 import imgFishing from "../assets/img/amusement-fishing-pier.jpg";
-import videoWaterpark from "../assets/vid/waterpark-example.mp4";
+import videoAmupark from "../assets/vid/amusement-park.mp4";
 import imgAmusement1 from "../assets/img/amusement-1.jpg";
 import imgAmusement2 from "../assets/img/amusement-2.jpg";
 import imgAmusement3 from "../assets/img/amusement-3.jpg";
@@ -571,7 +571,7 @@ export default function AmusementPark() {
                     poster={imgBanner}
                     preload="metadata"
                   >
-                    <source src={videoWaterpark} type="video/mp4" />
+                    <source src={videoAmupark} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 </div>

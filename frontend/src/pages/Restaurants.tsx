@@ -256,7 +256,7 @@ const Restaurants: React.FC = () => {
       <section className="py-5">
         <div className="container">
           <div className="text-center mx-auto" style={{ maxWidth: '760px' }}>
-            <h5 className="text-uppercase" style={{ color: '#3CBEEE', letterSpacing: '2px' }}>Restaurant & Dining</h5>
+          <h4 className="text-primary mb-3" style={{ fontSize: '20px', letterSpacing: '1px' }}>Restaurant & Dining</h4>
             <h2 className="fw-bold mb-3">Discover Keansburg’s Dining Delights</h2>
             <p className="text-muted mb-0">
               From quick bites to family dining – we have something delicious for everyone.

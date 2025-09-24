@@ -2,6 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import imgPayment from "../assets/img/payment.png";
+import ticketCartBanner from "../assets/img/ticket-cart-banner.jpg";
 import parkImg from "../assets/img/carousel-1.jpg";
 import waterImg from "../assets/img/gallery-1.jpg";
 import { unitPriceOf, isWeekend, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
@@ -138,30 +139,26 @@ const Cart: React.FC = () => {
       )}
       {/* Spinner End */}
 
-      {/* Header Start */}
-      <div className="container-fluid bg-breadcrumb">
-        <div className="container text-center py-5" style={{ maxWidth: 900 }}>
-          <h4
-            className="text-white display-4 mb-4 wow fadeInDown"
-            data-wow-delay="0.1s"
-          >
-            Cart
-          </h4>
-          <ol
-            className="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown"
-            data-wow-delay="0.3s"
-          >
-            <li className="breadcrumb-item">
-              <a href="#/">Home</a>
-            </li>
-            <li className="breadcrumb-item">
-              <a href="#">Pages</a>
-            </li>
-            <li className="breadcrumb-item active text-primary">Cart</li>
-          </ol>
+      {/* Banner (Amusement style) */}
+      <div className="position-relative" style={{
+        backgroundImage: `url(${ticketCartBanner})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '50vh',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}></div>
+        <div className="container position-relative" style={{ zIndex: 2 }}>
+          <div className="row">
+            <div className="col-12 text-center text-white">
+              <h1 className="display-4 text-white fw-bold mb-3">Your Cart</h1>
+              <p className="lead mb-0">Review your tickets and proceed to checkout</p>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Header End */}
+      {/* Banner End */}
 
       {/* Cart Page Start */}
       <div className="container py-5">
@@ -456,13 +453,7 @@ const Cart: React.FC = () => {
       </div>
       {/* Cart Page End */}
 
-      {/* Back to Top */}
-      <a
-        href="#"
-        className="btn btn-primary btn-lg-square rounded-circle back-to-top"
-      >
-        <i className="fa fa-arrow-up"></i>
-      </a>
+      
     </>
   );
 };

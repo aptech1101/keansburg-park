@@ -326,66 +326,83 @@ const Info: React.FC = () => {
           {activeTab === 'contact' && (
             <div>
               {/* Contact Info and Form Side by Side */}
-              <div className="row g-4 mb-4">
+              <div className="row g-4 mb-4 align-items-stretch">
                 {/* Left Column - Contact Info */}
-                <div className="col-12 col-lg-6">
+                <div className="col-12 col-lg-6 h-100">
                   <ScrollAnimation animation="fadeInUp" delay={200}>
-                  <div>
+                  <div className="h-100 d-flex flex-column">
                     <div className="pb-4">
-                      <h4 className="text-primary">Get in Touch</h4>
-                      <p className="mb-0">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a className="text-primary fw-bold" href="https://htmlcodex.com/contact-form">Download Now</a>.</p>
+                      <h4 
+                        className="text-primary mb-3"
+                        style={{ fontWeight: 700 }}
+                        onMouseEnter={(e)=>{ e.currentTarget.style.textShadow='0 8px 24px rgba(60,190,238,0.45)'; e.currentTarget.style.transform='translateY(-1px)'; }}
+                        onMouseLeave={(e)=>{ e.currentTarget.style.textShadow=''; e.currentTarget.style.transform='translateY(0)'; }}
+                      >
+                        Get in Touch
+                      </h4>
+                      <p className="mb-0">Have a question about tickets, events, or visiting the park? Send us a message and we’ll be happy to help!</p>
                     </div>
-                    <div className="row g-4">
-                      <div className="col-12 col-sm-6">
-                        <div className="contact-add-item rounded bg-light p-4">
-                          <div className="contact-icon text-primary mb-4">
-                            <i className="fas fa-map-marker-alt fa-2x"></i>
+                    <div className="d-grid" style={{ gridTemplateRows: 'repeat(4, 1fr)', gap: '14px', height: '100%' }}>
+                      {/* Address - row 1 */}
+                      <div className="h-100">
+                        <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                          <div className="me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                            <i className="fas fa-map-marker-alt" style={{ fontSize: '28px' }}></i>
                           </div>
-                          <div>
-                            <h4>Address</h4>
-                            <p className="mb-0">275 Beachway Ave, Keansburg, NJ 07734, USA</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-12 col-sm-6">
-                        <div className="contact-add-item rounded bg-light p-4">
-                          <div className="contact-icon text-primary mb-4">
-                            <i className="fas fa-envelope fa-2x"></i>
-                          </div>
-                          <div>
-                            <h4>Mail Us</h4>
-                            <p className="mb-0">info@keansburgamusementpark.com</p>
+                          <div style={{ lineHeight: 1.7 }}>
+                            <div style={{ fontSize: '32px', fontWeight: 600, lineHeight: 1.2, marginBottom: '8px' }}>Address</div>
+                            <div>275 Beachway Keansburg, NJ 07734, USA</div>
                           </div>
                         </div>
                       </div>
-                      <div className="col-12 col-sm-6">
-                        <div className="contact-add-item rounded bg-light p-4">
-                          <div className="contact-icon text-primary mb-4">
-                            <i className="fa fa-phone-alt fa-2x"></i>
+
+                      {/* Telephone & Fax - row 2 */}
+                      <div className="h-100">
+                        <div className="d-grid h-100" style={{ gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                          <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                            <div className="me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                              <i className="fa fa-phone-alt" style={{ fontSize: '28px' }}></i>
+                            </div>
+                            <div style={{ lineHeight: 1.7 }}>
+                              <div style={{ fontSize: '32px', fontWeight: 600, lineHeight: 1.2, marginBottom: '8px' }}>Telephone</div>
+                              <div>(732) 495-1400</div>
+                            </div>
                           </div>
-                          <div>
-                            <h4>Telephone</h4>
-                            <p className="mb-0">+1 (732) 495-1400</p>
+                          <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                            <div className="me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                              <i className="fas fa-fax" style={{ fontSize: '28px' }}></i>
+                            </div>
+                            <div style={{ lineHeight: 1.7 }}>
+                              <div style={{ fontSize: '32px', fontWeight: 600, lineHeight: 1.2, marginBottom: '8px' }}>Fax</div>
+                              <div>(732) 495-1402</div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div className="col-12 col-sm-6">
-                        <div className="contact-add-item rounded bg-light p-4">
-                          <div className="contact-icon text-primary mb-4">
-                            <i className="fab fa-firefox-browser fa-2x"></i>
+
+                      {/* Mail Us - row 3 */}
+                      <div className="h-100">
+                        <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                          <div className="me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                            <i className="fas fa-envelope" style={{ fontSize: '28px' }}></i>
                           </div>
-                          <div>
-                            <h4>Website</h4>
-                            <p className="mb-0">keansburgamusementpark.com</p>
+                          <div style={{ lineHeight: 1.7 }}>
+                            <div style={{ fontSize: '32px', fontWeight: 600, lineHeight: 1.2, marginBottom: '8px' }}>Mail Us</div>
+                            <div>info@keansburgamusementpark.com</div>
                           </div>
                         </div>
                       </div>
-                      <div className="col-12">
-                        <div className="d-flex justify-content-around bg-light rounded p-4">
-                          <a className="btn btn-xl-square btn-primary rounded-circle" href="#"><i className="fab fa-facebook-f"></i></a>
-                          <a className="btn btn-xl-square btn-primary rounded-circle" href="#"><i className="fab fa-twitter"></i></a>
-                          <a className="btn btn-xl-square btn-primary rounded-circle" href="#"><i className="fab fa-instagram"></i></a>
-                          <a className="btn btn-xl-square btn-primary rounded-circle" href="#"><i className="fab fa-linkedin-in"></i></a>
+
+                      {/* Website - row 4 */}
+                      <div className="h-100">
+                        <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
+                          <div className="me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                            <i className="fab fa-firefox-browser" style={{ fontSize: '28px' }}></i>
+                          </div>
+                          <div style={{ lineHeight: 1.7 }}>
+                            <div style={{ fontSize: '32px', fontWeight: 600, lineHeight: 1.2, marginBottom: '8px' }}>Website</div>
+                            <div>https://keansburgamusementpark.com</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -394,10 +411,17 @@ const Info: React.FC = () => {
                 </div>
                 
                 {/* Right Column - Contact Form */}
-                <div className="col-12 col-lg-6">
+                <div className="col-12 col-lg-6 h-100">
                   <ScrollAnimation animation="fadeInUp" delay={400}>
-                  <div className="bg-light p-5 rounded h-100" style={{ marginTop: '60px' }}>
-                    <h4 className="text-primary mb-4">Send Your Message</h4>
+                  <div className="bg-light p-5 rounded h-100">
+                    <h4 
+                      className="text-primary mb-4"
+                      style={{ fontWeight: 700 }}
+                      onMouseEnter={(e)=>{ e.currentTarget.style.textShadow='0 8px 24px rgba(60,190,238,0.45)'; e.currentTarget.style.transform='translateY(-1px)'; }}
+                      onMouseLeave={(e)=>{ e.currentTarget.style.textShadow=''; e.currentTarget.style.transform='translateY(0)'; }}
+                    >
+                      Send Your Message
+                    </h4>
                     {submitMsg && (
                       <div className="alert alert-success py-2 mb-3" role="alert">
                         {submitMsg}
@@ -409,7 +433,7 @@ const Info: React.FC = () => {
                       setSubmitting(true);
                       setSubmitMsg(null);
                       try {
-                        const res = await fetch('/api/messages', {
+                        const res = await fetch('http://localhost/keansburg-park/backend/public/api/messages', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(form)

@@ -84,6 +84,7 @@ const Profile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+    if (isLoading) return;
 
     setIsLoading(true);
     setMessage("");
@@ -113,6 +114,7 @@ const Profile: React.FC = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+    if (isLoading) return;
 
     // Validation mật khẩu
     if (!passwordData.currentPassword) {
@@ -189,11 +191,70 @@ const Profile: React.FC = () => {
   if (!user) return <div>Loading profile...</div>;
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 profile-page">
+      <style>{`
+        .profile-page .form-control:hover,
+        .profile-page .form-select:hover,
+        .profile-page .form-control:focus,
+        .profile-page .form-select:focus {
+          box-shadow: none !important;
+          border-color: #ced4da !important;
+          transform: none !important;
+        }
+        .profile-page .btn:hover,
+        .profile-page .btn:focus {
+          box-shadow: none !important;
+          transform: none !important;
+        }
+        .profile-page .form-control,
+        .profile-page .form-select,
+        .profile-page .btn {
+          transition: none !important;
+          min-width: 170px;
+        }
+        .profile-page .card {
+          transition: none !important;
+        }
+        .profile-page .card:hover {
+          transform: none !important;
+          box-shadow: none !important;
+        }
+        /* Clearer titles and inputs */
+        .profile-page .form-label {
+          color: #021016 !important;
+          font-weight: 600 !important;
+          letter-spacing: 0.2px;
+          margin-bottom: 6px;
+        }
+        .profile-page .form-control,
+        .profile-page .form-select {
+          border: 1.5px solid #aeb4ba !important; /* darker than default */
+          background-color: #ffffff !important;
+          color: #021016 !important;
+          border-radius: 8px !important;
+          padding: 10px 12px !important;
+        }
+        .profile-page .form-control:hover,
+        .profile-page .form-select:hover {
+          background-color: #f7fcff !important; /* subtle friendly tint */
+        }
+        .profile-page .form-control:focus,
+        .profile-page .form-select:focus {
+          border-color: #3CBEEE !important; /* primary accent without motion */
+          background-color: #f7fcff !important;
+        }
+        .profile-page .form-control::placeholder {
+          color: #666666 !important;
+          opacity: 1; /* ensure visible across browsers */
+        }
+        .profile-page .form-text {
+          color: #6c757d !important;
+        }
+      `}</style>
       {/* Profile Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">
-          <i className="fas fa-user-circle me-2" style={{ color: '#3cbeee' }}></i>
+          <i className="fas fa-user-circle me-2" style={{ color: '#3CBEEE' }}></i>
           Profile Settings
         </h2>
         <div className="text-muted">
@@ -201,20 +262,22 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* Success/Error Messages */}
-      {message && (
-        <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-info'} alert-dismissible fade show`} role="alert">
-          <i className={`fas ${message.includes('success') ? 'fa-check-circle' : 'fa-info-circle'} me-2`}></i>
-          {message}
-          <button type="button" className="btn-close" onClick={() => setMessage("")}></button>
-        </div>
-      )}
+      {/* Success/Error Messages (fixed height to prevent layout shift) */}
+      <div style={{ minHeight: 56, marginBottom: 16 }}>
+        {message && (
+          <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-info'} alert-dismissible`} role="alert" style={{ marginBottom: 0, transition: 'opacity 200ms ease, transform 200ms ease', opacity: 1 }}>
+            <i className={`fas ${message.includes('success') ? 'fa-check-circle' : 'fa-info-circle'} me-2`}></i>
+            {message}
+            <button type="button" className="btn-close" onClick={() => setMessage("")}></button>
+          </div>
+        )}
+      </div>
 
       {/* Profile Information Card */}
       <div className="row justify-content-center mb-4">
         <div className="col-lg-8">
           <div className="card shadow-sm">
-            <div className="card-header text-white" style={{ backgroundColor: '#3cbeee' }}>
+            <div className="card-header text-white" style={{ backgroundColor: '#3CBEEE' }}>
               <h5 className="mb-0">
                 <i className="fas fa-user me-2"></i>
                 Personal Information
@@ -224,8 +287,8 @@ const Profile: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      <i className="fas fa-user me-1 text-muted"></i>
+                    <label className="fw-semibold">
+                      <i className="fas fa-user me-1" style={{ color: '#3CBEEE' }}></i>
                       Username
                     </label>
                     <input
@@ -238,8 +301,8 @@ const Profile: React.FC = () => {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      <i className="fas fa-envelope me-1 text-muted"></i>
+                    <label className="fw-semibold">
+                      <i className="fas fa-envelope me-1" style={{ color: '#3CBEEE' }}></i>
                       Email Address
                     </label>
                     <input
@@ -252,13 +315,13 @@ const Profile: React.FC = () => {
                       required
                     />
                     <div className="form-text">
-                      <i className="fas fa-lock me-1"></i>
+                      <i className="fas fa-lock me-1" style={{ color: '#3CBEEE' }}></i>
                       Email cannot be changed
                     </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      <i className="fas fa-phone me-1 text-muted"></i>
+                    <label className="fw-semibold">
+                      <i className="fas fa-phone me-1" style={{ color: '#3CBEEE' }}></i>
                       Phone Number
                     </label>
                     <input
@@ -274,7 +337,7 @@ const Profile: React.FC = () => {
                     <button 
                       type="submit" 
                       className="btn text-white"
-                      style={{ backgroundColor: '#1570ef' }}
+                      style={{ backgroundColor: '#3CBEEE', borderColor: '#3CBEEE' }}
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -284,7 +347,7 @@ const Profile: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <i className="fas fa-save me-2"></i>
+                          <i className="fas fa-save me-2" style={{ color: '#3CBEEE' }}></i>
                           Update Profile
                         </>
                       )}
@@ -301,7 +364,7 @@ const Profile: React.FC = () => {
       <div className="row justify-content-center">
         <div className="col-lg-8">
           <div className="card shadow-sm">
-            <div className="card-header text-white" style={{ backgroundColor: '#3cbeee' }}>
+            <div className="card-header text-white" style={{ backgroundColor: '#3CBEEE' }}>
               <h5 className="mb-0">
                 <i className="fas fa-shield-alt me-2"></i>
                 Account Security
@@ -319,11 +382,10 @@ const Profile: React.FC = () => {
                 <div className="col-md-4 text-end">
                   <button
                     type="button"
-                    className="btn"
+                    className="btn text-white"
                     style={{ 
-                      backgroundColor: '#1570ef', 
-                      color: 'white',
-                      border: '1px solid #1570ef'
+                      backgroundColor: '#3CBEEE', 
+                      border: '1px solid #3CBEEE'
                     }}
                     onClick={openPasswordModal}
                   >
@@ -342,7 +404,7 @@ const Profile: React.FC = () => {
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
-              <div className="modal-header text-white" style={{ backgroundColor: '#3cbeee' }}>
+              <div className="modal-header text-white" style={{ backgroundColor: '#3CBEEE' }}>
                 <h5 className="modal-title">
                   <i className="fas fa-key me-2"></i>
                   Change Password
@@ -429,7 +491,7 @@ const Profile: React.FC = () => {
                   <button 
                     type="submit" 
                     className="btn text-white"
-                    style={{ backgroundColor: '#1570ef' }}
+                    style={{ backgroundColor: '#3CBEEE', borderColor: '#3CBEEE' }}
                     disabled={isLoading}
                   >
                     {isLoading ? (

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { apiConfig, getAuthHeaders } from "../../services/api";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const API_URL = `${apiConfig.baseURL}/admin/tickets`;
 const ZONE_API = `${apiConfig.baseURL}/admin/zones`;

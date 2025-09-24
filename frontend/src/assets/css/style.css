@@ -1687,7 +1687,7 @@ section {
 }
 
 .team-item:hover .team-content h5 {
-    color: white !important;
+    color: #3CBEEE !important;
     transform: scale(1.1);
 }
 
@@ -1965,7 +1965,7 @@ section {
 }
 
 .team-item:hover .team-content h5 {
-    color: white !important;
+    color: #3CBEEE !important;
     transform: scale(1.1);
 }
 

@@ -1,6 +1,6 @@
 /* Style cho input trong login/signup form */
 .auth-input {
-  border: 1.5px solid #ccc;      /* viền xám nhạt */
+  border: 1.5px solid #666666;    /* viền xám theo guideline */
   border-radius: 6px;            /* bo góc nhẹ */
   padding: 10px;
   font-size: 14px;
@@ -9,13 +9,13 @@
 
 /* Khi focus thì border nổi bật */
 .auth-input:focus {
-  border-color: #1570ef;         /* xanh đậm khi focus */
-  box-shadow: 0 0 4px rgba(21, 112, 239, 0.4);
+  border-color: var(--bs-primary); /* xanh chủ đạo khi focus */
+  box-shadow: 0 0 4px rgba(60, 190, 238, 0.4);
   outline: none;
 }
 
 /* Placeholder nhạt màu hơn */
 .auth-input::placeholder {
-  color: #aaa;                   /* xám nhạt */
+  color: #666666;                /* xám theo guideline */
   font-size: 13px;
 }
