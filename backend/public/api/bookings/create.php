@@ -159,7 +159,31 @@ try {
     
     $bookingId = (int)$pdo->lastInsertId();
 
-    // Insert booking details & payments (giữ nguyên như cũ)...
+    $detailStmt = $pdo->prepare('INSERT INTO bookingdetails (
+        booking_id, ticket_id, using_date, quantity, unit_price, discount_rate, line_total
+    ) VALUES (
+        :booking_id, :ticket_id, :using_date, :quantity, :unit_price, :discount_rate, :line_total
+    )');
+    foreach ($normCart as $item) {
+        $pricing = $zonePricing[$item['zoneCode']];
+        $ticketId = $pricing['ticket_id'];
+        $unitPrice = $isWeekend($item['visitDate']) ? $pricing['weekend'] : $pricing['weekday'];
+        $quantity = $item['quantity'];
+        $lineTotal = $unitPrice * $quantity;
+    
+        $discountRate = ($totalQty >= 10) ? 10.0 : 0.0; // đơn giản: áp dụng toàn đơn nếu đủ 10 vé
+    
+        $detailStmt->execute([
+            ':booking_id' => $bookingId,
+            ':ticket_id' => $ticketId,
+            ':using_date' => $item['visitDate'],
+            ':quantity' => $quantity,
+            ':unit_price' => $unitPrice,
+            ':discount_rate' => $discountRate,
+            ':line_total' => $lineTotal
+        ]);
+    }
+    
 
     $pdo->commit();
 
