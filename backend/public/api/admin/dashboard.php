@@ -124,6 +124,11 @@ try {
         ];
     }, $feedbacksByStatus);
 
+    // Contacts (messages) count
+    $stmt = $pdo->query("SELECT COUNT(*) as total_contacts FROM messages");
+    $response['total_contacts'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_contacts'];
+
+
     // Recent bookings (last 10)
     $stmt = $pdo->query("
         SELECT 
