@@ -160,9 +160,9 @@ try {
     $bookingId = (int)$pdo->lastInsertId();
 
     $detailStmt = $pdo->prepare('INSERT INTO bookingdetails (
-        booking_id, ticket_id, using_date, quantity, unit_price, discount_rate, line_total
+        booking_id, ticket_id, using_date, quantity, unit_price, discount_rate, line_total, ticket_code
     ) VALUES (
-        :booking_id, :ticket_id, :using_date, :quantity, :unit_price, :discount_rate, :line_total
+        :booking_id, :ticket_id, :using_date, :quantity, :unit_price, :discount_rate, :line_total, :ticket_code
     )');
     foreach ($normCart as $item) {
         $pricing = $zonePricing[$item['zoneCode']];
@@ -172,6 +172,14 @@ try {
         $lineTotal = $unitPrice * $quantity;
     
         $discountRate = ($totalQty >= 10) ? 10.0 : 0.0; // đơn giản: áp dụng toàn đơn nếu đủ 10 vé
+        
+        // Tạo ticket_code: YYMMDD-SEQ format
+        $visitDate = new DateTime($item['visitDate']);
+        $yy = $visitDate->format('y');
+        $mm = $visitDate->format('m');
+        $dd = $visitDate->format('d');
+        $seq = str_pad((string)$bookingId, 4, '0', STR_PAD_LEFT);
+        $ticketCode = "{$yy}{$mm}{$dd}-{$seq}";
     
         $detailStmt->execute([
             ':booking_id' => $bookingId,
@@ -180,7 +188,8 @@ try {
             ':quantity' => $quantity,
             ':unit_price' => $unitPrice,
             ':discount_rate' => $discountRate,
-            ':line_total' => $lineTotal
+            ':line_total' => $lineTotal,
+            ':ticket_code' => $ticketCode
         ]);
     }
     

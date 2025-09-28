@@ -2,19 +2,17 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { unitPriceOf, computeDiscount } from "../lib/pricing";
+import QRCodeSVG from "react-qr-code";
 
 const CheckoutPage: FC = () => {
   const { token } = useAuth();
-  // Lightweight QR placeholder to avoid extra dependency
-  const QRCode: FC<{ value: string; size?: number }> = ({ value }) => (
-    <div
-      aria-label="QR code placeholder"
-      className="border rounded d-flex align-items-center justify-content-center"
-      style={{ width: 72, height: 72, fontSize: 10 }}
-      title={value}
-    >
-      QR
-    </div>
+  // QR Code component using react-qr-code library
+  const QRCodeComponent: FC<{ value: string; size?: number }> = ({ value, size = 72 }) => (
+    <QRCodeSVG
+      value={value}
+      size={size}
+      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+    />
   );
 
   type CartItem = {
@@ -174,12 +172,13 @@ const CheckoutPage: FC = () => {
 
     (async () => {
       try {
-        const res = await fetch(`/api/bookings/create`, { method: 'POST', headers, body: JSON.stringify(payload) });
+        const res = await fetch(`/api/bookings/create.php`, { method: 'POST', headers, body: JSON.stringify(payload) });
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
         const json = await res.json();
         if (!json || json.ok !== true || !json.booking) {
+          console.error('Invalid response:', json);
           throw new Error('Invalid response');
         }
 
@@ -189,7 +188,7 @@ const CheckoutPage: FC = () => {
         setOrderCode(booking.booking_code || oc);
         setIssuedTickets(
           details.map((d) => ({
-            code: d.ticket_code,
+            code: d.ticket_code || `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
             zone: (d.zone_code || '').toUpperCase() || undefined,
             name: fullName.trim(),
             visitDate: d.using_date,
@@ -440,7 +439,7 @@ const CheckoutPage: FC = () => {
                                 }) : "—"}
                               </div>
                             </div>
-                            <QRCode value={t.code} size={72} />
+                            <QRCodeComponent value={t.code} size={72} />
                           </div>
                         </div>
                       </div>
