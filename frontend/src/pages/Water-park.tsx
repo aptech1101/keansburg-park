@@ -1,200 +1,147 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
 import ItemDetailsModal from "../components/ItemDetailsModal";
 import { ReviewDisplay } from "../types/feedback";
+import { apiConfig, toBackendUrl } from "../services/api";
 import imgBanner from "../assets/img/water-banner.jpg";
-import imgSlides from "../assets/img/water-slides.jpg";
-import imgGLagoon from "../assets/img/water-kiddie-lagoon.png";
-import imgTubPools from "../assets/img/water-hot-tub-warming-pools.jpg";
-import imgRooms from "../assets/img/water-changing-rooms.jpg";
-import imgLockers from "../assets/img/water-lockers.png";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
-import videoWaterpark from "../assets/vid/waterpark-example.mp4";
-import imgWater1 from "../assets/img/water-1.jpg";
-import imgWater2 from "../assets/img/water-2.jpg";
-import imgWater3 from "../assets/img/water-3.jpg";
 import imgWater4 from "../assets/img/water-4.jpg";
 import imgWater5 from "../assets/img/water-5.jpg";
 import imgWater6 from "../assets/img/water-6.jpg";
+import imgWater7 from "../assets/img/water-7.jpg";
+import imgWater8 from "../assets/img/water-8.png";
+import videoWaterpark from "../assets/vid/waterpark-example.mp4";
 
 export default function WaterPark() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [attractions, setAttractions] = useState<Array<{
+    id: number;
+    name: string;
+    description: string;
+    image_url: string;
+    zone_name?: string;
+    zone_id?: number;
+    category?: string;
+    features?: string[] | string | null;
+    details?: string | null;
+  }>>([]);
+// Water park static items data
+const staticItems =[
+  {
+    id: 'splash-zone',
+    title: 'Splash Zone',
+    description: 'Cool off in our interactive splash zone! With water fountains, spray features, and refreshing mist, this area provides endless fun and relief from the summer heat.',
+    image: imgWater4,
+    category: 'Interactive Play',
+    features: [
+      'All ages welcome',
+      'Interactive water features',
+      'Misting stations',
+      'Shaded areas',
+      'No height requirements'
+    ],
+    details: 'The splash zone features multiple water play elements including tipping buckets, spray cannons, and gentle water jets that provide cooling fun for everyone.'
+  },
+  {
+    id: 'wave-pool',
+    title: 'Wave Pool',
+    description: 'Experience the ocean-like waves in our massive wave pool! Perfect for swimming, floating, or just relaxing as you enjoy the gentle rhythm of the artificial waves.',
+    image: imgWater5,
+    category: 'Swimming Areas',
+    features: [
+      'Height requirement: 36 inches',
+      'Wave cycles every 10 minutes',
+      'Shallow and deep areas',
+      'Lifeguard supervised',
+      'Float tubes available'
+    ],
+    details: 'Our 25,000 square foot wave pool generates gentle waves perfect for swimming and floating, with designated shallow areas for children and deeper areas for adults.'
+  },
+  {
+    id: 'lazy-river',
+    title: 'Lazy River',
+    description: 'Relax and unwind as you float along our gentle lazy river! Grab a tube, sit back, and let the current carry you through a peaceful water journey around the park.',
+    image: imgWater6,
+    category: 'Relaxation',
+    features: [
+      'All ages welcome',
+      'Duration: 15 minutes',
+      'Gentle current',
+      'Tubes provided',
+      'Scenic route'
+    ],
+    details: 'Our 1,200-foot lazy river winds through beautiful landscaping and provides a peaceful floating experience perfect for relaxation and family time.'
+  },
+  {
+    id: 'water-slides',
+    title: 'Water Slides',
+    description: 'Experience over 18 thrilling water slides at Runaway Rapids! From heart-pounding drops to gentle family slides, there\'s excitement for every age and thrill level.',
+    image: imgWater7,
+    category: 'All Slides',
+    features: [
+      'Over 18 different slides',
+      'Various thrill levels',
+      'Family-friendly options',
+      'Extreme thrill seekers',
+      'All-day access'
+    ],
+    details: 'Our slide collection includes everything from gentle body slides to extreme tube slides with multiple drops and turns, ensuring there\'s something exciting for every member of your family.'
+  },
+  {
+    id: 'kiddie-lagoon',
+    title: 'Kiddie Lagoon',
+    description: 'Perfect for little ones! The Kiddie Lagoon features shallow water, gentle slides, and safe play areas designed specifically for toddlers and young children.',
+    image: imgWater8,
+    category: 'Kids Area',
+    features: [
+      'Ages 2-8 recommended',
+      'Maximum depth: 18 inches',
+      'Gentle water features',
+      'Parent supervision area',
+      'Safety first design'
+    ],
+    details: 'This specially designed area features shallow water, gentle slides, and interactive water toys that are perfect for young children to safely enjoy water play.'
+  }
+];
+  // Water park items from DB (filter by zone name containing 'Water')
+  const waterParkItems = useMemo(() => {
+    const filtered = attractions.filter(a => (a.zone_name || '').toLowerCase().includes('water'));
+    const toFeaturesArray = (features: unknown): string[] => {
+      if (!features) return [];
+      if (Array.isArray(features)) return features.map(String).filter(Boolean);
+      if (typeof features === 'string') {
+        try {
+          const parsed = JSON.parse(features);
+          if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+        } catch {}
+        return features
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+      }
+      return [];
+    };
 
-  // Water park items data
-  const waterParkItems = [
-    {
-      id: 'thrilling-water-slide',
-      title: 'Thrilling Water Slide',
-      description: 'Experience the ultimate adrenaline rush on our signature water slide! With heart-pounding drops and high-speed turns, this ride will leave you breathless and wanting more.',
-      image: imgWater1,
-      category: 'Thrill Slides',
-      features: [
-        'Height requirement: 48 inches',
-        'Maximum speed: 40 mph',
-        'Duration: 30 seconds',
-        'Age recommendation: 12+',
-        'Single or double tubes'
-      ],
-      details: 'Our most popular water slide features a 60-foot drop and multiple twists that will test your courage and leave you screaming with excitement!'
-    },
-    {
-      id: 'family-water-fun',
-      title: 'Family Water Fun',
-      description: 'Perfect for the whole family! Enjoy gentle water activities and interactive play areas designed for all ages to have fun together in a safe environment.',
-      image: imgWater2,
-      category: 'Family Areas',
-      features: [
-        'All ages welcome',
-        'Shallow water areas',
-        'Interactive water features',
-        'Lifeguard supervised',
-        'Parent-child friendly'
-      ],
-      details: 'This family-friendly area features gentle water play with interactive fountains, shallow pools, and safe play structures perfect for young children.'
-    },
-    {
-      id: 'adventure-rapids',
-      title: 'Adventure Rapids',
-      description: 'Navigate through exciting rapids and water obstacles! This thrilling adventure course offers the perfect blend of excitement and challenge for water enthusiasts.',
-      image: imgWater3,
-      category: 'Adventure Course',
-      features: [
-        'Height requirement: 42 inches',
-        'Duration: 5 minutes',
-        'Rapids and obstacles',
-        'Age recommendation: 8+',
-        'Safety equipment provided'
-      ],
-      details: 'Our adventure rapids course features artificial rapids, water obstacles, and challenging turns that provide an exciting water adventure experience.'
-    },
-    {
-      id: 'splash-zone',
-      title: 'Splash Zone',
-      description: 'Cool off in our interactive splash zone! With water fountains, spray features, and refreshing mist, this area provides endless fun and relief from the summer heat.',
-      image: imgWater4,
-      category: 'Interactive Play',
-      features: [
-        'All ages welcome',
-        'Interactive water features',
-        'Misting stations',
-        'Shaded areas',
-        'No height requirements'
-      ],
-      details: 'The splash zone features multiple water play elements including tipping buckets, spray cannons, and gentle water jets that provide cooling fun for everyone.'
-    },
-    {
-      id: 'wave-pool',
-      title: 'Wave Pool',
-      description: 'Experience the ocean-like waves in our massive wave pool! Perfect for swimming, floating, or just relaxing as you enjoy the gentle rhythm of the artificial waves.',
-      image: imgWater5,
-      category: 'Swimming Areas',
-      features: [
-        'Height requirement: 36 inches',
-        'Wave cycles every 10 minutes',
-        'Shallow and deep areas',
-        'Lifeguard supervised',
-        'Float tubes available'
-      ],
-      details: 'Our 25,000 square foot wave pool generates gentle waves perfect for swimming and floating, with designated shallow areas for children and deeper areas for adults.'
-    },
-    {
-      id: 'lazy-river',
-      title: 'Lazy River',
-      description: 'Relax and unwind as you float along our gentle lazy river! Grab a tube, sit back, and let the current carry you through a peaceful water journey around the park.',
-      image: imgWater6,
-      category: 'Relaxation',
-      features: [
-        'All ages welcome',
-        'Duration: 15 minutes',
-        'Gentle current',
-        'Tubes provided',
-        'Scenic route'
-      ],
-      details: 'Our 1,200-foot lazy river winds through beautiful landscaping and provides a peaceful floating experience perfect for relaxation and family time.'
-    },
-    {
-      id: 'water-slides',
-      title: 'Water Slides',
-      description: 'Experience over 18 thrilling water slides at Runaway Rapids! From heart-pounding drops to gentle family slides, there\'s excitement for every age and thrill level.',
-      image: imgSlides,
-      category: 'All Slides',
-      features: [
-        'Over 18 different slides',
-        'Various thrill levels',
-        'Family-friendly options',
-        'Extreme thrill seekers',
-        'All-day access'
-      ],
-      details: 'Our slide collection includes everything from gentle body slides to extreme tube slides with multiple drops and turns, ensuring there\'s something exciting for every member of your family.'
-    },
-    {
-      id: 'kiddie-lagoon',
-      title: 'Kiddie Lagoon',
-      description: 'Perfect for little ones! The Kiddie Lagoon features shallow water, gentle slides, and safe play areas designed specifically for toddlers and young children.',
-      image: imgGLagoon,
-      category: 'Kids Area',
-      features: [
-        'Ages 2-8 recommended',
-        'Maximum depth: 18 inches',
-        'Gentle water features',
-        'Parent supervision area',
-        'Safety first design'
-      ],
-      details: 'This specially designed area features shallow water, gentle slides, and interactive water toys that are perfect for young children to safely enjoy water play.'
-    },
-    {
-      id: 'hot-tub-warming-pools',
-      title: 'Hot Tub & Warming Pools',
-      description: 'Unwind in our luxurious hot tubs and warming pools. Perfect for relaxing after a day of water adventures or warming up on cooler days.',
-      image: imgTubPools,
-      category: 'Relaxation',
-      features: [
-        'All ages welcome',
-        'Temperature: 100-104°F',
-        'Multiple seating areas',
-        'Jets and bubbles',
-        'Year-round access'
-      ],
-      details: 'Our heated pools and hot tubs provide the perfect way to relax and unwind, with comfortable seating and therapeutic jets that help soothe tired muscles.'
-    },
-    {
-      id: 'changing-rooms',
-      title: 'Changing Rooms',
-      description: 'Clean, spacious changing facilities with private stalls, showers, and all the amenities you need for a comfortable water park experience.',
-      image: imgRooms,
-      category: 'Facilities',
-      features: [
-        'Private changing stalls',
-        'Hot showers',
-        'Family changing areas',
-        'Lockers available',
-        'Clean and maintained'
-      ],
-      details: 'Our modern changing facilities feature private stalls, hot showers, and family-friendly areas to ensure your comfort before and after water activities.'
-    },
-    {
-      id: 'lockers',
-      title: 'Lockers',
-      description: 'Keep your valuables safe and secure with our convenient locker rentals. Available in various sizes to accommodate all your belongings.',
-      image: imgLockers,
-      category: 'Services',
-      features: [
-        'Multiple sizes available',
-        'Keyless entry system',
-        'All-day rental',
-        'Secure storage',
-        'Easy access'
-      ],
-      details: 'Our locker system provides secure storage for your valuables with convenient keyless entry and multiple sizes to fit everything from phones to large bags.'
-    },
-  ];
+    return filtered.map((a) => ({
+      id: String(a.id),
+      title: a.name,
+      description: a.description,
+      image: toBackendUrl(a.image_url),
+      category: a.category || a.zone_name || 'Water Park',
+      features: toFeaturesArray(a.features ?? []),
+      details: a.details || undefined
+    }));
+  }, [attractions]);
+
+  const allItems = useMemo(() => {
+    return [...staticItems, ...waterParkItems];
+  }, [waterParkItems]);
 
   const handleItemClick = (index: number) => {
     setCurrentItemIndex(index);
@@ -208,7 +155,7 @@ export default function WaterPark() {
   };
 
   const handleNext = () => {
-    if (currentItemIndex < waterParkItems.length - 1) {
+    if (currentItemIndex < allItems.length - 1) {
       setCurrentItemIndex(currentItemIndex + 1);
     }
   };
@@ -218,9 +165,7 @@ export default function WaterPark() {
   };
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-  const fallbackUrlB = 'http://localhost:8000';
-  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+  const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -238,9 +183,23 @@ export default function WaterPark() {
   };
 
   useEffect(() => {
+    // Load all attractions then filter by zone in memo above
+    const loadAttractions = async () => {
+      try {
+        const { data } = await axios.get(`${apiConfig.baseURL}/admin/attractions`);
+        if (data?.status === 'success') {
+          setAttractions(Array.isArray(data.data) ? data.data : []);
+        } else {
+          setAttractions([]);
+        }
+      } catch {
+        setAttractions([]);
+      }
+    };
+    loadAttractions();
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?status=approved&limit=8');
+        const json = await fetchJson('/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };
@@ -550,174 +509,10 @@ export default function WaterPark() {
 
         {/* Attractions Grid */}
         <div className="row g-4 attractions-grid justify-content-center">
-          {/* Water Attraction 1 */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(0)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgWater1} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Thrilling Water Slide" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Ride Now</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Thrilling Water Slide</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Experience the ultimate adrenaline rush on our signature water slide! 
-                  With heart-pounding drops and high-speed turns, this ride will leave you breathless and wanting more.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Water Attraction 2 */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(1)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgWater2} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Family Water Fun" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Splash Fun</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Family Water Fun</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Perfect for the whole family! Enjoy gentle water activities and interactive 
-                  play areas designed for all ages to have fun together in a safe environment.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Water Attraction 3 */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(2)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgWater3} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Adventure Rapids" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Ride Rapids</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Adventure Rapids</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Navigate through exciting rapids and water obstacles! This thrilling 
-                  adventure course offers the perfect blend of excitement and challenge for water enthusiasts.
-                </p>
-              </div>
-            </div>
-          </div>
-
+          {/*Item static */}
           {/* Water Attraction 4 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(0)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -749,7 +544,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Get Wet</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -772,7 +567,7 @@ export default function WaterPark() {
 
           {/* Water Attraction 5 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(4)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(1)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -804,7 +599,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Ride Waves</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -827,7 +622,7 @@ export default function WaterPark() {
 
           {/* Water Attraction 6 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(5)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(2)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -859,7 +654,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Float Away</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -880,9 +675,9 @@ export default function WaterPark() {
             </div>
           </div>
 
-          {/* Slides */}
+          {/* Water Attraction 7 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(6)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -893,7 +688,7 @@ export default function WaterPark() {
             }}>
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
-                  src={imgSlides} 
+                  src={imgWater7} 
                   className="img-fluid w-100 h-100 attraction-image" 
                   alt="Slides" 
                   style={{ 
@@ -914,7 +709,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Slide Down</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -935,9 +730,9 @@ export default function WaterPark() {
             </div>
           </div>
 
-          {/* Kiddie Lagoon */}
+          {/* Water Attraction 8 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(7)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(4)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -948,7 +743,7 @@ export default function WaterPark() {
             }}>
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
-                  src={imgGLagoon} 
+                  src={imgWater8} 
                   className="img-fluid w-100 h-100 attraction-image" 
                   alt="Kiddie Lagoon" 
                   style={{ 
@@ -969,7 +764,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Splash Fun</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -989,10 +784,10 @@ export default function WaterPark() {
               </div>
             </div>
           </div>
-
-          {/* Hot Tub & Warming Pools */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(8)} style={{
+          {/*Item from database */}
+          {waterParkItems.map((item, index) => (
+          <div key={item.id} className="col-lg-4 col-md-6 mb-4">
+            <div className="attraction-card h-100" onClick={() => handleItemClick(index)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -1003,9 +798,9 @@ export default function WaterPark() {
             }}>
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
-                  src={imgTubPools} 
+                  src={item.image} 
                   className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Hot Tub & Warming Pools" 
+                  alt={item.title} 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -1024,7 +819,7 @@ export default function WaterPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Relax Here</span>
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
@@ -1032,132 +827,23 @@ export default function WaterPark() {
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
-                }}>Hot Tub & Warming Pools</h3>
+                }}>{item.title}</h3>
                 <p className="mb-0 attraction-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
                 }}>
-                  Unwind in our luxurious hot tubs and warming pools. Perfect for relaxing 
-                  after a day of water adventures or warming up on cooler days.
+                  {item.description || 'Click to see more details.'}
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Changing Rooms */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(9)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgRooms} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Changing Rooms" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Get Ready</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Changing Rooms</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Clean, spacious changing facilities with private stalls, showers, and 
-                  all the amenities you need for a comfortable water park experience.
-                </p>
-              </div>
-            </div>
+          ))}
           </div>
 
-          {/* Lockers */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(10)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgLockers} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Lockers" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Secure Items</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Lockers</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Keep your valuables safe and secure with our convenient locker rentals. 
-                  Available in various sizes to accommodate all your belongings.
-                </p>
-              </div>
-            </div>
-          </div>
+        </div>
 
-         </div>
-
-         {/* Customer Reviews Start */}
+        {/* Customer Reviews Start */}
          <div className="container-fluid testimonial py-5" style={{ 
            backgroundImage: `url(${imgTestimonial})`, 
            backgroundSize: 'cover', 
@@ -1283,13 +969,12 @@ export default function WaterPark() {
              </div>
            </div>
          </div>
-       </div>
 
        {/* Item Details Modal */}
        <ItemDetailsModal
          isOpen={isModalOpen}
          onClose={handleCloseModal}
-         items={waterParkItems}
+         items={allItems}
          currentIndex={currentItemIndex}
          onPrevious={handlePrevious}
          onNext={handleNext}

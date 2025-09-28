@@ -50,6 +50,8 @@ CREATE TABLE `users` (
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `reset_token` VARCHAR(255) NULL,
+  `reset_expires` DATETIME NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_users_email` (`email`),
   UNIQUE KEY `uq_users_username` (`username`)
@@ -73,6 +75,9 @@ CREATE TABLE `attractions` (
   `description` TEXT NULL,
   `image_url` VARCHAR(255) NULL,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `category` VARCHAR(100) NULL,
+  `features` JSON NULL,
+  `details` TEXT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_attractions_zone` (`zone_id`),
   CONSTRAINT `fk_attractions_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -86,6 +91,9 @@ CREATE TABLE `restaurants` (
   `description` TEXT NULL,
   `image_url` VARCHAR(255) NULL,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `category` VARCHAR(100) NULL,
+  `features` JSON NULL,
+  `details` TEXT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_restaurants_zone` (`zone_id`),
   CONSTRAINT `fk_restaurants_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT

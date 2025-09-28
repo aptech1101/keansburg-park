@@ -1,0 +1,15 @@
+SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'quang' for key 'users.uq_users_username'
+#0 D:\xamppp\htdocs\keansburg-park\backend\public\api\account\updateprofile.php(81): PDOStatement->execute(Array)
+#1 D:\xamppp\htdocs\keansburg-park\backend\public\index.php(63): require('D:\\xamppp\\htdoc...')
+#2 {main}
+
+SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'quang' for key 'users.uq_users_username'
+#0 D:\xamppp\htdocs\keansburg-park\backend\public\api\account\updateprofile.php(81): PDOStatement->execute(Array)
+#1 D:\xamppp\htdocs\keansburg-park\backend\public\index.php(63): require('D:\\xamppp\\htdoc...')
+#2 {main}
+
+SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'quang' for key 'users.uq_users_username'
+#0 D:\xamppp\htdocs\keansburg-park\backend\public\api\account\updateprofile.php(81): PDOStatement->execute(Array)
+#1 D:\xamppp\htdocs\keansburg-park\backend\public\index.php(63): require('D:\\xamppp\\htdoc...')
+#2 {main}
+

@@ -1,232 +1,145 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
 import ItemDetailsModal from "../components/ItemDetailsModal";
+import { apiConfig, toBackendUrl } from "../services/api";
 import { ReviewDisplay } from "../types/feedback";
 import imgBanner from "../assets/img/amusement-banner.jpg";
-import imgRides from "../assets/img/amusement-rides.jpeg";
-import imgGoKarts from "../assets/img/amusement-go-karts.jpeg";
-import imgGames from "../assets/img/amusement-keansburg-games.jpeg";
-import imgBeach from "../assets/img/amusement-beach.jpg";
-import imgBatting from "../assets/img/amusement-batting-cages.jpg";
-import imgArcades from "../assets/img/amusement-arcades.jpg";
-import imgFishing from "../assets/img/amusement-fishing-pier.jpg";
-import videoWaterpark from "../assets/vid/waterpark-example.mp4";
-import imgAmusement1 from "../assets/img/amusement-1.jpg";
-import imgAmusement2 from "../assets/img/amusement-2.jpg";
+import imgTestimonial from "../assets/img/home-testmonial.jpg";
+import videoWaterpark from "../assets/vid/amusement-park.mp4";
 import imgAmusement3 from "../assets/img/amusement-3.jpg";
 import imgAmusement4 from "../assets/img/amusement-4.jpg";
 import imgAmusement5 from "../assets/img/amusement-5.jpg";
 import imgAmusement6 from "../assets/img/amusement-6.png";
-import imgTestimonial from "../assets/img/home-testmonial.jpg";
+import imgAmusement7 from "../assets/img/amusement-7.jpeg";
+
 
 export default function AmusementPark() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [attractions, setAttractions] = useState<Array<{
+    id: number;
+    name: string;
+    description: string;
+    image_url: string;
+    zone_name?: string;
+    category?: string;
+    features?: string[] | string | null;
+    details?: string | null;
+  }>>([]);
+// Amusement park items data
+const staticItems = [{
+  id: 'spinning-teacups',
+  title: 'Spinning Teacups',
+  description: 'Whirl and twirl in our colorful spinning teacups! Control your own speed as you spin around in this classic family favorite that\'s fun for all ages.',
+  image: imgAmusement3,
+  category: 'Family Rides',
+  features: [
+    'All ages welcome',
+    'Self-controlled spinning',
+    'Duration: 3 minutes',
+    'Colorful themed cups',
+    'Gentle motion'
+  ],
+  details: 'Each teacup can accommodate up to 4 people and features a center wheel that allows riders to control their own spinning speed for maximum fun!'
+},
+{
+  id: 'bumper-cars',
+  title: 'Bumper Cars',
+  description: 'Get ready for friendly collisions in our bumper cars! Drive around the track and bump into friends and family for loads of laughter and excitement.',
+  image: imgAmusement4,
+  category: 'Interactive Rides',
+  features: [
+    'Height requirement: 36 inches',
+    'Duration: 5 minutes',
+    'Electric powered cars',
+    'Safety bumpers',
+    'Up to 20 cars'
+  ],
+  details: 'Our bumper car arena features a smooth track with plenty of space for safe, fun collisions. Perfect for groups and families looking for interactive entertainment.'
+},
+{
+  id: 'swinging-ship',
+  title: 'Swinging Ship',
+  description: 'Feel the thrill of the high seas on our swinging ship! Rock back and forth as you experience the sensation of sailing through the air on this exciting pendulum ride.',
+  image: imgAmusement5,
+  category: 'Thrill Rides',
+  features: [
+    'Height requirement: 42 inches',
+    'Duration: 3 minutes',
+    'Pendulum motion',
+    'Age recommendation: 8+',
+    'Safety restraints'
+  ],
+  details: 'This classic pendulum ride swings riders back and forth in a ship-shaped vehicle, reaching heights of up to 60 feet and providing an exhilarating swinging sensation.'
+},
+{
+  id: 'classic-carousel',
+  title: 'Classic Carousel',
+  description: 'Step into a world of magic on our beautifully decorated carousel! Choose your favorite horse or carriage and enjoy a gentle, nostalgic ride that brings joy to all ages.',
+  image: imgAmusement6,
+  category: 'Family Rides',
+  features: [
+    'All ages welcome',
+    'Duration: 4 minutes',
+    'Hand-carved horses',
+    'Classic music',
+    'Wheelchair accessible'
+  ],
+  details: 'Our vintage-style carousel features 32 hand-carved horses and 2 chariots, all beautifully painted and maintained to provide an authentic classic amusement park experience.'
+},
+{
+  id: 'rides',
+  title: 'Rides',
+  description: 'Experience gravity-defying rides and pulse-pounding coasters that will leave you breathless. From gentle family rides to extreme thrill machines, we have something for every adventure level.',
+  image: imgAmusement7,
+  category: 'All Rides',
+  features: [
+    'Over 25 different rides',
+    'Various thrill levels',
+    'Family-friendly options',
+    'Extreme thrill seekers',
+    'All-day access'
+  ],
+  details: 'Our ride collection includes everything from gentle kiddie rides to extreme thrill machines, ensuring there\'s something exciting for every member of your family.'
+}];
+  // Map attractions to modal items shape (filter to Amusement zone)
+  const amusementItems = useMemo(() => {
+    const filtered = attractions.filter(a => (a.zone_name || '').toLowerCase().includes('amusement'));
+    const toFeaturesArray = (features: unknown): string[] => {
+      if (!features) return [];
+      if (Array.isArray(features)) return features.map(String).filter(Boolean);
+      if (typeof features === 'string') {
+        try {
+          const parsed = JSON.parse(features);
+          if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+        } catch {}
+        return features
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+      }
+      return [];
+    };
 
-  // Amusement park items data
-  const amusementItems = [
-    {
-      id: 'thrilling-coaster',
-      title: 'Thrilling Coaster',
-      description: 'Experience the ultimate adrenaline rush on our signature roller coaster! With heart-pounding drops and high-speed turns, this ride will leave you breathless and wanting more.',
-      image: imgAmusement1,
-      category: 'Thrill Rides',
-      features: [
-        'Height requirement: 48 inches',
-        'Maximum speed: 65 mph',
-        'Duration: 2 minutes',
-        'Age recommendation: 12+',
-        'Safety harness included'
-      ],
-      details: 'Our most popular attraction features a 150-foot drop and multiple inversions that will test your courage and leave you screaming with excitement!'
-    },
-    {
-      id: 'family-ferris-wheel',
-      title: 'Family Ferris Wheel',
-      description: 'Enjoy breathtaking views from our classic Ferris wheel! Perfect for all ages, this gentle ride offers stunning panoramic views of the park and surrounding area.',
-      image: imgAmusement2,
-      category: 'Family Rides',
-      features: [
-        'All ages welcome',
-        'Height requirement: None',
-        'Duration: 8 minutes',
-        'Enclosed gondolas',
-        'Wheelchair accessible'
-      ],
-      details: 'Standing at 100 feet tall, our Ferris wheel provides the perfect opportunity to relax and take in the beautiful scenery while enjoying quality time with family.'
-    },
-    {
-      id: 'spinning-teacups',
-      title: 'Spinning Teacups',
-      description: 'Whirl and twirl in our colorful spinning teacups! Control your own speed as you spin around in this classic family favorite that\'s fun for all ages.',
-      image: imgAmusement3,
-      category: 'Family Rides',
-      features: [
-        'All ages welcome',
-        'Self-controlled spinning',
-        'Duration: 3 minutes',
-        'Colorful themed cups',
-        'Gentle motion'
-      ],
-      details: 'Each teacup can accommodate up to 4 people and features a center wheel that allows riders to control their own spinning speed for maximum fun!'
-    },
-    {
-      id: 'bumper-cars',
-      title: 'Bumper Cars',
-      description: 'Get ready for friendly collisions in our bumper cars! Drive around the track and bump into friends and family for loads of laughter and excitement.',
-      image: imgAmusement4,
-      category: 'Interactive Rides',
-      features: [
-        'Height requirement: 36 inches',
-        'Duration: 5 minutes',
-        'Electric powered cars',
-        'Safety bumpers',
-        'Up to 20 cars'
-      ],
-      details: 'Our bumper car arena features a smooth track with plenty of space for safe, fun collisions. Perfect for groups and families looking for interactive entertainment.'
-    },
-    {
-      id: 'swinging-ship',
-      title: 'Swinging Ship',
-      description: 'Feel the thrill of the high seas on our swinging ship! Rock back and forth as you experience the sensation of sailing through the air on this exciting pendulum ride.',
-      image: imgAmusement5,
-      category: 'Thrill Rides',
-      features: [
-        'Height requirement: 42 inches',
-        'Duration: 3 minutes',
-        'Pendulum motion',
-        'Age recommendation: 8+',
-        'Safety restraints'
-      ],
-      details: 'This classic pendulum ride swings riders back and forth in a ship-shaped vehicle, reaching heights of up to 60 feet and providing an exhilarating swinging sensation.'
-    },
-    {
-      id: 'classic-carousel',
-      title: 'Classic Carousel',
-      description: 'Step into a world of magic on our beautifully decorated carousel! Choose your favorite horse or carriage and enjoy a gentle, nostalgic ride that brings joy to all ages.',
-      image: imgAmusement6,
-      category: 'Family Rides',
-      features: [
-        'All ages welcome',
-        'Duration: 4 minutes',
-        'Hand-carved horses',
-        'Classic music',
-        'Wheelchair accessible'
-      ],
-      details: 'Our vintage-style carousel features 32 hand-carved horses and 2 chariots, all beautifully painted and maintained to provide an authentic classic amusement park experience.'
-    },
-    {
-      id: 'rides',
-      title: 'Rides',
-      description: 'Experience gravity-defying rides and pulse-pounding coasters that will leave you breathless. From gentle family rides to extreme thrill machines, we have something for every adventure level.',
-      image: imgRides,
-      category: 'All Rides',
-      features: [
-        'Over 25 different rides',
-        'Various thrill levels',
-        'Family-friendly options',
-        'Extreme thrill seekers',
-        'All-day access'
-      ],
-      details: 'Our ride collection includes everything from gentle kiddie rides to extreme thrill machines, ensuring there\'s something exciting for every member of your family.'
-    },
-    {
-      id: 'go-karts',
-      title: 'Go Karts',
-      description: 'Speed, Thrills, and Laughs at Fast Trax Go Karts. Race against friends and family on our professional-grade go-kart track. Feel the adrenaline rush as you navigate sharp turns and straightaways.',
-      image: imgGoKarts,
-      category: 'Racing',
-      features: [
-        'Height requirement: 48 inches',
-        'Duration: 8 minutes',
-        'Professional-grade karts',
-        'Safety helmets provided',
-        'Up to 12 karts'
-      ],
-      details: 'Our 1/4 mile track features challenging turns, straightaways, and elevation changes that will test your driving skills while providing maximum fun and excitement.'
-    },
-    {
-      id: 'keansburg-games',
-      title: 'Keansburg Games',
-      description: 'Test your skills at our exhilarating games and win amazing prizes! From classic carnival games to modern arcade challenges, every game promises fun and the chance to win lifelong memories.',
-      image: imgGames,
-      category: 'Games & Arcade',
-      features: [
-        'Over 50 games',
-        'Skill-based challenges',
-        'Prize redemption',
-        'All ages welcome',
-        'Tokens available'
-      ],
-      details: 'Our game area features classic carnival games like ring toss and balloon darts, plus modern arcade games and skill challenges that offer prizes for winners.'
-    },
-    {
-      id: 'beach',
-      title: 'Beach',
-      description: 'Relax and unwind on our beautiful sandy beaches. Experience the classic seaside charm with stunning ocean views, perfect for families looking to combine thrills with tranquility.',
-      image: imgBeach,
-      category: 'Relaxation',
-      features: [
-        'Sandy beach access',
-        'Ocean views',
-        'Beach chairs available',
-        'Food vendors nearby',
-        'All-day access'
-      ],
-      details: 'Our private beach area offers a perfect escape from the excitement of the park, with soft sand, gentle waves, and stunning views of the Atlantic Ocean.'
-    },
-    {
-      id: 'batting-cages',
-      title: 'Batting Cages',
-      description: 'Step up to the plate and swing for the fences! Our batting cages offer the perfect opportunity to practice your swing and pursue your home run dreams in a fun, safe environment.',
-      image: imgBatting,
-      category: 'Sports',
-      features: [
-        'Multiple speed settings',
-        'Professional equipment',
-        'Safety nets',
-        'All skill levels',
-        'Bats and helmets provided'
-      ],
-      details: 'Our batting cages feature professional pitching machines with adjustable speeds from 30-80 mph, making them perfect for both beginners and experienced players.'
-    },
-    {
-      id: 'arcades',
-      title: 'Arcades',
-      description: 'Dive into endless fun at Bev & WaLLy\'s Family Fun Center & The Game Room. From classic arcade games to the latest interactive experiences, there\'s entertainment for every age and interest.',
-      image: imgArcades,
-      category: 'Games & Arcade',
-      features: [
-        'Classic arcade games',
-        'Modern interactive games',
-        'Prize redemption center',
-        'Air conditioning',
-        'All ages welcome'
-      ],
-      details: 'Our arcade features over 100 games including classic pinball machines, modern video games, and interactive experiences that provide hours of entertainment.'
-    },
-    {
-      id: 'fishing-pier',
-      title: 'Fishing Pier',
-      description: 'Enjoy the day fishing on our 2000 foot pier overlooking the Raritan Bay. Whether you\'re a seasoned angler or trying fishing for the first time, our pier offers the perfect setting for a relaxing day by the water.',
-      image: imgFishing,
-      category: 'Fishing',
-      features: [
-        '2000 foot pier',
-        'Bait and tackle shop',
-        'Fishing equipment rental',
-        'All skill levels',
-        'Beautiful bay views'
-      ],
-      details: 'Our fishing pier extends 2000 feet into Raritan Bay, offering excellent fishing opportunities for fluke, striped bass, bluefish, and other local species.'
-    }
-  ];
+    return filtered.map((a) => ({
+      id: String(a.id),
+      title: a.name,
+      description: a.description,
+      image: toBackendUrl(a.image_url),
+      category: a.category || a.zone_name || "Amusement Park",
+      features: toFeaturesArray(a.features ?? []),
+      details: a.details || undefined
+    }));
+  }, [attractions]);
+
+  const allItems = useMemo(() => {
+    return [...staticItems, ...amusementItems];
+  }, [amusementItems]);
 
   const handleItemClick = (index: number) => {
     setCurrentItemIndex(index);
@@ -240,7 +153,7 @@ export default function AmusementPark() {
   };
 
   const handleNext = () => {
-    if (currentItemIndex < amusementItems.length - 1) {
+    if (currentItemIndex < allItems.length - 1) {
       setCurrentItemIndex(currentItemIndex + 1);
     }
   };
@@ -250,9 +163,7 @@ export default function AmusementPark() {
   };
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-  const fallbackUrlB = 'http://localhost:8000';
-  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+  const API_CANDIDATES = ['/api', apiUrl].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -270,9 +181,24 @@ export default function AmusementPark() {
   };
 
   useEffect(() => {
+    // Load attractions from DB
+    const loadAttractions = async () => {
+      try {
+        const { data } = await axios.get(`${apiConfig.baseURL}/admin/attractions`);
+        if (data?.status === 'success') {
+          setAttractions(Array.isArray(data.data) ? data.data : []);
+        } else {
+          setAttractions([]);
+        }
+      } catch {
+        setAttractions([]);
+      }
+    };
+
+    loadAttractions();
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?status=approved&limit=8');
+        const json = await fetchJson('/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };
@@ -533,7 +459,7 @@ export default function AmusementPark() {
         </div>
 
         {/* Video Section */}
-        <div className="py-5 video-section" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="py-5 video-section" style={{ backgroundColor: '#f8f9fa' , borderRadius: '12px' }}>
           <div className="container">
             <div className="row justify-content-center">
               <div className="col-lg-10">
@@ -584,119 +510,10 @@ export default function AmusementPark() {
 
         {/* Attractions Grid */}
         <div className="row g-4 attractions-grid justify-content-center">
-          {/* Amusement 1 */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(0)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgAmusement1} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Thrilling Coaster" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Ride Now</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Thrilling Coaster</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Experience the ultimate adrenaline rush on our signature roller coaster! 
-                  With heart-pounding drops and high-speed turns, this ride will leave you breathless and wanting more.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Amusement 2 */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(1)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgAmusement2} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Family Ferris Wheel" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Take Flight</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Family Ferris Wheel</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Enjoy breathtaking views from our classic Ferris wheel! Perfect for all ages, 
-                  this gentle ride offers stunning panoramic views of the park and surrounding area.
-                </p>
-              </div>
-            </div>
-          </div>
-
+          {/*Item static */}
           {/* Amusement 3 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(2)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(0)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -728,7 +545,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Spin Away</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -751,7 +568,7 @@ export default function AmusementPark() {
 
           {/* Amusement 4 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(1)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -783,7 +600,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Crash & Laugh</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -806,7 +623,7 @@ export default function AmusementPark() {
 
           {/* Amusement 5 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(4)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(2)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -838,7 +655,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Sail Away</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -861,7 +678,7 @@ export default function AmusementPark() {
 
           {/* Amusement 6 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(5)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -893,7 +710,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Ride Magic</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -914,9 +731,9 @@ export default function AmusementPark() {
             </div>
           </div>
 
-          {/* Rides */}
+          {/* Amusement 7 */}
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(6)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(4)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -927,7 +744,7 @@ export default function AmusementPark() {
             }}>
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
-                  src={imgRides} 
+                  src={imgAmusement7} 
                   className="img-fluid w-100 h-100 attraction-image" 
                   alt="Rides" 
                   style={{ 
@@ -948,7 +765,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Explore Rides</span>
+                  
                 </div>
               </div>
               <div className="p-4">
@@ -969,9 +786,10 @@ export default function AmusementPark() {
             </div>
           </div>
 
-          {/* Go Karts */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(7)} style={{
+          {/*Item from database */}
+          {amusementItems.map((item, index) => (
+          <div key={item.id} className="col-lg-4 col-md-6 mb-4">
+            <div className="attraction-card h-100" onClick={() => handleItemClick(index)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -982,9 +800,9 @@ export default function AmusementPark() {
             }}>
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
-                  src={imgGoKarts} 
+                  src={item.image} 
                   className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Go Karts" 
+                  alt={item.title} 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -1003,7 +821,7 @@ export default function AmusementPark() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Race Now</span>
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
@@ -1011,293 +829,18 @@ export default function AmusementPark() {
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
-                }}>Go Karts</h3>
+                }}>{item.title}</h3>
                 <p className="mb-0 attraction-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
                 }}>
-                  Speed, Thrills, and Laughs at Fast Trax Go Karts. Race against friends and family on our 
-                  professional-grade go-kart track. Feel the adrenaline rush as you navigate sharp turns and straightaways.
+                  {item.description || 'Click to see more details.'}
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Keansburg Games */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(8)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgGames} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Keansburg Games" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Play Games</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Keansburg Games</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Test your skills at our exhilarating games and win amazing prizes! From classic carnival games 
-                  to modern arcade challenges, every game promises fun and the chance to win lifelong memories.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Beach */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(9)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgBeach} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Beach" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Relax Here</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Beach</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Relax and unwind on our beautiful sandy beaches. Experience the classic seaside charm 
-                  with stunning ocean views, perfect for families looking to combine thrills with tranquility.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Batting Cages */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(10)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgBatting} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Batting Cages" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Swing Away</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Batting Cages</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Step up to the plate and swing for the fences! Our batting cages offer the perfect opportunity 
-                  to practice your swing and pursue your home run dreams in a fun, safe environment.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Arcades */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(11)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgArcades} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Arcades" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Game On</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Arcades</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Dive into endless fun at Bev & WaLLy's Family Fun Center & The Game Room. From classic 
-                  arcade games to the latest interactive experiences, there's entertainment for every age and interest.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Fishing Pier */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(12)} style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
-                <img 
-                  src={imgFishing} 
-                  className="img-fluid w-100 h-100 attraction-image" 
-                  alt="Fishing Pier" 
-                  style={{ 
-                    objectFit: 'cover',
-                    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                />
-                <div className="attraction-overlay" style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, rgba(60, 190, 238, 0.8), rgba(0, 123, 255, 0.6))',
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>Cast Away</span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
-                  color: '#3CBEEE',
-                  fontSize: '1.5rem',
-                  transition: 'color 0.3s ease'
-                }}>Fishing Pier</h3>
-                <p className="mb-0 attraction-description" style={{ 
-                  color: '#021016', 
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem'
-                }}>
-                  Enjoy the day fishing on our 2000 foot pier overlooking the Raritan Bay. Whether you're 
-                  a seasoned angler or trying fishing for the first time, our pier offers the perfect setting for a relaxing day by the water.
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Customer Reviews Start */}
@@ -1432,7 +975,7 @@ export default function AmusementPark() {
        <ItemDetailsModal
          isOpen={isModalOpen}
          onClose={handleCloseModal}
-         items={amusementItems}
+         items={allItems}
          currentIndex={currentItemIndex}
          onPrevious={handlePrevious}
          onNext={handleNext}

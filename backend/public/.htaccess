@@ -1,8 +1,13 @@
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.php [QSA,L]
-</IfModule>
+RewriteEngine On
 
+# Giữ lại Authorization header để PHP có thể đọc
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+# Nếu là file/thư mục thật thì trả thẳng
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Còn lại chuyển vào index.php (router)
+RewriteRule ^ index.php [L]

@@ -7,20 +7,30 @@ import Home from './pages/Home';
 import Info from './pages/Info';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
-import Attractions from './pages/Attractions';
 import Ticket from './pages/Ticket';
-import Features from './pages/Features';
 import Service from './pages/Service';
-import Team from './pages/Team';
-import Review from './pages/Review';
-import Blog from './pages/Blog';
 import Restaurants from './pages/Restaurants';
 import AmusementPark from './pages/Amusement-park';
 import WaterPark from './pages/Water-park';
 import Policy from './pages/Policy';
 import Guideline from './pages/Guideline';
-import Admin from './pages/Admin';
-import NotFound from './pages/NotFound';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Signup from './pages/auth/Signup';
+import Login from './pages/auth/Login';
+import AdminLayout from "./components/layout/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminGallery from "./pages/admin/AdminGallery";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminFeedback from "./pages/admin/AdminFeedback";
+import AdminRestaurants from "./pages/admin/AdminRestaurants";
+import AdminZones from "./pages/admin/AdminZones";
+import AdminAttractions from "./pages/admin/AdminAttractions";
+import AdminContact from "./pages/admin/AdminContact";
+import Profile from './pages/account/profile';
+import Orders from './pages/account/Orders';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRouter: React.FC = () => {
   const location = useLocation();
@@ -53,23 +63,39 @@ const AppRouter: React.FC = () => {
           <Route path="/about" element={<Info />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/attractions" element={<Attractions />} />
           <Route path="/ticket" element={<Ticket />} />
-          <Route path="/features" element={<Features />} />
           <Route path="/services" element={<Service />} />
           <Route path="/service" element={<Service />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/review" element={<Review />} />
-          <Route path="/blog" element={<Blog />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/guideline" element={<Guideline />} />
           <Route path="/policy" element={<Policy />} />
-          <Route path="/signup" element={<NotFound />} />
-          <Route path="/login" element={<NotFound />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/zones/amusement" element={<AmusementPark />} />
           <Route path="/zones/water" element={<WaterPark />} />
           <Route path="/zones/restaurant" element={<Restaurants />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Orders />} />
+          
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute isAdmin>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="tickets" element={<AdminTickets />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="contact" element={<AdminContact />} />
+            <Route path="gallery" element={<AdminGallery />} />
+            <Route path="restaurants" element={<AdminRestaurants />} />
+            <Route path="attractions" element={<AdminAttractions />} />
+            <Route path="zones" element={<AdminZones />} />
+          </Route>
         </Routes>
       </main>
       <Footer />

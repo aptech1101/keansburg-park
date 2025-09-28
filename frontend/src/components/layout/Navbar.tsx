@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useOnlineUsers } from '../../hooks/useOnlineUsers';
+import { useAuth } from '../../contexts/AuthContext';
 import keansburgLogo from '../../assets/img/keansburg-logo.png';
 import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Navbar: React.FC = () => {
   const [isZonesOpen, setIsZonesOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
   const location = useLocation();
+  const { user, logoutUser } = useAuth();
   
-  // Check if current route is a zones route
   const isZonesRoute = location.pathname.startsWith('/zones/');
-  
-  // Check if current route is a service/guide route
   const isServiceGuideRoute = location.pathname.toLowerCase() === '/service' || location.pathname.toLowerCase() === '/services' || location.pathname.toLowerCase() === '/guideline';
+  
   useEffect(() => {
     const media = window.matchMedia('(min-width: 992px)');
     const update = () => setIsDesktop(media.matches);
@@ -402,39 +404,246 @@ const Navbar: React.FC = () => {
               </Link>
 
               {/* Cart Icon */}
-              <div className="me-3" style={{ cursor: 'pointer' }}>
+              <Link 
+                to="/cart" 
+                className="me-3" 
+                aria-label="View cart"
+                onClick={handleNavLinkClick}
+                style={{ cursor: 'pointer' }}
+              >
                 <i className="fas fa-shopping-cart" style={{ fontSize: '20px', color: '#666666' }}></i>
-              </div>
-
-              {/* Sign up Button */}
-              <Link 
-                to="/signup" 
-                className="btn rounded-pill py-2 px-3 me-2"
-                style={{ 
-                  backgroundColor: '#3CBEEE',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '14px'
-                }}
-                onClick={handleNavLinkClick}
-              >
-                Sign up
               </Link>
 
-              {/* Login Button */}
-              <Link 
-                to="/login" 
-                className="btn rounded-pill py-2 px-3 me-3"
-                style={{ 
-                  backgroundColor: '#3CBEEE',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '14px'
-                }}
-                onClick={handleNavLinkClick}
-              >
-                Login
-              </Link>
+              {user ? (
+                <div className="nav-item dropdown" style={{ position: 'relative' }}>
+                  <span
+                    className="nav-link dropdown-toggle"
+                    style={{ cursor: 'pointer', paddingRight: '0' }}
+                    id="userDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Hello, {user.username}
+                    <i className="bi bi-person-circle" style={{ fontSize: '20px', color: '#3CBEEE' }}></i>
+                  </span>
+
+                  <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #e9ecef',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                      padding: '8px',
+                      margin: '0 0 4px 0',
+                      minWidth: '200px'
+                    }}
+                  >
+                    {user.role === 'admin' ? (
+                      <>
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/admin/dashboard"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Dashboard</span>
+                        </Link>
+
+                        <span
+                          className="dropdown-item position-relative overflow-hidden text-danger"
+                          style={{
+                            cursor: 'pointer',
+                            padding: '12px 20px',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-danger)';
+                          }}
+                          onClick={() => { logoutUser(); window.location.href = '/'; }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px',
+                              margin: '0 0 4px 0'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Logout</span>
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/profile"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Profile</span>
+                        </Link>
+
+                        <Link
+                          className="dropdown-item position-relative overflow-hidden"
+                          to="/orders"
+                          style={{
+                            color: 'var(--bs-dark)',
+                            padding: '12px 20px',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-dark)';
+                          }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Orders</span>
+                        </Link>
+
+                        <span
+                          className="dropdown-item position-relative overflow-hidden text-danger"
+                          style={{
+                            cursor: 'pointer',
+                            padding: '12px 20px',
+                            display: 'block',
+                            borderRadius: '8px',
+                            margin: '0 0 4px 0'
+                          }}
+                          onMouseEnter={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(0)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            const overlay = e.currentTarget.querySelector('.dropdown-overlay') as HTMLElement;
+                            if (overlay) overlay.style.transform = 'translateY(-100%)';
+                            e.currentTarget.style.color = 'var(--bs-danger)';
+                          }}
+                          onClick={() => { logoutUser(); window.location.href = '/'; }}
+                        >
+                          <div
+                            className="dropdown-overlay position-absolute top-0 start-0 w-100 h-100"
+                            style={{
+                              backgroundColor: '#3CBEEE',
+                              transform: 'translateY(-100%)',
+                              transition: 'transform 0.4s ease-in-out',
+                              zIndex: 1,
+                              borderRadius: '8px'
+                            }}
+                          ></div>
+                          <span className="position-relative" style={{ zIndex: 2 }}>Logout</span>
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    className="btn rounded-pill py-2 px-3 me-2"
+                    style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                  >
+                    Sign up
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn rounded-pill py-2 px-3 me-3"
+                    style={{ backgroundColor: '#3CBEEE', color: '#fff' }}
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
+
 
               {/* Online Users Counter */}
               <div 
@@ -462,9 +671,8 @@ const Navbar: React.FC = () => {
         </nav>
       </div>
     </>
+ 
   );
 };
 
 export default Navbar;
-
-

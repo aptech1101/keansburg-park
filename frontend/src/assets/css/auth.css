@@ -1,0 +1,85 @@
+/* Style cho input trong login/signup form */
+.auth-input {
+  border: 2px solid #e0e0e0;     /* viền xám nhạt rõ ràng hơn */
+  border-radius: 8px;            /* bo góc đẹp hơn */
+  padding: 12px 16px;            /* padding rộng hơn */
+  font-size: 15px;               /* font size lớn hơn */
+  background-color: #ffffff;     /* nền trắng rõ ràng */
+  color: #333333;                /* text đậm hơn */
+  transition: all 0.3s ease;     /* transition mượt mà */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* shadow nhẹ */
+}
+
+/* Hover effect */
+.auth-input:hover {
+  border-color: #3CBEEE;         /* border xanh khi hover */
+  box-shadow: 0 4px 8px rgba(60, 190, 238, 0.15);
+}
+
+/* Khi focus thì border nổi bật */
+.auth-input:focus {
+  border-color: #3CBEEE;         /* xanh chủ đạo khi focus */
+  box-shadow: 0 0 0 3px rgba(60, 190, 238, 0.2);
+  outline: none;
+  background-color: #f8fcff;     /* nền xanh nhạt khi focus */
+}
+
+/* Placeholder rõ ràng hơn */
+.auth-input::placeholder {
+  color: #888888;                /* xám đậm hơn */
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Label styling */
+.auth-label {
+  color: #333333;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Forgot Password link styling */
+.forgot-password-link {
+  color: #3CBEEE !important;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.forgot-password-link:hover {
+  color: #2BA8D8 !important;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+/* Form control styling override */
+.form-control {
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+.form-control:hover {
+  border-color: #3CBEEE !important;
+  box-shadow: 0 4px 8px rgba(60, 190, 238, 0.15) !important;
+}
+
+.form-control:focus {
+  border-color: #3CBEEE !important;
+  box-shadow: 0 0 0 3px rgba(60, 190, 238, 0.2) !important;
+  background-color: #f8fcff !important;
+}
+
+.form-control::placeholder {
+  color: #888888 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}

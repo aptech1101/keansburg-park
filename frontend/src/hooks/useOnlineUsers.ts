@@ -8,36 +8,29 @@ export const useOnlineUsers = () => {
   const clamp = useCallback((val: number, min: number, max: number) => Math.max(min, Math.min(max, val)), []);
 
   useEffect(() => {
-    // Giá trị khởi tạo 0 - 200
     const initial = Math.floor(Math.random() * 201);
     setOnlineUsers(initial);
     targetRef.current = initial;
 
-    // Mỗi 5s chọn mục tiêu mới cách hiện tại tối đa 10, và giữ trong 0-200
     const targetTimer = setInterval(() => {
       const delta = Math.floor(Math.random() * 21) - 10; // [-10, +10]
       targetRef.current = clamp(targetRef.current + delta, 0, 200);
     }, 5000);
 
-    // Smooth animation function
     const animateToTarget = () => {
       setOnlineUsers(current => {
         const target = targetRef.current;
         if (current === target) return current;
-        
         const step = Math.max(1, Math.min(2, Math.abs(target - current)));
         const next = current + (target > current ? step : -step);
         const clampedNext = clamp(next, 0, 200);
-        
         if (clampedNext !== target) {
           animationRef.current = requestAnimationFrame(animateToTarget);
         }
-        
         return clampedNext;
       });
     };
 
-    // Start animation loop
     const startAnimation = () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -45,10 +38,7 @@ export const useOnlineUsers = () => {
       animationRef.current = requestAnimationFrame(animateToTarget);
     };
 
-    // Start initial animation
     startAnimation();
-
-    // Restart animation every 100ms to ensure smooth updates
     const animationTimer = setInterval(startAnimation, 100);
 
     return () => {

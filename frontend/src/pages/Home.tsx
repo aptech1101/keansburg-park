@@ -10,12 +10,14 @@ import CountUp from "../components/CountUp";
 import { ReviewDisplay, FeedbackFormData } from "../types/feedback";
 import imgBanner from "../assets/img/home-banner.png";
 import imgAbout from "../assets/img/home-about.png";
-import imgAttraction from "../assets/img/home-attraction.jpg";
 import imgAttraction1 from "../assets/img/home-attraction-1.jpg";
 import imgAttraction2 from "../assets/img/home-attraction-2.jpg";
 import imgAttraction3 from "../assets/img/home-attraction-3.jpg";
 import imgAttraction4 from "../assets/img/home-attraction-4.jpg";
 import imgAttraction5 from "../assets/img/home-attraction-5.jpg";
+import imgAttraction6 from "../assets/img/home-attraction-6.png";
+import imgAttraction7 from "../assets/img/home-attraction-7.jpg";
+import imgAttraction8 from "../assets/img/home-attraction-8.jpg";
 import imgGallery1 from "../assets/img/home-gallery-1.jpg";
 import imgGallery2 from "../assets/img/home-gallery-2.jpg";
 import imgGallery3 from "../assets/img/home-gallery-3.jpg";
@@ -26,6 +28,11 @@ import imgRes1 from "../assets/img/home-res-1.jpg";
 import imgRes2 from "../assets/img/home-res-2.jpg";
 import imgRes3 from "../assets/img/home-res-3.jpeg";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
+import avtMinh from "../assets/img/avt-minh.jpg";
+import avtTam from "../assets/img/avt-tam.png";
+import avtQuang from "../assets/img/avt-quang.jpg";
+import avtHai from "../assets/img/avt-hai.jpg";
+import avtSon from "../assets/img/avt-son.jpg";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -89,11 +96,9 @@ export default function Home() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex]);
 
-  // Cấu hình endpoint ứng viên: nếu đang chạy Vite (5173) thì ưu tiên 8000; nếu chạy qua Apache thì ưu tiên /keansburg-park
+  // API base candidates: prefer Vite proxy '/api', fallback to explicit env or localhost:8000
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const fallbackUrlA = `${window.location.origin}/keansburg-park/backend/public`;
-  const fallbackUrlB = 'http://localhost:8000';
-  const API_CANDIDATES = [apiUrl, fallbackUrlA, fallbackUrlB].filter(Boolean) as string[];
+  const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
     let lastErr: unknown = null;
@@ -119,7 +124,7 @@ export default function Home() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const json = await fetchJson('/api/reviews?status=approved&limit=8');
+        const json = await fetchJson('/reviews?status=approved&limit=8');
         if (json && json.status === 'success') setReviews(json.data || []);
       } catch {}
     };
@@ -145,6 +150,7 @@ export default function Home() {
   // Carousel settings
   const carouselSettings = {
     dots: false,
+    arrows: false,
     infinite: true,
     speed: 500,
     slidesToShow: 4,
@@ -180,6 +186,7 @@ export default function Home() {
   // Restaurant carousel settings
   const restaurantCarouselSettings = {
     dots: true,
+    arrows: false,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -226,69 +233,58 @@ export default function Home() {
 
       {/* Hero Section with Booking Form */}
       <div className="header-carousel">
-        <div className="header-carousel-item position-relative">
-          <img src={imgBanner} className="img-fluid w-100" alt="Keansburg Park" style={{ height: '100vh', objectFit: 'cover' }} />
-          <div className="carousel-caption position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
-            <div className="container">
-              <div className="row g-5 align-items-center h-100">
-                <div className="col-xl-7 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1s" style={{ animationDelay: "1s" }}>
-                  <div className="text-start">
-                    <h1 className="display-4 text-uppercase text-white mb-4 fw-bold" style={{ lineHeight: '1.2' }}>
-                      THE GREATEST WATER & AMUSEMENT PARK – KEANSBURG
-                    </h1>
-                    <p className="mb-4 fs-5 text-white" style={{ maxWidth: '600px' }}>
-                      Thrill-seeking slides, family-friendly pools, and over 100 years of summer fun!
-                    </p>
-                    <div className="d-flex flex-shrink-0">
-                      <Link to="/ticket" className="btn rounded-pill text-white py-3 px-5" style={{ backgroundColor: '#3CBEEE', fontSize: '16px', fontWeight: '600' }}>
-                        Book Now
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-xl-5 fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style={{ animationDelay: "1s" }}>
-                  <div className="ticket-form p-5 bg-white rounded" style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
-                    <h2 className="text-dark text-uppercase mb-4 fw-bold text-center" style={{ fontSize: '24px' }}>
-                      BOOK YOUR TICKET
-                    </h2>
-                    <form>
-                      <div className="row g-4">
-                        <div className="col-12">
-                          <input type="text" className="form-control border-0 py-3" id="name" placeholder="Your Name" style={{ backgroundColor: '#f8f9fa' }} />
-                        </div>
-                        <div className="col-12 col-xl-6">
-                          <input type="email" className="form-control border-0 py-3" id="email" placeholder="Your Email" style={{ backgroundColor: '#f8f9fa' }} />
-                        </div>
-                        <div className="col-12 col-xl-6">
-                          <input type="tel" className="form-control border-0 py-3" id="phone" placeholder="Phone" style={{ backgroundColor: '#f8f9fa' }} />
-                        </div>
-                        <div className="col-12">
-                          <select className="form-select border-0 py-3" aria-label="Default select example" defaultValue="Select Packages" style={{ backgroundColor: '#f8f9fa' }}>
-                            <option value="Select Zones">Select Zones</option>
-                            <option value="1">Zone A: Amusement Park</option>
-                            <option value="2">Zone B: Water Park</option>
-                          </select>
-                        </div>
-                        <div className="col-12">
-                          <input className="form-control border-0 py-3" type="date" placeholder="dd/mm/yy" style={{ backgroundColor: '#f8f9fa' }} />
-                        </div>
-                        <div className="col-12">
-                          <input type="number" className="form-control border-0 py-3" id="number" placeholder="Number of Guests" style={{ backgroundColor: '#f8f9fa' }} />
-                        </div>
-                        <div className="col-12">
-                          <button type="button" className="btn w-100 py-3 px-5 text-white fw-bold" style={{ backgroundColor: '#3CBEEE', fontSize: '16px' }}>
-                            Book Now
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div> 
-              </div>
+  <div className="header-carousel-item position-relative">
+    <img
+      src={imgBanner}
+      className="img-fluid w-100"
+      alt="Keansburg Park"
+      style={{ height: "100vh", objectFit: "cover" }}
+    />
+    <div
+      className="carousel-caption position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+    >
+      <div className="container">
+        <div className="row g-5 align-items-center justify-content-center h-100">
+          <div
+            className="col-12 fadeInLeft animated text-center"
+            data-animation="fadeInLeft"
+            data-delay="1s"
+            style={{ animationDelay: "1s" }}
+          >
+            <h2 className="text-primary fw-bold mb-3">Welcome To Keansburg Park</h2>
+            <h1
+              className="display-4 text-uppercase text-white mb-4 fw-bold"
+              style={{ lineHeight: "1.2" }}
+            >
+              THE GREATEST WATER & AMUSEMENT PARK – KEANSBURG
+            </h1>
+            <p
+              className="mb-4 fs-5 text-white mx-auto"
+              style={{ maxWidth: "600px" }}
+            >
+              Thrill-seeking slides, family-friendly pools, and over 100 years of summer fun!
+            </p>
+            <div className="d-flex justify-content-center">
+              <Link
+                to="/ticket"
+                className="btn rounded-pill text-white py-3 px-5"
+                style={{
+                  backgroundColor: "#3CBEEE",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                }}
+              >
+                Book Now
+              </Link>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
       {/* Hero Section End */}
 
       {/* About Start */}
@@ -408,6 +404,22 @@ export default function Home() {
             <p className="text-white mb-0 fs-5" style={{ lineHeight: '1.6' }}>
               Keansburg Amusement Park & Runaway Rapids Waterpark have been family favorites for decades. With exciting rides, refreshing water attractions, and safe spaces for kids, it's the perfect summer destination.
             </p>
+            <div className="d-flex justify-content-center gap-3 mt-4">
+              <Link
+                to="/zones/amusement"
+                className="btn rounded-pill py-2 px-4 text-white"
+                style={{ backgroundColor: '#3CBEEE', fontWeight: 600 }}
+              >
+                Explore Amusement Park
+              </Link>
+              <Link
+                to="/zones/water"
+                className="btn rounded-pill py-2 px-4 text-white"
+                style={{ backgroundColor: '#3CBEEE', fontWeight: 600 }}
+              >
+                Explore Water Park
+              </Link>
+            </div>
           </div>
           
           <div className="owl-carousel attractions-carousel wow fadeInUp" data-wow-delay="0.1s">
@@ -464,46 +476,84 @@ export default function Home() {
             <Slider 
               ref={setSliderRef}
               {...carouselSettings}
-              prevArrow={<div></div>}
-              nextArrow={<div></div>}
             >
-              {/* Carousel Item 1 */}
+              {/* Carousel Item 1 → Amusement */}
               <div className="px-2">
                 <div className="attractions-item wow fadeInUp" data-wow-delay="0.2s">
-                  <img src={imgAttraction1} className="img-fluid rounded w-100" alt="Roller Coaster" style={{ height: '320px', objectFit: 'cover' }} />
-                  <a href="#" className="attractions-name">Carousel</a>
+                  <Link to="/zones/amusement">
+                    <img src={imgAttraction1} className="img-fluid rounded w-100" alt="Roller Coaster" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/amusement" className="attractions-name">Carousel</Link>
                 </div>
               </div>
 
-              {/* Carousel Item 2 */}
+              {/* Carousel Item 2 → Water */}
               <div className="px-2">
                 <div className="attractions-item wow fadeInUp" data-wow-delay="0.4s">
-                  <img src={imgAttraction2} className="img-fluid rounded w-100" alt="Swing Ride" style={{ height: '320px', objectFit: 'cover' }} />
-                  <a href="#" className="attractions-name">Arcades</a>
+                  <Link to="/zones/water">
+                    <img src={imgAttraction2} className="img-fluid rounded w-100" alt="Swing Ride" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/water" className="attractions-name">Wave Pool</Link>
                 </div>
               </div>
 
-              {/* Carousel Item 3 */}
+              {/* Carousel Item 3 → Amusement */}
               <div className="px-2">
                 <div className="attractions-item wow fadeInUp" data-wow-delay="0.6s">
-                  <img src={imgAttraction3} className="img-fluid rounded w-100" alt="Arcade Games" style={{ height: '320px', objectFit: 'cover' }} />
-                  <a href="#" className="attractions-name">Hanging Carousel</a>
+                  <Link to="/zones/amusement">
+                    <img src={imgAttraction3} className="img-fluid rounded w-100" alt="Arcade Games" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/amusement" className="attractions-name">Hanging Carousel</Link>
                 </div>
               </div>
 
-              {/* Carousel Item 4 */}
+              {/* Carousel Item 4 → Water */}
               <div className="px-2">
                 <div className="attractions-item wow fadeInUp" data-wow-delay="0.8s">
-                  <img src={imgAttraction4} className="img-fluid rounded w-100" alt="Carousel" style={{ height: '320px', objectFit: 'cover' }} />
-                  <a href="#" className="attractions-name">Soaring Thunder</a>
+                  <Link to="/zones/water">
+                    <img src={imgAttraction4} className="img-fluid rounded w-100" alt="Carousel" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/water" className="attractions-name">Soaring Thunder</Link>
                 </div>
               </div>
 
-              {/* Carousel Item 5 */}
+              {/* Carousel Item 5 → Amusement */}
               <div className="px-2">
                 <div className="attractions-item wow fadeInUp" data-wow-delay="1s">
-                  <img src={imgAttraction5} className="img-fluid rounded w-100" alt="Water Slides" style={{ height: '320px', objectFit: 'cover' }} />
-                  <a href="#" className="attractions-name">Go Karts</a>
+                  <Link to="/zones/amusement">
+                    <img src={imgAttraction5} className="img-fluid rounded w-100" alt="Water Slides" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/amusement" className="attractions-name">Go Karts</Link>
+                </div>
+              </div>
+
+              {/* Carousel Item 6 → Water */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="1.2s">
+                  <Link to="/zones/water">
+                    <img src={imgAttraction6} className="img-fluid rounded w-100" alt="Family Rides" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/water" className="attractions-name">Lazy River</Link>
+                </div>
+              </div>
+
+              {/* Carousel Item 7 → Amusement */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="1.4s">
+                  <Link to="/zones/amusement">
+                    <img src={imgAttraction7} className="img-fluid rounded w-100" alt="Wave Pool" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/amusement" className="attractions-name">Arcades</Link>
+                </div>
+              </div>
+
+              {/* Carousel Item 8 → Water */}
+              <div className="px-2">
+                <div className="attractions-item wow fadeInUp" data-wow-delay="1.6s">
+                  <Link to="/zones/water">
+                    <img src={imgAttraction8} className="img-fluid rounded w-100" alt="Kids Lagoon" style={{ height: '320px', objectFit: 'cover' }} />
+                  </Link>
+                  <Link to="/zones/water" className="attractions-name">Splash Zone</Link>
                 </div>
               </div>
             </Slider>
@@ -581,7 +631,7 @@ export default function Home() {
               </div>
             </div>
             <div className="mt-auto d-flex justify-content-center">
-              <Link to="/restaurant" className="btn btn-dark rounded-pill py-2 px-4">
+            <Link to="/zones/restaurant" className="btn rounded-pill py-2 px-4" style={{ backgroundColor: 'white', color: '#3CBEEE' }}>
                 View All <i className="fas fa-arrow-right ms-2"></i>
               </Link>
             </div>
@@ -624,7 +674,7 @@ export default function Home() {
               </div>
             </Slider>
           </div>
-          <Link to="/restaurant" className="btn btn-dark rounded-pill py-2 px-4">
+          <Link to="/zones/restaurant" className="btn rounded-pill py-2 px-4" style={{ backgroundColor: 'white', color: '#3CBEEE' }}>
             View Full Menu <i className="fas fa-arrow-right ms-2"></i>
           </Link>
         </div>
@@ -839,53 +889,90 @@ export default function Home() {
       )}
 
       {/* Team Start */}
+      <style>{`
+        .team-item { position: relative; overflow: visible; transition: background-color 240ms ease, transform 240ms ease, box-shadow 240ms ease; }
+        .team-item:hover { background-color: #0b1a20 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.18) !important; transform: translateY(-4px); }
+        .team-avatar-wrap { position: relative; z-index: 2; background: #ffffff; border-radius: 9999px; padding: 4px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+        .team-avatar { display: block; position: relative; z-index: 3; border-radius: 9999px; transition: transform 240ms ease, box-shadow 240ms ease; }
+        .team-item:hover .team-avatar { transform: scale(1.06); box-shadow: 0 10px 28px rgba(0,0,0,0.45); }
+      `}</style>
       <div className="container-fluid team py-5" style={{ backgroundColor: '#f8f9fa' }}>
         <div className="container py-5">
           <ScrollAnimation animation="fadeInUp" delay={200} className="text-center mx-auto pb-5" style={{ maxWidth: "800px" }}>
             <h4 className="text-primary mb-3" style={{ fontSize: '16px', letterSpacing: '1px' }}>Meet Our Team</h4>
-            <h1 className="display-5 mb-4 fw-bold">The Creative Minds Behind This Website</h1>
+            <h1 className="display-5 mb-4 fw-bold">The Creative Minds Behind This Website - BUG team</h1>
             <p className="mb-0 fs-5" style={{ color: '#666666', lineHeight: '1.6' }}>
               We're not just coders - we're bug fighters, coffee drinkers, and late-night debuggers. Here's the team who brought this project to life.
             </p>
           </ScrollAnimation>
           <div className="row g-4 justify-content-center">
             <ScrollAnimation animation="fadeInUp" delay={200} className="col-md-6 col-lg-4 col-xl-2">
-              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <div className="team-item rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)', backgroundColor: '#3CBEEE' }}>
+                <div className="mb-3 d-flex align-items-center justify-content-center" style={{ height: 96 }}>
+                  <div className="team-avatar-wrap">
+                    <img src={avtMinh} alt="Công Minh" className="team-avatar" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+                  </div>
+                </div>
                 <div className="team-content">
-                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Công Minh</h5>
-                  <p className="mb-0" style={{ color: '#666666' }}>Project Leader</p>
+                  <h5 className="fw-bold mb-1">Công Minh</h5>
+                  <p className="mb-2 text-white">Project Leader / Manager</p>
+                  <p className="small mb-0 text-white">Loves architecture, system design, and long cycling trips.</p>
                 </div>
               </div>
             </ScrollAnimation>
             <ScrollAnimation animation="fadeInUp" delay={400} className="col-md-6 col-lg-4 col-xl-2">
-              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <div className="team-item rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)', backgroundColor: '#3CBEEE' }}>
+                <div className="mb-3 d-flex align-items-center justify-content-center" style={{ height: 96 }}>
+                  <div className="team-avatar-wrap">
+                    <img src={avtTam} alt="Trường Tam" className="team-avatar" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+                  </div>
+                </div>
                 <div className="team-content">
-                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Trường Tam</h5>
-                  <p className="mb-0" style={{ color: '#666666' }}>Frontend Developer</p>
+                  <h5 className="fw-bold mb-1">Trường Tam</h5>
+                  <p className="mb-2 text-white">Admin Role / Logic Backend</p>
+                  <p className="small mb-0 text-white">Enjoys micro‑interactions, smooth animations, and good coffee.</p>
                 </div>
               </div>
             </ScrollAnimation>
             <ScrollAnimation animation="fadeInUp" delay={600} className="col-md-6 col-lg-4 col-xl-2">
-              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <div className="team-item rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)', backgroundColor: '#3CBEEE' }}>
+                <div className="mb-3 d-flex align-items-center justify-content-center" style={{ height: 96 }}>
+                  <div className="team-avatar-wrap">
+                    <img src={avtQuang} alt="Xuân Quang" className="team-avatar" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+                  </div>
+                </div>
                 <div className="team-content">
-                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Xuân Quang</h5>
-                  <p className="mb-0" style={{ color: '#666666' }}>Backend Developer</p>
+                  <h5 className="fw-bold mb-1">Xuân Quang</h5>
+                  <p className="mb-2 text-white">Backend Developer</p>
+                  <p className="small mb-0 text-white">Passionate about APIs, clean code, and late‑night debugging.</p>
                 </div>
               </div>
             </ScrollAnimation>
             <ScrollAnimation animation="fadeInUp" delay={800} className="col-md-6 col-lg-4 col-xl-2">
-              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <div className="team-item rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)', backgroundColor: '#3CBEEE' }}>
+                <div className="mb-3 d-flex align-items-center justify-content-center" style={{ height: 96 }}>
+                  <div className="team-avatar-wrap">
+                    <img src={avtHai} alt="Thái Hải" className="team-avatar" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+                  </div>
+                </div>
                 <div className="team-content">
-                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Thái Hải</h5>
-                  <p className="mb-0" style={{ color: '#666666' }}>Designer</p>
+                  <h5 className="fw-bold mb-1">Thái Hải</h5>
+                  <p className="mb-2 text-white">Designer / Frontend Developer</p>
+                  <p className="small mb-0 text-white">Into minimal UI, color theory, and crisp typography.</p>
                 </div>
               </div>
             </ScrollAnimation>
             <ScrollAnimation animation="fadeInUp" delay={1000} className="col-md-6 col-lg-4 col-xl-2">
-              <div className="team-item bg-white rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <div className="team-item rounded p-4 text-center h-100" style={{ boxShadow: '0 5px 15px rgba(0,0,0,0.1)', backgroundColor: '#3CBEEE' }}>
+                <div className="mb-3 d-flex align-items-center justify-content-center" style={{ height: 96 }}>
+                  <div className="team-avatar-wrap">
+                    <img src={avtSon} alt="Sỹ Sơn" className="team-avatar" style={{ width: 96, height: 96, objectFit: 'cover' }} />
+                  </div>
+                </div>
                 <div className="team-content">
-                  <h5 className="fw-bold mb-2" style={{ color: '#3CBEEE' }}>Sỹ Sơn</h5>
-                  <p className="mb-0" style={{ color: '#666666' }}>Tester / QA</p>
+                  <h5 className="fw-bold mb-1">Sỹ Sơn</h5>
+                  <p className="mb-2 text-white">Tester / QA</p>
+                  <p className="small mb-0 text-white">Loves test automation, edge cases, and puzzle games.</p>
                 </div>
               </div>
             </ScrollAnimation>
@@ -919,13 +1006,13 @@ export default function Home() {
                   };
                   setSubmitState({status:'loading'});
                   try {
-                    const json = await fetchJson('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const json = await fetchJson('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     if (json.status === 'success') {
                       setSubmitState({status:'success', message:'Thanks for your feedback! It will be reviewed before being published.'});
                       form.reset();
                       setRating(0);
                       // refresh list
-                      const r = await fetchJson('/api/reviews?status=approved&limit=8');
+                      const r = await fetchJson('/reviews?status=approved&limit=8');
                       if (r.status === 'success') setReviews(r.data || []);
                     } else {
                       setSubmitState({status:'error', message: json.message || 'Submit failed'});
