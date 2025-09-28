@@ -97,6 +97,8 @@ const CheckoutPage: FC = () => {
   const [paid, setPaid] = useState<boolean>(false);
   const [orderCode, setOrderCode] = useState<string>("");
   const [issuedTickets, setIssuedTickets] = useState<IssuedTicket[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ticketsPerPage = 10;
   const ticketsRef = useRef<HTMLDivElement | null>(null);
 
   const formatDateParts = (d: Date) => {
@@ -186,14 +188,20 @@ const CheckoutPage: FC = () => {
         const details = (json.details || []) as Array<{ ticket_code: string; using_date: string; zone_code?: string }>;
 
         setOrderCode(booking.booking_code || oc);
-        setIssuedTickets(
-          details.map((d) => ({
+        
+        // Tạo danh sách vé riêng lẻ từ ticket_code
+        const allTickets: IssuedTicket[] = [];
+        details.forEach((d) => {
+          // Mỗi record giờ đây đại diện cho 1 vé riêng lẻ
+          allTickets.push({
             code: d.ticket_code || `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
             zone: (d.zone_code || '').toUpperCase() || undefined,
             name: fullName.trim(),
             visitDate: d.using_date,
-          }))
-        );
+          });
+        });
+        
+        setIssuedTickets(allTickets);
         setPaid(true);
         try { localStorage.removeItem('cart'); } catch {}
       } catch (e) {
@@ -210,7 +218,73 @@ const CheckoutPage: FC = () => {
 
   const handlePrint = () => {
     if (!paid) return;
-    window.print();
+    
+    // Tạo cửa sổ in với chỉ vé của trang hiện tại
+    const printWindow = window.open('', '_blank');
+    const ticketsHTML = currentTickets.map((t, idx) => `
+      <div class="ticket-card" style="border: 2px solid #000; padding: 15px; margin: 10px 0; page-break-inside: avoid;">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="font-weight: bold; font-size: 16px;">${t.code}</div>
+            <div style="color: #666; font-size: 12px;">Zone: ${t.zone || "General"}</div>
+            <div style="color: #666; font-size: 12px;">
+              Visit: ${t.visitDate ? new Date(t.visitDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              }) : "—"}
+            </div>
+            <div style="color: #666; font-size: 12px;">Customer: ${fullName}</div>
+          </div>
+          <div style="width: 100px; height: 100px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+            QR Code<br/>${t.code}
+          </div>
+        </div>
+      </div>
+    `).join('');
+    
+    printWindow?.document.write(`
+      <html>
+        <head>
+          <title>Keansburg Park Tickets - Page ${currentPage}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .ticket-card { 
+              border: 2px solid #000; 
+              padding: 15px; 
+              margin: 10px 0; 
+              page-break-inside: avoid;
+            }
+            @media print {
+              body { margin: 0; }
+              .ticket-card { margin: 5px 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Keansburg Park - Order ${orderCode}</h1>
+          <p><strong>Customer:</strong> ${fullName}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Page:</strong> ${currentPage} of ${totalPages}</p>
+          <hr>
+          ${ticketsHTML}
+        </body>
+      </html>
+    `);
+    
+    printWindow?.document.close();
+    printWindow?.print();
+  };
+
+  // Phân trang logic
+  const totalPages = Math.ceil(issuedTickets.length / ticketsPerPage);
+  const startIndex = (currentPage - 1) * ticketsPerPage;
+  const endIndex = startIndex + ticketsPerPage;
+  const currentTickets = issuedTickets.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -417,9 +491,36 @@ const CheckoutPage: FC = () => {
                 </div>
 
                 <div ref={ticketsRef}>
-                  <h3 className="h5 mb-3">Tickets</h3>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h3 className="h5 mb-0">Tickets ({issuedTickets.length} total)</h3>
+                    {totalPages > 1 && (
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="small text-muted">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <div className="btn-group btn-group-sm">
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                          >
+                            ←
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                          >
+                            →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <div className="row g-3">
-                    {issuedTickets.map((t, idx) => (
+                    {currentTickets.map((t, idx) => (
                       <div className="col-12 col-md-6" key={t.code + "-" + idx}>
                         <div
                           className="border rounded p-3 h-100 ticket-card"
@@ -445,6 +546,64 @@ const CheckoutPage: FC = () => {
                       </div>
                     ))}
                   </div>
+                  {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-3">
+                      <nav aria-label="Tickets pagination">
+                        <ul className="pagination pagination-sm">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(1)}
+                              disabled={currentPage === 1}
+                            >
+                              First
+                            </button>
+                          </li>
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              Previous
+                            </button>
+                          </li>
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                            if (pageNum > totalPages) return null;
+                            return (
+                              <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
+                                <button
+                                  className="page-link"
+                                  onClick={() => handlePageChange(pageNum)}
+                                >
+                                  {pageNum}
+                                </button>
+                              </li>
+                            );
+                          })}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Next
+                            </button>
+                          </li>
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(totalPages)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Last
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  )}
                 </div>
                 <div className="d-flex gap-2 mt-3">
                   <button
