@@ -326,11 +326,11 @@ const Info: React.FC = () => {
           {activeTab === 'contact' && (
             <div>
               {/* Contact Info and Form Side by Side */}
-              <div className="row g-4 mb-4 align-items-stretch">
+              <div className="row g-4 mb-4" style={{ minHeight: '600px' }}>
                 {/* Left Column - Contact Info */}
-                <div className="col-12 col-lg-6 h-100">
+                <div className="col-12 col-lg-6 d-flex">
                   <ScrollAnimation animation="fadeInUp" delay={200}>
-                  <div className="h-100 d-flex flex-column">
+                  <div className="w-100 d-flex flex-column">
                     <div className="pb-4">
                       <h4 
                         className="text-primary mb-3"
@@ -340,9 +340,9 @@ const Info: React.FC = () => {
                       >
                         Get in Touch
                       </h4>
-                      <p className="mb-0">Have a question about tickets, events, or visiting the park? Send us a message and we’ll be happy to help!</p>
+                      <p className="mb-0">Have a question about tickets, events, or visiting the park? Send us a message and we'll be happy to help!</p>
                     </div>
-                    <div className="d-grid" style={{ gridTemplateRows: 'repeat(4, 1fr)', gap: '14px', height: '100%' }}>
+                    <div className="d-grid flex-grow-1" style={{ gridTemplateRows: 'repeat(4, 1fr)', gap: '14px' }}>
                       {/* Address - row 1 */}
                       <div className="h-100">
                         <div className="rounded bg-light p-4 d-flex align-items-center h-100" style={{ transition: 'transform 220ms ease, box-shadow 220ms ease' }} onMouseEnter={(e)=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 14px 32px rgba(60,190,238,0.35)'; }} onMouseLeave={(e)=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=''; }}>
@@ -411,9 +411,9 @@ const Info: React.FC = () => {
                 </div>
                 
                 {/* Right Column - Contact Form */}
-                <div className="col-12 col-lg-6 h-100">
+                <div className="col-12 col-lg-6 d-flex">
                   <ScrollAnimation animation="fadeInUp" delay={400}>
-                  <div className="bg-light p-5 rounded h-100">
+                  <div className="bg-light p-5 rounded w-100 d-flex flex-column">
                     <h4 
                       className="text-primary mb-4"
                       style={{ fontWeight: 700 }}
@@ -427,7 +427,7 @@ const Info: React.FC = () => {
                         {submitMsg}
                       </div>
                     )}
-                    <form onSubmit={async (e)=>{
+                    <form className="flex-grow-1 d-flex flex-column" onSubmit={async (e)=>{
                       e.preventDefault();
                       if (submitting) return;
                       setSubmitting(true);
@@ -451,44 +451,86 @@ const Info: React.FC = () => {
                         setSubmitting(false);
                       }
                     }}>
-                      <div className="row g-4">
+                      <style>{`
+                        .info-contact-form .custom-form-group {
+                          margin-bottom: 1rem;
+                        }
+                        .info-contact-form .custom-label {
+                          display: block;
+                          margin-bottom: 0.5rem;
+                          font-weight: 600;
+                          color: #0d6efd;
+                          font-size: 14px;
+                          position: static;
+                          transform: none;
+                          opacity: 1;
+                        }
+                        .info-contact-form .custom-input {
+                          width: 100%;
+                          padding: 0.75rem;
+                          border: 1px solid #dee2e6;
+                          border-radius: 0.375rem;
+                          font-size: 14px;
+                          background-color: #fff;
+                        }
+                        .info-contact-form .custom-input:focus {
+                          outline: none;
+                          border-color: #0d6efd;
+                          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+                        }
+                        .info-contact-form .custom-textarea {
+                          width: 100%;
+                          padding: 0.75rem;
+                          border: 1px solid #dee2e6;
+                          border-radius: 0.375rem;
+                          font-size: 14px;
+                          background-color: #fff;
+                          resize: vertical;
+                        }
+                        .info-contact-form .custom-textarea:focus {
+                          outline: none;
+                          border-color: #0d6efd;
+                          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+                        }
+                      `}</style>
+                      <div className="row g-4 info-contact-form flex-grow-1">
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="name"  value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} />
-                            <label htmlFor="name">Your Name</label>
+                          <div className="custom-form-group">
+                            <label htmlFor="name" className="custom-label">Your Name</label>
+                            <input type="text" className="custom-input" id="name" value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} placeholder="Enter your name" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="email" className="form-control border-0" id="email"  value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} />
-                            <label htmlFor="email">Your Email</label>
+                          <div className="custom-form-group">
+                            <label htmlFor="email" className="custom-label">Your Email</label>
+                            <input type="email" className="custom-input" id="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} placeholder="Enter your email" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="phone" className="form-control border-0" id="phone"  value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} />
-                            <label htmlFor="phone">Your Phone</label>
+                          <div className="custom-form-group">
+                            <label htmlFor="phone" className="custom-label">Your Phone</label>
+                            <input type="tel" className="custom-input" id="phone" value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} placeholder="Enter your phone number" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="project"  value={form.project} onChange={(e)=>setForm({ ...form, project: e.target.value })} />
-                            <label htmlFor="project">Your Project</label>
+                          <div className="custom-form-group">
+                            <label htmlFor="project" className="custom-label">Your Project</label>
+                            <input type="text" className="custom-input" id="project" value={form.project} onChange={(e)=>setForm({ ...form, project: e.target.value })} placeholder="Enter your project" />
                           </div>
                         </div>
                         <div className="col-12">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="subject"  value={form.subject} onChange={(e)=>setForm({ ...form, subject: e.target.value })} />
-                            <label htmlFor="subject">Subject</label>
+                          <div className="custom-form-group">
+                            <label htmlFor="subject" className="custom-label">Subject</label>
+                            <input type="text" className="custom-input" id="subject" value={form.subject} onChange={(e)=>setForm({ ...form, subject: e.target.value })} placeholder="Enter subject" />
                           </div>
                         </div>
-                        <div className="col-12">
-                          <div className="form-floating">
-                            <textarea className="form-control border-0"  id="message" style={{ height: "160px" }} value={form.message} onChange={(e)=>setForm({ ...form, message: e.target.value })}></textarea>
-                            <label htmlFor="message">Message</label>
+                        <div className="col-12 flex-grow-1 d-flex flex-column">
+                          <div className="custom-form-group flex-grow-1 d-flex flex-column">
+                            <label htmlFor="message" className="custom-label">Message</label>
+                            <textarea className="custom-textarea flex-grow-1" id="message" value={form.message} onChange={(e)=>setForm({ ...form, message: e.target.value })} placeholder="Enter your message"></textarea>
                           </div>
                         </div>
-                        <div className="col-12">
+                        <div className="col-12 mt-auto">
                           <button className="btn btn-primary w-100 py-3" type="submit" disabled={submitting}>
                             {submitting ? 'Sending…' : 'Send Message'}
                           </button>

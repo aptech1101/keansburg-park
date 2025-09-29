@@ -6,7 +6,6 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Info from './pages/Info';
 import Gallery from './pages/Gallery';
-import Contact from './pages/Contact';
 import Ticket from './pages/Ticket';
 import Service from './pages/Service';
 import Restaurants from './pages/Restaurants';
@@ -62,7 +61,6 @@ const AppRouter: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<Info />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/ticket" element={<Ticket />} />
           <Route path="/services" element={<Service />} />
           <Route path="/service" element={<Service />} />
