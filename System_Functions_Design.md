@@ -785,7 +785,115 @@ Enable members to submit attraction reviews and allow admin moderation with appr
 
 ---
 
-## Function 7: Admin – Basic Management (minimum for demo)
+## Function 7: Information & Contact Management
+
+### Objective
+Provide comprehensive park information, contact functionality, and FAQ system through an integrated Info page with tabbed navigation.
+
+### Scope
+**In-scope:**
+- Park information display with historical timeline
+- Contact form with backend integration
+- FAQ system with expandable accordion interface
+- Tabbed navigation (About, Contact, FAQ)
+- Contact information display with interactive cards
+- Google Maps integration
+- Responsive design with animations
+
+**Out-of-scope:**
+- Real-time chat functionality
+- Contact form email notifications
+- Advanced search in FAQ
+- Multi-language support
+- Contact form file uploads
+
+### Key Files
+**Front-end:**
+- `frontend/src/pages/Info.tsx`
+- `frontend/src/components/ScrollAnimation.tsx`
+
+**Back-end:**
+- `backend/public/api/messages.php`
+
+### Inputs
+- **Contact Form:** name, email, phone, project, subject, message
+- **URL Parameters:** ?tab=faq for direct FAQ navigation
+- **User Interactions:** Tab switching, FAQ accordion toggles
+
+### Processing
+1. **Tab Navigation:**
+   - Three main tabs: About, Contact, FAQ
+   - URL parameter handling for direct FAQ access
+   - Smooth scrolling and animations
+
+2. **About Section:**
+   - Park introduction with key statistics
+   - Historical timeline with images and dates
+   - Interactive hover effects on statistics cards
+   - Timeline from 1904 to 2015 with major milestones
+
+3. **Contact Section:**
+   - Contact information cards with icons
+   - Interactive contact form with validation
+   - Google Maps embed for location
+   - Form submission to backend API
+
+4. **FAQ Section:**
+   - Expandable accordion interface
+   - Categories: Amusement Park, Runaway Rapids, Group Outings, Birthday Parties, Parking
+   - Detailed safety and policy information
+   - Smooth animations and transitions
+
+5. **Contact Form Processing:**
+   - Client-side form validation
+   - POST request to `/api/messages`
+   - Success/error message display
+   - Form reset on successful submission
+
+### Outputs
+**Frontend Display:**
+- Hero section with park banner and breadcrumb
+- Tabbed interface with smooth transitions
+- About section with statistics and timeline
+- Contact section with info cards and form
+- FAQ section with expandable content
+- Google Maps integration
+
+**Contact Form Success Response:**
+```json
+{
+  "status": "success",
+  "message": "Your message has been sent to admin. Thank you!"
+}
+```
+
+**Contact Form Error Response:**
+```json
+{
+  "status": "error",
+  "message": "Failed to send, please try again later."
+}
+```
+
+### Error Handling & Messages
+- "Your message has been sent to admin. Thank you!" (success)
+- "Failed to send, please try again later." (API error)
+- "Network error, please try again later." (network error)
+- Form validation for required fields
+- Loading state during form submission
+
+### FE ⇄ BE Synchronization Notes
+- Contact form integrates with backend `/api/messages` endpoint
+- Form data sent as JSON POST request
+- Success/error states managed in frontend
+- FAQ content is static (no backend integration needed)
+- About content is static with historical data
+- Google Maps embedded directly in frontend
+- Tab state managed locally with URL parameter support
+
+---
+
+## Function 8: Admin – Basic Management (minimum for demo)
 
 ### Objective
 Provide basic administrative functionality for managing core system entities with minimal CRUD operations for demo purposes.
