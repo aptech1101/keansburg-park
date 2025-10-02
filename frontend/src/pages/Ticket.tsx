@@ -320,14 +320,14 @@ export default function Ticket() {
                 </p>
                 <div className="d-flex align-items-center justify-content-between border rounded p-3 mb-3">
                   <div className="me-3">
-                    <div className="fw-semibold">Weekday</div>
+                    <div className="fw-bold">Weekday</div>
                     <small className="text-muted">Mon–Fri</small>
                   </div>
                   <div className="text-primary fs-4 fw-bold">$10</div>
                 </div>
                 <div className="d-flex align-items-center justify-content-between border rounded p-3 mb-4">
                   <div className="me-3">
-                    <div className="fw-semibold">Weekend</div>
+                    <div className="fw-bold">Weekend</div>
                     <small className="text-muted">Sat–Sun (+20%)</small>
                   </div>
                   <div className="text-primary fs-4 fw-bold">$12</div>

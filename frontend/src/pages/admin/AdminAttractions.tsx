@@ -509,7 +509,7 @@ const AdminAttractions: React.FC = () => {
                     <td>
                       <Button
                         size="sm"
-                        variant="outline-primary"
+                        variant="outline-primary me-2"
                         onClick={() => {
                           setSelectedItem(a);
                           setShowModal(true);

@@ -33,6 +33,7 @@ interface DashboardStats {
   revenue_by_month: any[];
   bookings_by_status: any[];
   feedbacks_by_status: any[];
+  total_contacts : number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -218,20 +219,20 @@ const AdminDashboard: React.FC = () => {
           </Card>
         </Col>
         <Col xs={12} sm={6} lg={3} className="mb-3">
-          <Card className="text-center h-100 shadow-sm">
-            <Card.Body>
-              <div className="d-flex align-items-center justify-content-center mb-2">
-                <Badge bg="danger" className="me-2" style={{ fontSize: '1.2rem', padding: '0.5rem' }}>
-                  {stats.rejected_feedbacks}
-                </Badge>
-                <div>
-                  <h5 className="mb-0">Rejected</h5>
-                  <small className="text-muted">Not Published</small>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
+  <Card className="text-center h-100 shadow-sm">
+    <Card.Body>
+      <Link to="/admin/messages" className="text-decoration-none">
+        <div className="d-flex align-items-center justify-content-center mb-2">
+          <i className="fas fa-envelope fa-2x text-primary me-2"></i>
+          <div>
+            <h3 className="mb-0">{stats.total_contacts??0}</h3>
+            <small className="text-muted">Total Contacts</small>
+          </div>
+        </div>
+      </Link>
+    </Card.Body>
+  </Card>
+</Col>
       </Row>
 
       {/* Charts Row */}

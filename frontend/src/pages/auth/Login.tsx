@@ -87,7 +87,7 @@ const Login: React.FC = () => {
             className="form-control"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Enter email"
+            placeholder="Enter Email"
             required
           />
         </div>
@@ -99,7 +99,7 @@ const Login: React.FC = () => {
             className="form-control"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Enter password"
+            placeholder="Enter Password"
             required
           />
         </div>
@@ -113,7 +113,7 @@ const Login: React.FC = () => {
               checked={rememberMe}
               onChange={e => setRememberMe(e.target.checked)}
             />
-            <label className="form-check-label mb-0">Remember me</label>
+            <label className="form-check-label mb-0">Remember Me</label>
           </div>
           <span
             className="ms-auto forgot-password-link"
@@ -129,8 +129,8 @@ const Login: React.FC = () => {
         </button>
 
         <div className="text-center mt-3">
-          <span>Don’t have an account? </span>
-          <Link to="/signup">Sign up now</Link>
+          <span>Don’t Have An Account? </span>
+          <Link to="/signup">Sign Up Now</Link>
         </div>
       </form>
 
@@ -150,7 +150,7 @@ const Login: React.FC = () => {
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="Enter your email address"
+                    placeholder="Enter Your Email Address"
                     value={forgotEmail}
                     onChange={e => setForgotEmail(e.target.value)}
                   />

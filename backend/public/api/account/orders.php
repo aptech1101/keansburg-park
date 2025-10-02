@@ -28,7 +28,7 @@ try {
     }
 
     $token = $matches[1];
-    $decoded = JWT::decode($token, new Key($_ENV["JWT_SECRET"], 'HS256'));
+    $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
     $userId = $decoded->sub ?? null;
 
     // Kiểm tra user ID hợp lệ

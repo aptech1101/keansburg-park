@@ -124,12 +124,9 @@ if ($method === 'GET') {
     echo json_encode([
         "status" => "success",
         "data" => $orders,
-        "pagination" => [
-            "page" => $page,
-            "limit" => $limit,
-            "total" => $total,
-            "total_pages" => ceil($total / $limit)
-        ]
+        "total" => $total,
+        "per_page" => $limit,
+        "current_page" => $page
     ]);
 }
 

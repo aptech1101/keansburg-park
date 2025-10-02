@@ -63,7 +63,7 @@ try {
         "iat" => time(),
         "exp" => time() + 60*60*24*7
     ];
-    $token = JWT::encode($payload, $_ENV["JWT_SECRET"], 'HS256');
+    $token = JWT::encode($payload, JWT_SECRET, 'HS256');
 
     echo json_encode([
         "status" => "success",

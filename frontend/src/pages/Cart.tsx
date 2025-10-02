@@ -2,8 +2,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import imgPayment from "../assets/img/payment.png";
-import parkImg from "../assets/img/carousel-1.jpg";
-import waterImg from "../assets/img/gallery-1.jpg";
+import parkImg from "../assets/img/amusement-banner.jpg";
+import waterImg from "../assets/img/water-banner.jpg";
 import { unitPriceOf, isWeekend, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
 
 type CartItem = {

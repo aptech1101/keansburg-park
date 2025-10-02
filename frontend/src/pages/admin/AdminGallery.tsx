@@ -7,20 +7,17 @@ const UPLOAD_API_URL = `${apiConfig.baseURL}/admin/upload`;
 
 interface GalleryRaw {
   id: number;
-  zone_id?: number;
   title: string;
   description?: string;
   image_url: string;
-  zone_name?: string;
 }
 
 interface GalleryView extends GalleryRaw {}
-type GalleryForm = Omit<GalleryView, "id" | "zone_name">;
+type GalleryForm = Omit<GalleryView, "id">;
 
 const AdminGallery: React.FC = () => {
   const [items, setItems] = useState<GalleryView[]>([]);
   const [form, setForm] = useState<GalleryForm>({
-    zone_id: 0,
     title: "",
     description: "",
     image_url: "",
@@ -47,33 +44,47 @@ const AdminGallery: React.FC = () => {
   }, []);
 
   const uploadImage = async (): Promise<string> => {
-    if (!file) return form.image_url;
+    if (!file) return form.image_url; // giữ link cũ nếu không upload
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("type", "gallery");
-    const res = await axios.post(UPLOAD_API_URL, formData, {
-      headers: { ...authHeaders, "Content-Type": "multipart/form-data" },
-    });
+    formData.append("type", "gallery"); // để backend phân loại thư mục
+    const res = await axios.post(
+      UPLOAD_API_URL,
+      formData,
+      { headers: { ...authHeaders, "Content-Type": "multipart/form-data" } }
+    );
     return res.data?.url || "";
   };
 
   const handleSubmit = async () => {
     try {
-      let imageUrl = form.image_url;
-      if (file) imageUrl = await uploadImage();
+      // Upload ảnh trước nếu có
+      const imageUrl = await uploadImage();
+      
+      if (!imageUrl) {
+        setMessage({ type: "error", text: "Image is required" });
+        setTimeout(() => setMessage({ type: null, text: "" }), 5000);
+        return;
+      }
 
-      const payload = { ...form, image_url: imageUrl };
+      // Gửi dữ liệu JSON đến API
+      const data: any = {
+        title: form.title,
+        description: form.description || "",
+        image_url: imageUrl,
+      };
 
       if (editingId) {
-        await axios.put(`${API_URL}/${editingId}`, payload, { headers: authHeaders });
+        data.id = editingId;
+        await axios.put(API_URL, data, { headers: authHeaders });
         setMessage({ type: "success", text: "Gallery item updated successfully!" });
       } else {
-        await axios.post(API_URL, payload, { headers: authHeaders });
+        await axios.post(API_URL, data, { headers: authHeaders });
         setMessage({ type: "success", text: "Gallery item added successfully!" });
       }
 
       fetchItems();
-      setForm({ zone_id: 0, title: "", description: "", image_url: "" });
+      setForm({ title: "", description: "", image_url: "" });
       setFile(null);
       setEditingId(null);
       setShowForm(false);
@@ -88,7 +99,6 @@ const AdminGallery: React.FC = () => {
 
   const handleEdit = (item: GalleryView) => {
     setForm({
-      zone_id: item.zone_id || 0,
       title: item.title,
       description: item.description || "",
       image_url: item.image_url,
@@ -101,7 +111,7 @@ const AdminGallery: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure to delete this gallery item?")) return;
     try {
-      await axios.delete(`${API_URL}/${id}`, { headers: authHeaders });
+      await axios.delete(`${API_URL}?id=${id}`, { headers: authHeaders });
       setMessage({ type: "success", text: "Gallery item deleted successfully!" });
       fetchItems();
       setTimeout(() => setMessage({ type: null, text: "" }), 3000);
@@ -114,6 +124,7 @@ const AdminGallery: React.FC = () => {
 
   return (
     <div className="container mt-4 admin-gallery admin-table admin-form admin-modal admin-pagination">
+      <div className="container mt-4 admin-gallery admin-table admin-form admin-modal admin-pagination">
       <style>{`
         .admin-gallery .form-control,
         .admin-gallery .form-select,
@@ -128,7 +139,6 @@ const AdminGallery: React.FC = () => {
           border-color: #3CBEEE;
           box-shadow: 0 0 0 0.2rem rgba(60,190,238,.15);
         }
-        /* Ngăn layout shift khi hover highlight từ theme khác */
         .admin-gallery .card,
         .admin-gallery .card:hover,
         .admin-gallery table,
@@ -216,57 +226,58 @@ const AdminGallery: React.FC = () => {
 
       {/* List */}
       <div className="card shadow-sm">
-          <table className="table table-hover table-bordered">
-            <thead className="table-light">
-              <tr>
-                <th style={{ width: "120px" }}>Image</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th style={{ width: "120px" }} className="text-center">Actions</th>
+        <table className="table table-hover table-bordered">
+          <thead className="table-light">
+            <tr>
+              <th style={{ width: "120px" }}>Image</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th style={{ width: "120px" }} className="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  {item.image_url && (
+                    <img
+                      src={toBackendUrl(item.image_url)}
+                      alt={item.title}
+                      style={{ width: "100px", height: "70px", objectFit: "cover" }}
+                      className="rounded"
+                    />
+                  )}
+                </td>
+                <td className="fw-bold">{item.title}</td>
+                <td className="text-muted">{item.description}</td>
+                <td className="text-center" style={{ whiteSpace: "nowrap" }}>
+                  <button
+                    className="btn btn-sm btn-warning me-2"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    {item.image_url && (
-                      <img
-                        src={toBackendUrl(item.image_url)}
-                        alt={item.title}
-                        style={{ width: "100px", height: "70px", objectFit: "cover" }}
-                        className="rounded"
-                      />
-                    )}
-                  </td>
-                  <td className="fw-bold">{item.title}</td>
-                  <td className="text-muted">{item.description}</td>
-                  <td className="text-center" style={{ whiteSpace: "nowrap" }}>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleEdit(item)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {items.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center text-muted">
-                    No images in gallery.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-center text-muted">
+                  No images in gallery.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
+    </div>
+    </div>
   );
 };
 

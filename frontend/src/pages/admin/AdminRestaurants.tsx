@@ -430,7 +430,7 @@ const AdminRestaurants: React.FC = () => {
               <td>{r.details && r.details?.length > 20 ? r.details.substring(0, 20) + "..." : r.details}</td>
               <td>{r.image_url && <img src={toBackendUrl(r.image_url)} alt={r.name} style={{ width: "80px" }} className="img-thumbnail" />}</td>
               <td>
-                <Button size="sm" variant="outline-primary" onClick={() => { setSelectedItem(r); setShowModal(true); }}>
+                <Button size="sm" variant="outline-primary me-2" onClick={() => { setSelectedItem(r); setShowModal(true); }}>
                   Detail
                 </Button>
                 <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(r)}>Edit</button>

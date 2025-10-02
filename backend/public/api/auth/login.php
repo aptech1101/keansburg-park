@@ -49,7 +49,7 @@ $payload = [
     "exp" => $exp,
 ];
 
-$token = JWT::encode($payload, $_ENV["JWT_SECRET"], 'HS256');
+$token = JWT::encode($payload, JWT_SECRET, 'HS256');
 
 echo json_encode([
     "status" => "success",

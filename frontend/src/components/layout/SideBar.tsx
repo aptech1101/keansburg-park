@@ -9,6 +9,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   
   const menuItems = [
     { to: "/admin/dashboard", icon: "fas fa-tachometer-alt", label: "Dashboard" },
+    { to: "/admin/users", icon: "fas fa-users", label: "Users" },
     { to: "/admin/orders", icon: "fas fa-shopping-cart", label: "Orders" },
     { to: "/admin/tickets", icon: "fas fa-ticket-alt", label: "Tickets" },
     { to: "/admin/gallery", icon: "fas fa-images", label: "Gallery" },

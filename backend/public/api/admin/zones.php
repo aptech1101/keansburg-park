@@ -63,10 +63,10 @@ try {
                 $search = isset($_GET['search']) ? "%" . $_GET['search'] . "%" : null;
 
                 if ($search) {
-                    $stmt = $pdo->prepare("SELECT * FROM zones WHERE name LIKE :search ORDER BY id DESC LIMIT :limit OFFSET :offset");
+                    $stmt = $pdo->prepare("SELECT * FROM zones WHERE name LIKE :search ORDER BY id LIMIT :limit OFFSET :offset");
                     $stmt->bindParam(':search', $search, PDO::PARAM_STR);
                 } else {
-                    $stmt = $pdo->prepare("SELECT * FROM zones ORDER BY id DESC LIMIT :limit OFFSET :offset");
+                    $stmt = $pdo->prepare("SELECT * FROM zones ORDER BY id LIMIT :limit OFFSET :offset");
                 }
                 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);

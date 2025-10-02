@@ -5,8 +5,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import ItemDetailsModal from "../components/ItemDetailsModal";
-import { apiConfig, toBackendUrl } from "../services/api";
-import { ReviewDisplay } from "../types/feedback";
 import imgBanner from "../assets/img/amusement-banner.jpg";
 import imgTestimonial from "../assets/img/home-testmonial.jpg";
 import videoWaterpark from "../assets/vid/amusement-park.mp4";
@@ -15,7 +13,8 @@ import imgAmusement4 from "../assets/img/amusement-4.jpg";
 import imgAmusement5 from "../assets/img/amusement-5.jpg";
 import imgAmusement6 from "../assets/img/amusement-6.png";
 import imgAmusement7 from "../assets/img/amusement-7.jpeg";
-
+import { apiConfig, toBackendUrl } from "../services/api";
+import { ReviewDisplay } from "../types/feedback";
 
 export default function AmusementPark() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
@@ -31,7 +30,7 @@ export default function AmusementPark() {
     features?: string[] | string | null;
     details?: string | null;
   }>>([]);
-// Amusement park items data
+// Amusement park static items data
 const staticItems = [{
   id: 'spinning-teacups',
   title: 'Spinning Teacups',

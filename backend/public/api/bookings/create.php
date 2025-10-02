@@ -159,7 +159,50 @@ try {
     
     $bookingId = (int)$pdo->lastInsertId();
 
-    // Insert booking details & payments (giữ nguyên như cũ)...
+    $detailStmt = $pdo->prepare('INSERT INTO bookingdetails (
+        booking_id, ticket_id, using_date, quantity, unit_price, discount_rate, line_total, ticket_code
+    ) VALUES (
+        :booking_id, :ticket_id, :using_date, :quantity, :unit_price, :discount_rate, :line_total, :ticket_code
+    )');
+    
+    $ticketCounter = 1; // Counter cho mỗi vé riêng lẻ
+    
+    foreach ($normCart as $item) {
+        $pricing = $zonePricing[$item['zoneCode']];
+        $ticketId = $pricing['ticket_id'];
+        $unitPrice = $isWeekend($item['visitDate']) ? $pricing['weekend'] : $pricing['weekday'];
+        $quantity = $item['quantity'];
+        $lineTotal = $unitPrice * $quantity;
+    
+        $discountRate = ($totalQty >= 10) ? 10.0 : 0.0; // đơn giản: áp dụng toàn đơn nếu đủ 10 vé
+        
+        // Tạo ticket_code riêng cho mỗi vé: YYMMDD-BOOKINGID-TICKETSEQ format
+        $visitDate = new DateTime($item['visitDate']);
+        $yy = $visitDate->format('y');
+        $mm = $visitDate->format('m');
+        $dd = $visitDate->format('d');
+        $bookingSeq = str_pad((string)$bookingId, 4, '0', STR_PAD_LEFT);
+        
+        // Tạo một record riêng cho mỗi vé thay vì join bằng dấu phẩy
+        for ($i = 0; $i < $quantity; $i++) {
+            $ticketSeq = str_pad((string)$ticketCounter, 3, '0', STR_PAD_LEFT);
+            $ticketCode = "{$yy}{$mm}{$dd}-{$bookingSeq}-{$ticketSeq}";
+            
+            $detailStmt->execute([
+                ':booking_id' => $bookingId,
+                ':ticket_id' => $ticketId,
+                ':using_date' => $item['visitDate'],
+                ':quantity' => 1, // Mỗi record chỉ có 1 vé
+                ':unit_price' => $unitPrice,
+                ':discount_rate' => $discountRate,
+                ':line_total' => $unitPrice, // Line total cho 1 vé
+                ':ticket_code' => $ticketCode
+            ]);
+            
+            $ticketCounter++;
+        }
+    }
+    
 
     $pdo->commit();
 

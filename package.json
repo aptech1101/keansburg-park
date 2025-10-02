@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "react-qr-code": "^2.0.18",
     "recharts": "^3.2.1"
   }
 }

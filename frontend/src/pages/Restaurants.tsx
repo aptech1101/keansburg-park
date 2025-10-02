@@ -5,15 +5,14 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import ItemDetailsModal from "../components/ItemDetailsModal";
-import { ReviewDisplay } from "../types/feedback";
-import { apiConfig, toBackendUrl } from "../services/api";
 import imgBanner from "../assets/img/restaurant-banner.png";
 import imgRes1 from "../assets/img/restaurant-1.png";
 import imgRes2 from "../assets/img/restaurant-2.jpg";
 import imgRes3 from "../assets/img/restaurant-3.jpg";
 import imgRes5 from "../assets/img/restaurant-5.jpg";
 import imgRes14 from "../assets/img/restaurant-14.jpg";
-import imgTestimonial from "../assets/img/home-testmonial.jpg";
+import { ReviewDisplay } from "../types/feedback";
+import { apiConfig, toBackendUrl } from "../services/api";
 
 export default function Restaurants() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
@@ -130,10 +129,12 @@ export default function Restaurants() {
       details: r.details || undefined
     }));
   }, [restaurants]);
+
   const allItems = useMemo(() => {
     return [...staticItems, ...restaurantItems];
   }, [restaurantItems]);
-  //restaurantItems
+
+ 
   const handleItemClick = (index: number) => {
     setCurrentItemIndex(index);
     setIsModalOpen(true);
@@ -156,9 +157,10 @@ export default function Restaurants() {
   };
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
+   const API_CANDIDATES = ['/api', apiUrl].filter(Boolean) as string[];
 
   const fetchJson = async (path: string, init?: RequestInit) => {
+
     let lastErr: unknown = null;
     for (const base of API_CANDIDATES) {
       try {
@@ -199,18 +201,7 @@ export default function Restaurants() {
     return () => clearInterval(id);
   }, []);
 
-  const reviewSliderSettings = {
-    dots: true,
-    arrows: false,
-    infinite: true,
-    speed: 600,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    pauseOnHover: true,
-    adaptiveHeight: true
-  } as const;
+  
   return (
     <>
       <style>{`
@@ -393,8 +384,8 @@ export default function Restaurants() {
                a more relaxed experience.
              </p>
              
-                    </div>
-                  </div>
+          </div>
+        </div>
 
 
         {/* Restaurants Grid */}
@@ -402,7 +393,7 @@ export default function Restaurants() {
         {/*Item static */}
         {/* Restaurant 14 */}
         <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(0)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(0)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -414,14 +405,14 @@ export default function Restaurants() {
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
                   src={imgRes14} 
-                  className="img-fluid w-100 h-100 attraction-image" 
+                  className="img-fluid w-100 h-100 restaurant-image" 
                   alt="Coastal Ice Cream" 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
-                <div className="attraction-overlay" style={{
+                <div className="restaurant-overlay" style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -434,16 +425,16 @@ export default function Restaurants() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
+                <h3 className="fw-bold mb-3 restaurant-title" style={{ 
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
                 }}>Coastal Ice Cream</h3>
-                <p className="mb-0 attraction-description" style={{ 
+                <p className="mb-0 restaurant-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
@@ -455,7 +446,7 @@ export default function Restaurants() {
           </div>
         {/* Restaurant 1 */}
         <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(1)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(1)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -467,14 +458,14 @@ export default function Restaurants() {
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
                   src={imgRes1} 
-                  className="img-fluid w-100 h-100 attraction-image" 
+                  className="img-fluid w-100 h-100 restaurant-image" 
                   alt="Fish & Sips" 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
-                <div className="attraction-overlay" style={{
+                <div className="restaurant-overlay" style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -487,16 +478,16 @@ export default function Restaurants() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
+                <h3 className="fw-bold mb-3 restaurant-title" style={{ 
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
                 }}>Fish & Sips</h3>
-                <p className="mb-0 attraction-description" style={{ 
+                <p className="mb-0 restaurant-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
@@ -508,7 +499,7 @@ export default function Restaurants() {
           </div>
         {/* Restaurant 2 */}
         <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(2)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(2)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -520,14 +511,14 @@ export default function Restaurants() {
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
                   src={imgRes2} 
-                  className="img-fluid w-100 h-100 attraction-image" 
+                  className="img-fluid w-100 h-100 restaurant-image" 
                   alt="Toucan Grille" 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
-                <div className="attraction-overlay" style={{
+                <div className="restaurant-overlay" style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -540,16 +531,16 @@ export default function Restaurants() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
+                <h3 className="fw-bold mb-3 restaurant-title" style={{ 
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
                 }}>Toucan Grille</h3>
-                <p className="mb-0 attraction-description" style={{ 
+                <p className="mb-0 restaurant-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
@@ -561,7 +552,7 @@ export default function Restaurants() {
           </div>
         {/* Restaurant 3 */}
         <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(3)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -573,14 +564,14 @@ export default function Restaurants() {
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
                   src={imgRes3} 
-                  className="img-fluid w-100 h-100 attraction-image" 
+                  className="img-fluid w-100 h-100 restaurant-image" 
                   alt="Pavilion Bar & Grille" 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
-                <div className="attraction-overlay" style={{
+                <div className="restaurant-overlay" style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -593,16 +584,16 @@ export default function Restaurants() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
+                <h3 className="fw-bold mb-3 restaurant-title" style={{ 
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
                 }}>Pavilion Bar & Grille</h3>
-                <p className="mb-0 attraction-description" style={{ 
+                <p className="mb-0 restaurant-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
@@ -614,7 +605,7 @@ export default function Restaurants() {
           </div>
         {/* Restaurant 5 */}
         <div className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(3)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(4)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -626,14 +617,14 @@ export default function Restaurants() {
               <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                 <img 
                   src={imgRes5} 
-                  className="img-fluid w-100 h-100 attraction-image" 
+                  className="img-fluid w-100 h-100 restaurant-image" 
                   alt="Cotton Candy" 
                   style={{ 
                     objectFit: 'cover',
                     transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
-                <div className="attraction-overlay" style={{
+                <div className="restaurant-overlay" style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -646,16 +637,16 @@ export default function Restaurants() {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  
+                  <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>View Details</span>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="fw-bold mb-3 attraction-title" style={{ 
+                <h3 className="fw-bold mb-3 restaurant-title" style={{ 
                   color: '#3CBEEE',
                   fontSize: '1.5rem',
                   transition: 'color 0.3s ease'
                 }}>Cotton Candy</h3>
-                <p className="mb-0 attraction-description" style={{ 
+                <p className="mb-0 restaurant-description" style={{ 
                   color: '#021016', 
                   lineHeight: '1.6',
                   fontSize: '0.95rem'
@@ -668,7 +659,7 @@ export default function Restaurants() {
         {/*Item from database */}
           {restaurantItems.map((item, index) => (
           <div key={item.id} className="col-lg-4 col-md-6 mb-4">
-            <div className="restaurant-card h-100" onClick={() => handleItemClick(index)} style={{
+            <div className="restaurant-card h-100" onClick={() => handleItemClick(index + staticItems.length)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',

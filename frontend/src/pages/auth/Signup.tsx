@@ -59,28 +59,28 @@ const Signup: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="auth-label">Full Name</label>
-            <input type="text" className="form-control" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" required />
+            <input type="text" className="form-control" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter Your Full Name" required />
           </div>
           <div className="mb-3">
             <label className="auth-label">Email</label>
-            <input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" required />
+            <input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter Your Email" required />
           </div>
           <div className="mb-3">
             <label className="auth-label">Phone</label>
-            <input type="tel" className="form-control" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Enter your phone number" />
+            <input type="tel" className="form-control" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Enter Your Phone Number" />
           </div>
           <div className="mb-3">
             <label className="auth-label">Password</label>
-            <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" required />
+            <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter Your Password" required />
           </div>
           <div className="mb-3">
             <label className="auth-label">Confirm Password</label>
-            <input type="password" className="form-control" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm your password" required />
+            <input type="password" className="form-control" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Your Password" required />
           </div>
           <button type="submit" className="btn w-100 text-white" style={{ backgroundColor: "#1570ef" }}>Sign Up</button>
           <div className="text-center mt-3">
-            <span>Already have an account? </span>
-            <Link to="/login">Login here</Link>
+            <span>Already Have An Account? </span>
+            <Link to="/login">Login Here</Link>
           </div>
         </form>
       </div>

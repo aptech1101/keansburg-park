@@ -252,7 +252,7 @@ export default function Home() {
             data-delay="1s"
             style={{ animationDelay: "1s" }}
           >
-            <h2 className="text-primary fw-bold mb-3">Welcome To Keansburg Park</h2>
+            <h2 className="text-primary fw-bold mb-3">WELCOME TO KEANSBURG PARK</h2>
             <h1
               className="display-4 text-uppercase text-white mb-4 fw-bold"
               style={{ lineHeight: "1.2" }}

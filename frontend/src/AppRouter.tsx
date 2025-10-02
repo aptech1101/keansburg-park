@@ -6,7 +6,6 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Info from './pages/Info';
 import Gallery from './pages/Gallery';
-import Contact from './pages/Contact';
 import Ticket from './pages/Ticket';
 import Service from './pages/Service';
 import Restaurants from './pages/Restaurants';
@@ -31,6 +30,7 @@ import AdminContact from "./pages/admin/AdminContact";
 import Profile from './pages/account/profile';
 import Orders from './pages/account/Orders';
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminUsers from './pages/admin/AdminUsers';
 
 const AppRouter: React.FC = () => {
   const location = useLocation();
@@ -62,7 +62,6 @@ const AppRouter: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<Info />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/ticket" element={<Ticket />} />
           <Route path="/services" element={<Service />} />
           <Route path="/service" element={<Service />} />
@@ -87,6 +86,7 @@ const AppRouter: React.FC = () => {
             }
           >
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="tickets" element={<AdminTickets />} />
             <Route path="feedback" element={<AdminFeedback />} />

@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ScrollAnimation from '../components/ScrollAnimation';
-import heroPreferred from '../assets/img/images (1).jpg';
-import imgFerry from '../assets/img/ferry_web.png';
-import imgFrog from '../assets/img/Frog-Hopper-768x512.jpg';
-import imgNewspaperDetail from '../assets/img/newspaper_detail_web1-768x512.png';
-import imgParkReopens from '../assets/img/Park-Reopens-768x510.jpg';
-import imgSharkproof from '../assets/img/sharkproof-net_web.png';
-import imgSpookHouse from '../assets/img/spook-house-1940s.jpg';
-import imgConstruction from '../assets/img/2004-11-09-13.26.50.jpg';
-import imgSandyReal from '../assets/img/2012-10-31-13.53.58-2.jpg';
-import imgIcecream from '../assets/img/icecreamwafflecone-600x420.jpg';
-import imgNewBanner from '../assets/img/4180801a-3680-4cf8-8d2c-0d7ea0f0fb7f.jpg';
+import imgFerry from '../assets/img/history-2.png';
+import imgFrog from '../assets/img/history-8.jpg';
+import imgNewspaperDetail from '../assets/img/history-4.png';
+import imgParkReopens from '../assets/img/history-7.jpg';
+import imgSharkproof from '../assets/img/history-1.png';
+import imgSpookHouse from '../assets/img/history-3.jpg';
+import imgConstruction from '../assets/img/history-5.jpg';
+import imgSandyReal from '../assets/img/history-6.jpg';
+import imgNewBanner from '../assets/img/info-banner.jpg';
 
 const Info: React.FC = () => {
   const location = useLocation();
@@ -453,40 +451,64 @@ const Info: React.FC = () => {
                     }}>
                       <div className="row g-4">
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="name"  value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} />
-                            <label htmlFor="name">Your Name</label>
-                          </div>
+                          <input 
+                            type="text" 
+                            className="form-control border-0" 
+                            id="name" 
+                            placeholder="Your Name"
+                            value={form.name} 
+                            onChange={(e)=>setForm({ ...form, name: e.target.value })} 
+                          />
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="email" className="form-control border-0" id="email"  value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} />
-                            <label htmlFor="email">Your Email</label>
-                          </div>
+                          <input 
+                            type="email" 
+                            className="form-control border-0" 
+                            id="email" 
+                            placeholder="Your Email"
+                            value={form.email} 
+                            onChange={(e)=>setForm({ ...form, email: e.target.value })} 
+                          />
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="phone" className="form-control border-0" id="phone"  value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} />
-                            <label htmlFor="phone">Your Phone</label>
-                          </div>
+                          <input 
+                            type="tel" 
+                            className="form-control border-0" 
+                            id="phone" 
+                            placeholder="Your Phone"
+                            value={form.phone} 
+                            onChange={(e)=>setForm({ ...form, phone: e.target.value })} 
+                          />
                         </div>
                         <div className="col-lg-12 col-xl-6">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="project"  value={form.project} onChange={(e)=>setForm({ ...form, project: e.target.value })} />
-                            <label htmlFor="project">Your Project</label>
-                          </div>
+                          <input 
+                            type="text" 
+                            className="form-control border-0" 
+                            id="project" 
+                            placeholder="Your Project"
+                            value={form.project} 
+                            onChange={(e)=>setForm({ ...form, project: e.target.value })} 
+                          />
                         </div>
                         <div className="col-12">
-                          <div className="form-floating">
-                            <input type="text" className="form-control border-0" id="subject"  value={form.subject} onChange={(e)=>setForm({ ...form, subject: e.target.value })} />
-                            <label htmlFor="subject">Subject</label>
-                          </div>
+                          <input 
+                            type="text" 
+                            className="form-control border-0" 
+                            id="subject" 
+                            placeholder="Subject"
+                            value={form.subject} 
+                            onChange={(e)=>setForm({ ...form, subject: e.target.value })} 
+                          />
                         </div>
                         <div className="col-12">
-                          <div className="form-floating">
-                            <textarea className="form-control border-0"  id="message" style={{ height: "160px" }} value={form.message} onChange={(e)=>setForm({ ...form, message: e.target.value })}></textarea>
-                            <label htmlFor="message">Message</label>
-                          </div>
+                          <textarea 
+                            className="form-control border-0" 
+                            id="message" 
+                            placeholder="Message"
+                            style={{ height: "160px" }} 
+                            value={form.message} 
+                            onChange={(e)=>setForm({ ...form, message: e.target.value })}
+                          ></textarea>
                         </div>
                         <div className="col-12">
                           <button className="btn btn-primary w-100 py-3" type="submit" disabled={submitting}>

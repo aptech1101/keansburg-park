@@ -32,7 +32,7 @@ try {
                     SELECT t.*, z.name as zone_name 
                     FROM tickets t 
                     JOIN zones z ON t.zone_id = z.id 
-                    ORDER BY t.id DESC
+                    ORDER BY t.id
                 ");
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
