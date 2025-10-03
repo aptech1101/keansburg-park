@@ -1,0 +1,29 @@
+/* Cart Badge Styling */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border: 2px solid white;
+  z-index: 10;
+}
+
+/* Animation khi số lượng thay đổi */
+.cart-badge-update {
+  animation: cartBounce 0.3s ease-in-out;
+}
+
+@keyframes cartBounce {
+  0% { transform: translate(-8px, -8px) scale(1); }
+  50% { transform: translate(-8px, -8px) scale(1.2); }
+  100% { transform: translate(-8px, -8px) scale(1); }
+}

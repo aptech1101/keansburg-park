@@ -5,6 +5,7 @@ import imgPayment from "../assets/img/payment.png";
 import parkImg from "../assets/img/amusement-banner.jpg";
 import waterImg from "../assets/img/water-banner.jpg";
 import { unitPriceOf, isWeekend, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
+import { useCart } from "../hooks/useCart";
 
 type CartItem = {
   id?: string;
@@ -27,22 +28,14 @@ const money = (n: number) =>
 
 const Cart: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<CartItem[]>([]);
   const navigate = useNavigate();
+  const { cartItems: items, setCartItems, updateQuantity, removeFromCart, clearCart } = useCart();
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CART_KEY) || "[]";
-      const parsed: CartItem[] = JSON.parse(raw);
-      setItems(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      setItems([]);
-    }
-  }, []);
+  // Cart items are now managed by useCart hook
 
   // Cart totals
   const totalQty = items.reduce(
@@ -65,13 +58,7 @@ const Cart: React.FC = () => {
         Math.trunc(Number.isFinite(next as unknown as number) ? next : 1)
       )
     );
-    const updated = items.map((x, i) =>
-      i === index ? { ...x, quantity: clamped } : x
-    );
-    setItems(updated);
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(updated));
-    } catch {}
+    updateQuantity(index, clamped);
     showToast("Quantity updated", "success");
   };
 
@@ -79,28 +66,18 @@ const Cart: React.FC = () => {
     const updated = items.map((x, i) =>
       i === index ? { ...x, visitDate: date } : x
     );
-    setItems(updated);
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(updated));
-    } catch {}
+    setCartItems(updated);
   };
 
   const removeAt = (index: number) => {
     if (!window.confirm("Remove this item from cart?")) return;
-    const updated = items.filter((_, i) => i !== index);
-    setItems(updated);
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(updated));
-    } catch {}
+    removeFromCart(index);
     showToast("Removed from cart", "success");
   };
 
-  const clearCart = () => {
+  const clearCartHandler = () => {
     if (!window.confirm("Clear all items in your cart?")) return;
-    setItems([]);
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify([]));
-    } catch {}
+    clearCart();
   };
 
   const hasMissingDate = items.some((it) => !it.visitDate);
@@ -155,7 +132,7 @@ const Cart: React.FC = () => {
                   {items.length > 0 && (
                     <button
                       className="btn btn-outline-danger"
-                      onClick={clearCart}
+                      onClick={clearCartHandler}
                     >
                       Clear cart
                     </button>

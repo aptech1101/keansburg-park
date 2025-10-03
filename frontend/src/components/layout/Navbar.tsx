@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useOnlineUsers } from '../../hooks/useOnlineUsers';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../hooks/useCart';
 import keansburgLogo from '../../assets/img/keansburg-logo.png';
 import runawayRapidsLogo from '../../assets/img/runaway-rapids.png';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -13,6 +14,7 @@ const Navbar: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
   const location = useLocation();
   const { user, logoutUser } = useAuth();
+  const { totalQuantity } = useCart();
   
   const isZonesRoute = location.pathname.startsWith('/zones/');
   const isServiceGuideRoute = location.pathname.toLowerCase() === '/service' || location.pathname.toLowerCase() === '/services' || location.pathname.toLowerCase() === '/guideline';
@@ -63,6 +65,12 @@ const Navbar: React.FC = () => {
       <style>{`
         .navbar-nav .nav-link.active {
           color: var(--bs-primary) !important;
+        }
+
+        @keyframes cartBounce {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+          100% { transform: scale(1); }
         }
 
         .navbar-nav .nav-link {
@@ -413,12 +421,38 @@ const Navbar: React.FC = () => {
               {/* Cart Icon */}
               <Link 
                 to="/cart" 
-                className="me-3" 
+                className="me-3 position-relative" 
                 aria-label="View cart"
                 onClick={handleNavLinkClick}
                 style={{ cursor: 'pointer' }}
               >
                 <i className="fas fa-shopping-cart" style={{ fontSize: '20px', color: '#666666' }}></i>
+                
+                {/* Cart Badge */}
+                {totalQuantity > 0 && (
+                  <span 
+                    style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      borderRadius: '50%',
+                      minWidth: '18px',
+                      height: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      border: '2px solid white',
+                      zIndex: 10,
+                      animation: 'cartBounce 0.3s ease-in-out'
+                    }}
+                  >
+                    {totalQuantity > 99 ? '99+' : totalQuantity}
+                  </span>
+                )}
               </Link>
 
               {user ? (

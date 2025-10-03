@@ -2,10 +2,12 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { unitPriceOf, computeDiscount } from "../lib/pricing";
+import { useCart } from "../hooks/useCart";
 import QRCode from "react-qr-code";
 
 const CheckoutPage: FC = () => {
   const { token } = useAuth();
+  const { cartItems, clearCart } = useCart();
   // QR Code component using react-qr-code library
   const QRCodeComponent: FC<{ value: string; size?: number }> = ({ 
   value, 
@@ -64,33 +66,7 @@ const convertQRToBase64 = async (ticketCode: string, size: number = 100): Promis
     return canvas.toDataURL();
   }
 };
-//cart items state
-  type CartItem = {
-    id?: string;
-    zoneCode: "PARK" | "WATER";
-    visitDate: string;
-    quantity: number;
-  };
-
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("cart") || "[]";
-      const parsed = JSON.parse(raw);
-      const arr: CartItem[] = Array.isArray(parsed)
-        ? parsed.map((it: any) => ({
-            id: it.id,
-            zoneCode: (it.zoneCode || it.zone || "PARK").toUpperCase(),
-            visitDate: it.visitDate || "",
-            quantity: Math.max(1, Number(it.quantity) || 1),
-          }))
-        : [];
-      setCartItems(arr);
-    } catch {
-      setCartItems([]);
-    }
-  }, []);
+// Cart items are now managed by useCart hook
 
   const totalQuantity = useMemo(
     () => cartItems.reduce((sum, it) => sum + Math.max(0, it.quantity || 0), 0),
@@ -257,7 +233,7 @@ const convertQRToBase64 = async (ticketCode: string, size: number = 100): Promis
         
         setIssuedTickets(allTickets);
         setPaid(true);
-        try { localStorage.removeItem('cart'); } catch {}
+        clearCart(); // Clear cart using hook
       } catch (e) {
         alert('Payment failed. Please try again.');
       }

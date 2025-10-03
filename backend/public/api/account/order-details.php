@@ -81,6 +81,7 @@ try {
             bd.quantity,
             bd.unit_price,
             bd.line_total,
+            bd.ticket_code,
             t.description as ticket_name
         FROM bookingdetails bd
         JOIN tickets t ON bd.ticket_id = t.id
@@ -116,7 +117,8 @@ try {
             'ticket_name' => $item['ticket_name'],
             'quantity' => (int)$item['quantity'],
             'unit_price' => (float)$item['unit_price'],
-            'line_total' => (float)$item['line_total']
+            'line_total' => (float)$item['line_total'],
+            'ticket_code' => $item['ticket_code'] ?? null
         ];
     }, $items);
 

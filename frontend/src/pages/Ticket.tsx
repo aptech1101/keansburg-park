@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import parkImg from "../assets/img/amusement-banner.jpg";
 import waterImg from "../assets/img/water-banner.jpg";
 import { unitPriceOf, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
+import { useCart } from "../hooks/useCart";
 
 export default function Ticket() {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,7 @@ export default function Ticket() {
 }) {
   const [visitDate, setVisitDate] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
+  const { addToCart } = useCart();
 
   // Pricing helpers (shared)
   const money = (n: number) =>
@@ -82,19 +84,12 @@ export default function Ticket() {
     }
     setIsAdding(true);
     try {
-      const item: CartItem = {
+      const item = {
         zoneCode: zone,
         visitDate,
         quantity,
-        unitPrice: pricing.unitPrice,
-        subtotal: pricing.subtotal,
-        discountTotal: pricing.discountTotal,
-        lineTotal: pricing.lineTotal,
       };
-      const raw = localStorage.getItem("cart") || "[]";
-      const arr: CartItem[] = JSON.parse(raw);
-      arr.push(item);
-      localStorage.setItem("cart", JSON.stringify(arr));
+      addToCart(item);
       showToast("Added to cart", "success");
 
       // ✅ bật trạng thái đã thêm

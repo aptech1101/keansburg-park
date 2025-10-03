@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getOrders, getOrderDetails, OrdersListResponse, OrderDetailsResponse } from "../../services/api";
+import QRCodeDisplay from "../../components/QRCodeDisplay";
 
 interface Order {
   id: number;
@@ -400,6 +401,7 @@ const Orders: React.FC = () => {
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Total</th>
+                        <th>QR Code</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -413,6 +415,17 @@ const Orders: React.FC = () => {
                           <td>{item.quantity}</td>
                           <td>${item.unit_price.toFixed(2)}</td>
                           <td>${item.line_total.toFixed(2)}</td>
+                          <td>
+                            {item.ticket_code ? (
+                              <QRCodeDisplay 
+                                value={`TICKET:${item.ticket_code}`}
+                                size={84}
+                                title={undefined}
+                              />
+                            ) : (
+                              <span className="text-muted">N/A</span>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

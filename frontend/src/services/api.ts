@@ -159,6 +159,7 @@ export interface OrderItem {
   quantity: number;
   unit_price: number;
   line_total: number;
+  ticket_code?: string;
 }
 
 export interface OrderPayment {
