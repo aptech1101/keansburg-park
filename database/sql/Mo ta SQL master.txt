@@ -1,0 +1,63 @@
+Dưới đây là mô tả tóm tắt các bảng trong SQL master (gửi team để nắm nhanh cấu trúc & nghiệp vụ). Bản này đã bỏ Reviews; chỉ còn Feedbacks chung cho guest/user; thêm Messages (Contact form).
+Bảng lõi (tham chiếu)
+1) users
+Quản lý tài khoản.
+Trường chính: id (PK), full_name, email [UQ], password_hash, phone, role('user'|'admin'), is_active, created_at.
+Dùng cho: đăng ký/đăng nhập, gắn chủ sở hữu booking, gắn người tạo feedback (nếu đã đăng nhập).
+2) zones
+Danh mục khu: park, water.
+Trường: id (PK), code('park'|'water') [UQ], name, description.
+Dùng cho: tham chiếu bởi attractions, restaurants, tickets.
+3) attractions
+Trò chơi/điểm tham quan theo zone.
+Trường: id (PK), zone_id (FK→zones.id), name, description, image_url, is_active.
+4) restaurants
+Nhà hàng theo zone.
+Trường: id (PK), zone_id (FK), name, description, image_url, is_active.
+5) gallery
+Ảnh công khai.
+Trường: id (PK), title, description, image_url, created_at.
+Vé & giá
+6) tickets
+Định nghĩa sản phẩm vé & giá theo zone.
+Trường: id (PK), zone_id (FK), weekday_price, weekend_price, description, is_active.
+Ghi chú: giá hiển thị/tính tiền lấy từ đây tại thời điểm đặt.
+Đơn đặt & thanh toán
+7) bookings
+Đơn đặt vé (gộp orders/bookings; hỗ trợ guest).
+Trường:
+•	Nhận diện: id (PK), booking_code [UQ], idempotency_key [UQ].
+•	Chủ đơn: user_id (FK→users.id, NULL nếu guest), guest_token (UUID cho tra cứu).
+•	Thông tin khách: guest_name, guest_email, guest_phone.
+•	Nghiệp vụ: visit_date, subtotal, discount_total, grand_total, currency, status('PENDING'|'PAID'|'CANCELLED'|'FAILED'), payment_method.
+•	Thời gian: created_at, updated_at.
+Index quan trọng: user_id, guest_token, visit_date.
+8) bookingdetails
+Dòng chi tiết của một booking.
+Trường: id (PK), booking_id (FK→bookings.id), ticket_id (FK→tickets.id), using_date, quantity, unit_price, discount_rate%, line_total, ticket_code.
+Ghi chú: unit_price được “đóng băng” theo ngày khi tạo đơn; ticket_code phát hành sau khi thanh toán thành công.
+9) payments
+Giao dịch thanh toán (mock/thật).
+Trường: id (PK), booking_id (FK), amount, provider, paid_at, status('INIT'|'SUCCESS'|'FAIL'), created_at.
+Nghiệp vụ: khi SUCCESS → cập nhật bookings.status='PAID', phát hành ticket_code cho từng dòng.
+Phản hồi & liên hệ
+10) feedbacks
+Phản hồi hiển thị trên site (moderation đơn giản).
+Trường: id (PK), name, email, message, rating(1..5), status('pending'|'approved'|'rejected'), created_by (FK→users.id, NULL nếu guest), created_at.
+Ghi chú: một admin duy nhất duyệt; không còn approved_by/approved_at.
+11) messages
+Hộp thư “Contact Us” (form trong ảnh, đã bỏ “Your Project”).
+Trường: id (PK), name, email, phone, subject, message, created_at.
+Dùng cho: lưu câu hỏi/liên hệ; có thể gửi email thông báo nội bộ.
+________________________________________
+Quan hệ chính (1 dòng/quan hệ)
+•	zones.id ← attractions.zone_id, restaurants.zone_id, tickets.zone_id
+•	users.id ← bookings.user_id, feedbacks.created_by
+•	bookings.id ← bookingdetails.booking_id, payments.booking_id
+•	tickets.id ← bookingdetails.ticket_id
+Lưu ý triển khai nhanh
+•	Đã Seed sẵn zones (park, water) và tickets (10/12 USD như spec).
+•	Guest: tra cứu đơn bằng guest_token + booking_code + email.
+•	Giảm đoàn 10% áp ở FE/BE → lưu vào discount_rate/discount_total.
+•	Tạo booking_code và ticket_code theo rule team đã chốt (YYMMDD-SEQ).
+

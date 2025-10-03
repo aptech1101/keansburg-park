@@ -38,6 +38,10 @@ const Orders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderDetailsResponse | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   
+  // Pagination for order details items
+  const [currentItemsPage, setCurrentItemsPage] = useState(1);
+  const itemsPerPage = 4;
+  
   // Filters state
   const [filters, setFilters] = useState({
     start_date: "",
@@ -90,9 +94,30 @@ const Orders: React.FC = () => {
       const response = await getOrderDetails(token, orderId);
       setSelectedOrder(response);
       setShowDetails(true);
+      setCurrentItemsPage(1); // Reset to first page when opening details
     } catch (err: any) {
       setError(err.message || "Failed to fetch order details");
     }
+  };
+
+  // Get paginated items for order details
+  const getPaginatedItems = () => {
+    if (!selectedOrder?.order?.items) return [];
+    
+    const startIndex = (currentItemsPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return selectedOrder.order.items.slice(startIndex, endIndex);
+  };
+
+  // Get total pages for order items
+  const getTotalItemsPages = () => {
+    if (!selectedOrder?.order?.items) return 0;
+    return Math.ceil(selectedOrder.order.items.length / itemsPerPage);
+  };
+
+  // Handle items page change
+  const handleItemsPageChange = (page: number) => {
+    setCurrentItemsPage(page);
   };
 
   // Clear all filters
@@ -392,7 +417,16 @@ const Orders: React.FC = () => {
                   </div>
                 </div>
 
-                <h6>Order Items</h6>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h6 className="mb-0">Order Items</h6>
+                  <small className="text-muted">
+                    {selectedOrder.order.items ? (
+                      `Showing ${((currentItemsPage - 1) * itemsPerPage) + 1} to ${Math.min(currentItemsPage * itemsPerPage, selectedOrder.order.items.length)} of ${selectedOrder.order.items.length} items`
+                    ) : (
+                      "No items found"
+                    )}
+                  </small>
+                </div>
                 <div className="table-responsive">
                   <table className="table table-sm">
                     <thead>
@@ -405,7 +439,7 @@ const Orders: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(selectedOrder.order.items || []).map((item, index) => (
+                      {getPaginatedItems().map((item, index) => (
                         <tr key={index}>
                           <td>
                             <div>
@@ -431,6 +465,64 @@ const Orders: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Items Pagination */}
+                {getTotalItemsPages() > 1 && (
+                  <nav aria-label="Order items pagination" className="mt-3">
+                    <ul className="pagination justify-content-center pagination-sm">
+                      <li className={`page-item ${currentItemsPage === 1 ? 'disabled' : ''}`}>
+                        <button 
+                          className="page-link rounded-pill" 
+                          style={{ 
+                            color: currentItemsPage === 1 ? '#6c757d' : '#1570ef',
+                            borderColor: '#1570ef',
+                            margin: '0 2px',
+                            fontSize: '0.875rem'
+                          }}
+                          onClick={() => handleItemsPageChange(currentItemsPage - 1)}
+                          disabled={currentItemsPage === 1}
+                        >
+                          Previous
+                        </button>
+                      </li>
+                      
+                      {Array.from({ length: getTotalItemsPages() }, (_, i) => i + 1).map(page => (
+                        <li key={page} className={`page-item ${page === currentItemsPage ? 'active' : ''}`}>
+                          <button 
+                            className="page-link rounded-pill" 
+                            style={{ 
+                              backgroundColor: page === currentItemsPage ? '#1570ef' : 'white',
+                              color: page === currentItemsPage ? 'white' : '#1570ef',
+                              borderColor: '#1570ef',
+                              margin: '0 2px',
+                              minWidth: '32px',
+                              fontSize: '0.875rem'
+                            }}
+                            onClick={() => handleItemsPageChange(page)}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      ))}
+                      
+                      <li className={`page-item ${currentItemsPage === getTotalItemsPages() ? 'disabled' : ''}`}>
+                        <button 
+                          className="page-link rounded-pill" 
+                          style={{ 
+                            color: currentItemsPage === getTotalItemsPages() ? '#6c757d' : '#1570ef',
+                            borderColor: '#1570ef',
+                            margin: '0 2px',
+                            fontSize: '0.875rem'
+                          }}
+                          onClick={() => handleItemsPageChange(currentItemsPage + 1)}
+                          disabled={currentItemsPage === getTotalItemsPages()}
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                )}
 
                 {selectedOrder.order.payments && selectedOrder.order.payments.length > 0 && (
                   <>

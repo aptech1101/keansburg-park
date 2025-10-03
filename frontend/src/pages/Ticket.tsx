@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import parkImg from "../assets/img/amusement-banner.jpg";
 import waterImg from "../assets/img/water-banner.jpg";
-import { unitPriceOf, computeDiscount, GROUP_DISCOUNT_THRESHOLD } from "../lib/pricing";
+import {
+  unitPriceOf,
+  computeDiscount,
+  GROUP_DISCOUNT_THRESHOLD,
+} from "../lib/pricing";
 import { useCart } from "../hooks/useCart";
 
 export default function Ticket() {
@@ -27,272 +31,274 @@ export default function Ticket() {
   };
 
   function BookingWidget({
-  zone,
-  onZoneChange,
-}: {
-  zone: "PARK" | "WATER";
-  onZoneChange: (z: "PARK" | "WATER") => void;
-}) {
-  const [visitDate, setVisitDate] = useState<string>("");
-  const [quantity, setQuantity] = useState<number>(1);
-  const { addToCart } = useCart();
+    zone,
+    onZoneChange,
+  }: {
+    zone: "PARK" | "WATER";
+    onZoneChange: (z: "PARK" | "WATER") => void;
+  }) {
+    const [visitDate, setVisitDate] = useState<string>("");
+    const [quantity, setQuantity] = useState<number>(1);
+    const { addToCart } = useCart();
 
-  // Pricing helpers (shared)
-  const money = (n: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(n);
-  const computePrice = (date: string, qty: number) => {
-    const unit = unitPriceOf(date);
-    const subtotal = unit * qty;
-    const discountTotal = computeDiscount(subtotal, qty);
-    const lineTotal = subtotal - discountTotal;
-    return { unitPrice: unit, subtotal, discountTotal, lineTotal };
-  };
+    // Pricing helpers (shared)
+    const money = (n: number) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(n);
+    const computePrice = (date: string, qty: number) => {
+      const unit = unitPriceOf(date);
+      const subtotal = unit * qty;
+      const discountTotal = computeDiscount(subtotal, qty);
+      const lineTotal = subtotal - discountTotal;
+      return { unitPrice: unit, subtotal, discountTotal, lineTotal };
+    };
 
-  const decrement = () => setQuantity((q) => Math.max(1, q - 1));
-  const increment = () => setQuantity((q) => q + 1);
-  const handleQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const next = parseInt(e.target.value, 10);
-    setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
-  };
+    const decrement = () => setQuantity((q) => Math.max(1, q - 1));
+    const increment = () => setQuantity((q) => q + 1);
+    const handleQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const next = parseInt(e.target.value, 10);
+      setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
+    };
 
-  const pricing = visitDate ? computePrice(visitDate, quantity) : null;
+    const pricing = visitDate ? computePrice(visitDate, quantity) : null;
 
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [toastVisible, setToastVisible] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string>("");
-  const [toastVariant, setToastVariant] = useState<"success" | "danger">(
-    "success"
-  );
+    const [isAdding, setIsAdding] = useState<boolean>(false);
+    const [toastVisible, setToastVisible] = useState<boolean>(false);
+    const [toastMessage, setToastMessage] = useState<string>("");
+    const [toastVariant, setToastVariant] = useState<"success" | "danger">(
+      "success"
+    );
 
-  // ✅ thêm state để hiện nút Go to Cart
-  const [added, setAdded] = useState(false);
+    // ✅ thêm state để hiện nút Go to Cart
+    const [added, setAdded] = useState(false);
 
-  const showToast = (message: string, variant: "success" | "danger") => {
-    setToastMessage(message);
-    setToastVariant(variant);
-    setToastVisible(true);
-    window.setTimeout(() => setToastVisible(false), 2200);
-  };
+    const showToast = (message: string, variant: "success" | "danger") => {
+      setToastMessage(message);
+      setToastVariant(variant);
+      setToastVisible(true);
+      window.setTimeout(() => setToastVisible(false), 2200);
+    };
 
-  const handleAddToCart = () => {
-    if (!visitDate || quantity < 1 || !pricing) {
-      showToast("Please select a date and valid quantity.", "danger");
-      return;
-    }
-    setIsAdding(true);
-    try {
-      const item = {
-        zoneCode: zone,
-        visitDate,
-        quantity,
-      };
-      addToCart(item);
-      showToast("Added to cart", "success");
+    const handleAddToCart = () => {
+      if (!visitDate || quantity < 1 || !pricing) {
+        showToast("Please select a date and valid quantity.", "danger");
+        return;
+      }
+      setIsAdding(true);
+      try {
+        const item = {
+          zoneCode: zone,
+          visitDate,
+          quantity,
+        };
+        addToCart(item);
+        showToast("Added to cart", "success");
 
-      // ✅ bật trạng thái đã thêm
-      setAdded(true);
-    } catch (e) {
-      showToast("Failed to add to cart", "danger");
-    } finally {
-      setIsAdding(false);
-    }
-  };
+        // ✅ bật trạng thái đã thêm
+        setAdded(true);
+      } catch (e) {
+        showToast("Failed to add to cart", "danger");
+      } finally {
+        setIsAdding(false);
+      }
+    };
 
-  return (
-    <div className="card border-0 shadow-sm p-4 position-relative">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="btn-group" role="group" aria-label="Select zone">
-          <button
-            type="button"
-            className={`btn ${
-              zone === "PARK" ? "btn-primary" : "btn-outline-primary"
-            }`}
-            aria-pressed={zone === "PARK"}
-            onClick={() => onZoneChange("PARK")}
-          >
-            Amusement Park
-          </button>
-          <button
-            type="button"
-            className={`btn ${
-              zone === "WATER" ? "btn-primary" : "btn-outline-primary"
-            }`}
-            aria-pressed={zone === "WATER"}
-            onClick={() => onZoneChange("WATER")}
-          >
-            Water Park
-          </button>
-        </div>
-        <span className="badge bg-light text-dark">
-          Zone: {zone === "PARK" ? "Amusement" : "Water"}
-        </span>
-      </div>
-
-      <div className="row g-3 align-items-end mb-4">
-        <div className="col-md-6">
-          <label className="form-label">Visit date</label>
-          <input
-            type="date"
-            className="form-control"
-            aria-label="Visit date"
-            value={visitDate}
-            onChange={(e) => setVisitDate(e.target.value)}
-          />
-          {!visitDate && (
-            <div className="form-text text-danger">Please select a date</div>
-          )}
-        </div>
-        <div className="col-md-6">
-          <label className="form-label">Quantity</label>
-          <div className="input-group">
+    return (
+      <div className="card border-0 shadow-sm p-4 position-relative">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="btn-group" role="group" aria-label="Select zone">
             <button
               type="button"
-              className="btn btn-outline-secondary"
-              aria-label="Decrease quantity"
-              onClick={decrement}
-              disabled={quantity === 1}
+              className={`btn ${
+                zone === "PARK" ? "btn-primary" : "btn-outline-primary"
+              }`}
+              aria-pressed={zone === "PARK"}
+              onClick={() => onZoneChange("PARK")}
             >
-              -
+              Amusement Park
             </button>
+            <button
+              type="button"
+              className={`btn ${
+                zone === "WATER" ? "btn-primary" : "btn-outline-primary"
+              }`}
+              aria-pressed={zone === "WATER"}
+              onClick={() => onZoneChange("WATER")}
+            >
+              Water Park
+            </button>
+          </div>
+          <span className="badge bg-light text-dark">
+            Zone: {zone === "PARK" ? "Amusement" : "Water"}
+          </span>
+        </div>
+
+        <div className="row g-3 align-items-end mb-4">
+          <div className="col-md-6">
+            <label className="form-label">Visit date</label>
             <input
-              type="number"
-              className="form-control text-center"
-              aria-label="Ticket quantity"
-              min={1}
-              step={1}
-              inputMode="numeric"
-              value={quantity}
-              onChange={handleQuantityInput}
-              onBlur={(e) => {
-                const next = parseInt(e.target.value, 10);
-                setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
-              }}
+              type="date"
+              className="form-control"
+              aria-label="Visit date"
+              value={visitDate}
+              onChange={(e) => setVisitDate(e.target.value)}
             />
+            {!visitDate && (
+              <div className="form-text text-danger">Please select a date</div>
+            )}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label">Quantity</label>
+            <div className="input-group">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                aria-label="Decrease quantity"
+                onClick={decrement}
+                disabled={quantity === 1}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                className="form-control text-center"
+                aria-label="Ticket quantity"
+                min={1}
+                step={1}
+                inputMode="numeric"
+                value={quantity}
+                onChange={handleQuantityInput}
+                onBlur={(e) => {
+                  const next = parseInt(e.target.value, 10);
+                  setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                aria-label="Increase quantity"
+                onClick={increment}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="row g-3">
+          <div className="col-lg-6">
+            <div className="border rounded p-3 h-100">
+              <h6 className="mb-3">Pricing</h6>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Unit Price</span>
+                {pricing ? (
+                  <strong>{money(pricing.unitPrice)}</strong>
+                ) : (
+                  <strong className="text-muted">—</strong>
+                )}
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Subtotal</span>
+                {pricing ? (
+                  <strong>{money(pricing.subtotal)}</strong>
+                ) : (
+                  <strong className="text-muted">—</strong>
+                )}
+              </div>
+              {pricing && quantity >= GROUP_DISCOUNT_THRESHOLD ? (
+                <div className="d-flex justify-content-between mb-2">
+                  <span>
+                    Discount{" "}
+                    <span className="badge bg-light text-dark ms-1">
+                      10% for ≥10 persons
+                    </span>
+                  </span>
+                  <strong className="text-danger">
+                    - {money(pricing.discountTotal)}
+                  </strong>
+                </div>
+              ) : (
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Discount</span>
+                  <strong className="text-muted">—</strong>
+                </div>
+              )}
+              <div className="d-flex justify-content-between border-top pt-2">
+                <span>Line Total</span>
+                {pricing ? (
+                  <strong>{money(pricing.lineTotal)}</strong>
+                ) : (
+                  <strong className="text-muted">—</strong>
+                )}
+              </div>
+              <div className="mt-2 text-muted small">
+                Group discount: 10% for ≥10 tickets
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-6 d-flex flex-column justilyfy-content-center align-items-center">
             <button
               type="button"
-              className="btn btn-outline-secondary"
-              aria-label="Increase quantity"
-              onClick={increment}
+              className={`btn ${
+                added ? "btn-success" : "btn-secondary"
+              } w-100 py-3`}
+              aria-label="Add selected tickets to cart"
+              disabled={!pricing || isAdding || added}
+              onClick={handleAddToCart}
             >
-              +
+              {added ? "Added ✓" : "Add to Cart"}
             </button>
-          </div>
-        </div>
-      </div>
 
-      <div className="row g-3">
-        <div className="col-lg-6">
-          <div className="border rounded p-3 h-100">
-            <h6 className="mb-3">Pricing</h6>
-            <div className="d-flex justify-content-between mb-2">
-              <span>Unit Price</span>
-              {pricing ? (
-                <strong>{money(pricing.unitPrice)}</strong>
-              ) : (
-                <strong className="text-muted">—</strong>
-              )}
-            </div>
-            <div className="d-flex justify-content-between mb-2">
-              <span>Subtotal</span>
-              {pricing ? (
-                <strong>{money(pricing.subtotal)}</strong>
-              ) : (
-                <strong className="text-muted">—</strong>
-              )}
-            </div>
-            {pricing && quantity >= GROUP_DISCOUNT_THRESHOLD ? (
-              <div className="d-flex justify-content-between mb-2">
-                <span>
-                  Discount{" "}
-                  <span className="badge bg-light text-dark ms-1">
-                    10% for ≥10 persons
-                  </span>
-                </span>
-                <strong className="text-danger">
-                  - {money(pricing.discountTotal)}
-                </strong>
-              </div>
-            ) : (
-              <div className="d-flex justify-content-between mb-2">
-                <span>Discount</span>
-                <strong className="text-muted">—</strong>
-              </div>
+            {/* ✅ hiện nút Go to Cart khi đã thêm */}
+            {added && (
+              <Link
+                to="/cart"
+                className="btn btn-outline-primary w-100 mt-2 py-3"
+                aria-label="Go to cart and checkout"
+              >
+                Go to Cart
+              </Link>
             )}
-            <div className="d-flex justify-content-between border-top pt-2">
-              <span>Line Total</span>
-              {pricing ? (
-                <strong>{money(pricing.lineTotal)}</strong>
-              ) : (
-                <strong className="text-muted">—</strong>
-              )}
-            </div>
-            <div className="mt-2 text-muted small">
-              Group discount: 10% for ≥10 tickets
-            </div>
           </div>
         </div>
-        <div className="col-lg-6 d-flex align-items-end">
-          <button
-            type="button"
-            className={`btn ${added ? "btn-success" : "btn-secondary"} w-100 py-3`}
-            aria-label="Add selected tickets to cart"
-            disabled={!pricing || isAdding || added}
-            onClick={handleAddToCart}
-          >
-            {added ? "Added ✓" : "Add to Cart"}
-          </button>
 
-          {/* ✅ hiện nút Go to Cart khi đã thêm */}
-          {added && (
-            <Link
-              to="/cart"
-              className="btn btn-outline-primary w-100 mt-2 py-3"
-              aria-label="Go to cart and checkout"
-            >
-              Go to Cart
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Toast container */}
-      <div
-        className="toast-container position-fixed top-0 end-0 p-3"
-        style={{ zIndex: 1080 }}
-      >
+        {/* Toast container */}
         <div
-          className={`toast ${toastVisible ? "show" : "hide"}`}
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
+          className="toast-container position-fixed top-0 end-0 p-3"
+          style={{ zIndex: 1080 }}
         >
           <div
-            className={`toast-header ${
-              toastVariant === "success"
-                ? "bg-success text-white"
-                : "bg-danger text-white"
-            }`}
+            className={`toast ${toastVisible ? "show" : "hide"}`}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
           >
-            <strong className="me-auto">
-              {toastVariant === "success" ? "Success" : "Error"}
-            </strong>
-            <small>now</small>
-            <button
-              type="button"
-              className="btn-close btn-close-white ms-2 mb-1"
-              aria-label="Close"
-              onClick={() => setToastVisible(false)}
-            ></button>
+            <div
+              className={`toast-header ${
+                toastVariant === "success"
+                  ? "bg-success text-white"
+                  : "bg-danger text-white"
+              }`}
+            >
+              <strong className="me-auto">
+                {toastVariant === "success" ? "Success" : "Error"}
+              </strong>
+              <small>now</small>
+              <button
+                type="button"
+                className="btn-close btn-close-white ms-2 mb-1"
+                aria-label="Close"
+                onClick={() => setToastVisible(false)}
+              ></button>
+            </div>
+            <div className="toast-body">{toastMessage}</div>
           </div>
-          <div className="toast-body">{toastMessage}</div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);
@@ -319,7 +325,6 @@ export default function Ticket() {
       {/* Spinner End */}
 
       {/* Navbar removed: using global layout Navbar */}
-
 
       {/* Ticket Packages Start */}
       <div className="container-fluid py-5">
@@ -373,7 +378,11 @@ export default function Ticket() {
                     src={parkImg}
                     alt="Amusement Park"
                     className="img-fluid rounded"
-                    style={{ height: '220px', width: '100%', objectFit: 'cover' }}
+                    style={{
+                      height: "220px",
+                      width: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </div>
                 <h4 className="mb-2">Zone 1 – Amusement Park</h4>
@@ -404,7 +413,11 @@ export default function Ticket() {
                     src={waterImg}
                     alt="Water Park"
                     className="img-fluid rounded"
-                    style={{ height: '220px', width: '100%', objectFit: 'cover' }}
+                    style={{
+                      height: "220px",
+                      width: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </div>
                 <h4 className="mb-2">Zone 2 – Water Park</h4>
@@ -437,8 +450,6 @@ export default function Ticket() {
       {/* Ticket Packages End */}
 
       {/* Footer removed: using global layout Footer */}
-
-    
     </>
   );
 }
