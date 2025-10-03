@@ -395,12 +395,7 @@
 }
 
 @media (max-width: 576px) {
-    .header-carousel .header-carousel-item {
-        height: 100vh;
-        min-height: 560px;
-    }
-    
-    .header-carousel .carousel-caption { padding-top: 80px !important; align-items: flex-start !important; }
+   
     .header-carousel .carousel-caption h1 { font-size: 1.6rem; }
     
     .header-carousel .carousel-caption p { font-size: 0.95rem; }
@@ -420,10 +415,8 @@
         object-fit: cover !important;
     }
     .header-carousel .carousel-caption {
-        position: relative !important;
+        position: absolute !important;
         height: auto !important;
-        padding-top: 72px !important;
-        padding-bottom: 16px !important;
         align-items: flex-start !important;
     }
     .header-carousel .carousel-caption h1 { font-size: 1.6rem !important; line-height: 1.25 !important; }
@@ -449,10 +442,7 @@
     .header-carousel .ticket-form .form-select { height: 42px !important; font-size: 14px !important; }
     .header-carousel .ticket-form .btn { padding: 10px 14px !important; font-size: 14px !important; }
 
-    /* Make hero auto-height to avoid cropping long form */
-    .header-carousel, .header-carousel .header-carousel-item { height: auto !important; max-height: none !important; }
-    .header-carousel .carousel-caption { position: relative !important; height: auto !important; padding-top: 72px !important; padding-bottom: 24px !important; align-items: flex-start !important; }
-    .header-carousel .carousel-caption::after { display: none; }
+    
 }
 
 @keyframes carousel-next-btn {

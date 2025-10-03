@@ -184,7 +184,7 @@ const AdminOrders: React.FC = () => {
               <thead>
                 <tr>
                   <th>Order Code</th>
-                  <th>User</th>
+                  <th>Username (Email)</th>
                   <th>Subtotal</th>
                   <th>Status</th>
                   <th>Created At</th>
