@@ -104,7 +104,7 @@ if ($method === 'GET') {
     $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
     // Lấy danh sách
-    $sql = "SELECT b.id, b.booking_code, u.full_name, b.subtotal, b.status, b.created_at
+    $sql = "SELECT b.id, b.booking_code, u.full_name,u.email, b.subtotal, b.status, b.created_at
             FROM bookings b
             LEFT JOIN users u ON b.user_id = u.id
             $where

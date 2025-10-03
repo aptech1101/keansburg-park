@@ -7,17 +7,64 @@ import QRCode from "react-qr-code";
 const CheckoutPage: FC = () => {
   const { token } = useAuth();
   // QR Code component using react-qr-code library
-  const QRCodeComponent: FC<{ value: string; size?: number }> = ({ value, size = 72 }) => {
-    const QRCodeElement = QRCode as any;
-    return (
+  const QRCodeComponent: FC<{ value: string; size?: number }> = ({ 
+  value, 
+  size = 72 
+}) => {
+  const qrRef = useRef<HTMLDivElement>(null);
+  
+  const QRCodeElement = QRCode as any;
+  return (
+    <div ref={qrRef}>
       <QRCodeElement
         value={value}
         size={size}
         style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+        bgColor="#ffffff"
+        fgColor="#000000"
+        level="M"
       />
-    );
-  };
+    </div>
+  );
+};
 
+//Helper function để convert QR to base64
+const convertQRToBase64 = async (ticketCode: string, size: number = 100): Promise<string> => {
+  try {
+    // Sử dụng QR API để lấy base64
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(ticketCode)}&bgcolor=FFFFFF&color=000000&format=png`;
+    
+    const response = await fetch(qrApiUrl);
+    if (response.ok) {
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } else {
+      throw new Error('QR API failed');
+    }
+  } catch (error) {
+    console.error('QR conversion error:', error);
+    // Fallback: tạo placeholder image
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = size;
+    canvas.height = size;
+    
+    if (ctx) {
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#000';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('QR', size/2, size/2);
+    }
+    return canvas.toDataURL();
+  }
+};
+//cart items state
   type CartItem = {
     id?: string;
     zoneCode: "PARK" | "WATER";
@@ -84,12 +131,16 @@ const CheckoutPage: FC = () => {
     return cartItems.length > 0 && cartItems.every(item => item.visitDate && item.visitDate.trim() !== '');
   }, [cartItems]);
 
+  //state agreePolicy
+  const [agreePolicy, setAgreePolicy] = useState(false);
+
   const canConfirm =
     cartItems.length > 0 &&
     fullName.trim().length > 0 &&
     phone.trim().length > 0 &&
     isEmailValid(email.trim()) &&
-    allItemsHaveVisitDate;
+    allItemsHaveVisitDate &&
+    agreePolicy;
 
   type IssuedTicket = {
     code: string;
@@ -137,18 +188,19 @@ const CheckoutPage: FC = () => {
 
   const onConfirm = () => {
     if (!canConfirm) return;
-
+  
     // Validate that all cart items have visitDates
     if (!allItemsHaveVisitDate) {
       alert('Please ensure all cart items have a visit date selected.');
       return;
     }
-
+  
     const oc = buildOrderCode();
     const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
     const url = `${baseUrl.replace(/\/$/, '')}/bookings/create.php`;
-
+  
     const payload = {
+      stage: "checkout",
       orderCode: oc,
       customer: {
         name: fullName.trim(),
@@ -157,11 +209,11 @@ const CheckoutPage: FC = () => {
       },
       cart: cartItems.map((c) => ({
         zoneCode: c.zoneCode,
-        visitDate: c.visitDate, // Each cart item has its own visitDate
+        visitDate: c.visitDate,
         quantity: c.quantity,
       })),
     };
-
+  
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -174,7 +226,7 @@ const CheckoutPage: FC = () => {
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       headers['Idempotency-Key'] = idk;
     } catch {}
-
+  
     (async () => {
       try {
         const res = await fetch(`/api/bookings/create.php`, { method: 'POST', headers, body: JSON.stringify(payload) });
@@ -186,16 +238,15 @@ const CheckoutPage: FC = () => {
           console.error('Invalid response:', json);
           throw new Error('Invalid response');
         }
-
+  
         const booking = json.booking as { booking_code?: string };
         const details = (json.details || []) as Array<{ ticket_code: string; using_date: string; zone_code?: string }>;
-
+  
         setOrderCode(booking.booking_code || oc);
         
         // Tạo danh sách vé riêng lẻ từ ticket_code
         const allTickets: IssuedTicket[] = [];
         details.forEach((d) => {
-          // Mỗi record giờ đây đại diện cho 1 vé riêng lẻ
           allTickets.push({
             code: d.ticket_code || `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
             zone: (d.zone_code || '').toUpperCase() || undefined,
@@ -213,73 +264,183 @@ const CheckoutPage: FC = () => {
     })();
   };
 
+  // Kiểm tra QR API
+  const testQRLibrary = async () => {
+    try {
+      const testUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('TEST-123')}&bgcolor=FFFFFF&color=000000`;
+      const response = await fetch(testUrl, { method: 'HEAD' });
+      console.log('QR API working:', response.ok);
+      return response.ok;
+    } catch (error) {
+      console.error('QR API not working:', error);
+      return false;
+    }
+  };
+
+// Test khi component mount
+useEffect(() => {
+  testQRLibrary();
+}, []);
+
+  //handlePrint với QR code thực
+  const handlePrint = async () => {
+    if (!paid) return;
+    
+    console.log('Starting print process...');
+    
+    try {
+      // Test thư viện trước
+      const isWorking = await testQRLibrary();
+      if (!isWorking) {
+        console.warn('QR library not working, using fallback');
+      }
+      
+      // Tạo QR codes cho tất cả tickets
+      const ticketsWithQR = await Promise.all(
+        currentTickets.map(async (t) => {
+          try {
+            const qrDataURL = await generateQRDataURL(t.code);
+            return { ...t, qrDataURL };
+          } catch (error) {
+            console.error(`Failed to generate QR for ${t.code}:`, error);
+            return { ...t, qrDataURL: createFallbackQR(t.code) };
+          }
+        })
+      );
+      
+      console.log('Generated QR codes for', ticketsWithQR.length, 'tickets');
+      
+      // Tạo cửa sổ in
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Please allow popups to print tickets');
+        return;
+      }
+      
+      const ticketsHTML = ticketsWithQR.map((t, idx) => `
+        <div class="ticket-card" style="border: 2px solid #000; padding: 15px; margin: 10px 0; page-break-inside: avoid;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-weight: bold; font-size: 16px;">${t.code}</div>
+              <div style="color: #666; font-size: 12px;">Zone: ${t.zone || "General"}</div>
+              <div style="color: #666; font-size: 12px;">
+                Visit: ${t.visitDate ? new Date(t.visitDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                }) : "—"}
+              </div>
+              <div style="color: #666; font-size: 12px;">Customer: ${fullName}</div>
+            </div>
+            <div style="width: 100px; height: 100px;">
+              <img src="${t.qrDataURL}" 
+                   alt="QR Code for ${t.code}" 
+                   style="width: 100%; height: 100%; object-fit: contain;" 
+                   onerror="console.error('QR image failed to load for ${t.code}');" />
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Keansburg Park Tickets - Page ${currentPage}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .ticket-card { 
+                border: 2px solid #000; 
+                padding: 15px; 
+                margin: 10px 0; 
+                page-break-inside: avoid;
+              }
+              @media print {
+                .ticket-card { margin: 5px 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Keansburg Park - Order ${orderCode}</h1>
+            <p><strong>Customer:</strong> ${fullName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Page:</strong> ${currentPage} of ${totalPages}</p>
+            <hr>
+            ${ticketsHTML}
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+      
+      // Đợi images load rồi print
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Print failed:', error);
+      alert('Failed to generate tickets for printing. Please try again.');
+    }
+  };
+
+//Helper function để generate QR DataURL
+const generateQRDataURL = async (ticketCode: string): Promise<string> => {
+  try {
+    // Sử dụng QR API online thay vì thư viện
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(ticketCode)}&bgcolor=FFFFFF&color=000000`;
+    
+    // Test API có hoạt động không
+    const response = await fetch(qrApiUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return qrApiUrl;
+    } else {
+      throw new Error('QR API not available');
+    }
+  } catch (error) {
+    console.error('QR generation error:', error);
+    return createFallbackQR(ticketCode);
+  }
+};
+
+//Fallback QR creator
+const createFallbackQR = (ticketCode: string): string => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 100;
+  canvas.height = 100;
+  
+  if (ctx) {
+    // Tạo background trắng
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 100, 100);
+    
+    // Tạo border
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, 100, 100);
+    
+    // Text fallback
+    ctx.fillStyle = '#000000';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('QR CODE', 50, 30);
+    ctx.font = '8px Arial';
+    ctx.fillText(ticketCode, 50, 70);
+  }
+  
+  return canvas.toDataURL();
+};
+
+//handleDownloadPDF với QR code thực
   const handleDownloadPDF = async () => {
     if (!paid) return;
     // Use browser print dialog as a simple export option without extra deps
-    window.print();
+    await handlePrint();
   };
 
-  const handlePrint = () => {
-    if (!paid) return;
-    
-    // Tạo cửa sổ in với chỉ vé của trang hiện tại
-    const printWindow = window.open('', '_blank');
-    const ticketsHTML = currentTickets.map((t, idx) => `
-      <div class="ticket-card" style="border: 2px solid #000; padding: 15px; margin: 10px 0; page-break-inside: avoid;">
-        <div style="display: flex; justify-content: space-between; align-items: start;">
-          <div>
-            <div style="font-weight: bold; font-size: 16px;">${t.code}</div>
-            <div style="color: #666; font-size: 12px;">Zone: ${t.zone || "General"}</div>
-            <div style="color: #666; font-size: 12px;">
-              Visit: ${t.visitDate ? new Date(t.visitDate).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }) : "—"}
-            </div>
-            <div style="color: #666; font-size: 12px;">Customer: ${fullName}</div>
-          </div>
-          <div style="width: 100px; height: 100px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px;">
-            QR Code<br/>${t.code}
-          </div>
-        </div>
-      </div>
-    `).join('');
-    
-    printWindow?.document.write(`
-      <html>
-        <head>
-          <title>Keansburg Park Tickets - Page ${currentPage}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .ticket-card { 
-              border: 2px solid #000; 
-              padding: 15px; 
-              margin: 10px 0; 
-              page-break-inside: avoid;
-            }
-            @media print {
-              body { margin: 0; }
-              .ticket-card { margin: 5px 0; }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Keansburg Park - Order ${orderCode}</h1>
-          <p><strong>Customer:</strong> ${fullName}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Page:</strong> ${currentPage} of ${totalPages}</p>
-          <hr>
-          ${ticketsHTML}
-        </body>
-      </html>
-    `);
-    
-    printWindow?.document.close();
-    printWindow?.print();
-  };
-
+  
   // Phân trang logic
   const totalPages = Math.ceil(issuedTickets.length / ticketsPerPage);
   const startIndex = (currentPage - 1) * ticketsPerPage;
@@ -363,7 +524,24 @@ const CheckoutPage: FC = () => {
                     required
                   />
                 </div>
-
+                {/* ✅ Thêm checkbox policy */}
+  <div className="form-check mb-3">
+    <input
+      type="checkbox"
+      className="form-check-input"
+      id="bd-policy"
+      checked={agreePolicy}
+      onChange={(e) => setAgreePolicy(e.target.checked)}
+      required
+    />
+    <label htmlFor="bd-policy" className="form-check-label">
+  By checking this box, I confirm that I have read and agree to the{" "}
+  <a href="/policy" target="_blank" rel="noopener noreferrer" className="fw-semibold text-decoration-underline">
+    Booking Policy
+  </a>{" "}
+  and accept the terms of my purchase.
+</label>
+  </div>
                 {/* Placeholder for future validation messages */}
                 <div
                   aria-live="polite"

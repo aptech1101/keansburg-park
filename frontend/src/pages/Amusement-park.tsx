@@ -19,7 +19,7 @@ import { ReviewDisplay } from "../types/feedback";
 export default function AmusementPark() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [currentItemIndex, setCurrentItemIndex] = useState(-1);
   const [attractions, setAttractions] = useState<Array<{
     id: number;
     name: string;
@@ -108,58 +108,62 @@ const staticItems = [{
 }];
   // Map attractions to modal items shape (filter to Amusement zone)
   const amusementItems = useMemo(() => {
-    const filtered = attractions.filter(a => (a.zone_name || '').toLowerCase().includes('amusement'));
-    const toFeaturesArray = (features: unknown): string[] => {
-      if (!features) return [];
-      if (Array.isArray(features)) return features.map(String).filter(Boolean);
-      if (typeof features === 'string') {
-        try {
-          const parsed = JSON.parse(features);
-          if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
-        } catch {}
-        return features
-          .split(',')
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
-      }
-      return [];
-    };
+  const filtered = attractions
+    .filter(a => (a.zone_name || '').toLowerCase().includes('amusement'))
+    .sort((a, b) => a.id - b.id);
 
-    return filtered.map((a) => ({
-      id: String(a.id),
-      title: a.name,
-      description: a.description,
-      image: toBackendUrl(a.image_url),
-      category: a.category || a.zone_name || "Amusement Park",
-      features: toFeaturesArray(a.features ?? []),
-      details: a.details || undefined
-    }));
-  }, [attractions]);
+  const toFeaturesArray = (features: unknown): string[] => {
+    if (!features) return [];
+    if (Array.isArray(features)) return features.map(String).filter(Boolean);
+    if (typeof features === 'string') {
+      try {
+        const parsed = JSON.parse(features);
+        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+      } catch {}
+      return features
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+    return [];
+  };
 
-  const allItems = useMemo(() => {
-    return [...staticItems, ...amusementItems];
-  }, [amusementItems]);
+  return filtered.map((a) => ({
+    id: String(a.id),
+    title: a.name,
+    description: a.description,
+    image: toBackendUrl(a.image_url),
+    category: a.category || a.zone_name || "Amusement Park",
+    features: toFeaturesArray(a.features ?? []),
+    details: a.details || undefined
+  }));
+}, [attractions]);
 
-  const handleItemClick = (index: number) => {
+const allItems = useMemo(() => {
+  return [...staticItems, ...amusementItems];
+}, [staticItems, amusementItems]);
+
+// --- Modal handlers ---
+const handleItemClick = (index: number) => {
+  // đảm bảo index hợp lệ trong allItems
+  if (index >= 0 && index < allItems.length) {
     setCurrentItemIndex(index);
     setIsModalOpen(true);
-  };
+  }
+};
 
-  const handlePrevious = () => {
-    if (currentItemIndex > 0) {
-      setCurrentItemIndex(currentItemIndex - 1);
-    }
-  };
+const handlePrevious = () => {
+  setCurrentItemIndex(prev => (prev > 0 ? prev - 1 : prev));
+};
 
-  const handleNext = () => {
-    if (currentItemIndex < allItems.length - 1) {
-      setCurrentItemIndex(currentItemIndex + 1);
-    }
-  };
+const handleNext = () => {
+  setCurrentItemIndex(prev => (prev < allItems.length - 1 ? prev + 1 : prev));
+};
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+  setCurrentItemIndex(-1); // 👉 reset index khi đóng modal
+};
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
   const API_CANDIDATES = ['/api', apiUrl].filter(Boolean) as string[];
@@ -788,7 +792,7 @@ const staticItems = [{
           {/*Item from database */}
           {amusementItems.map((item, index) => (
           <div key={item.id} className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(index)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(staticItems.length + index)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',

@@ -26,259 +26,278 @@ export default function Ticket() {
   };
 
   function BookingWidget({
-    zone,
-    onZoneChange,
-  }: {
-    zone: "PARK" | "WATER";
-    onZoneChange: (z: "PARK" | "WATER") => void;
-  }) {
-    const [visitDate, setVisitDate] = useState<string>("");
-    const [quantity, setQuantity] = useState<number>(1);
+  zone,
+  onZoneChange,
+}: {
+  zone: "PARK" | "WATER";
+  onZoneChange: (z: "PARK" | "WATER") => void;
+}) {
+  const [visitDate, setVisitDate] = useState<string>("");
+  const [quantity, setQuantity] = useState<number>(1);
 
-    // Pricing helpers (shared)
-    const money = (n: number) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(n);
-    const computePrice = (date: string, qty: number) => {
-      const unit = unitPriceOf(date);
-      const subtotal = unit * qty;
-      const discountTotal = computeDiscount(subtotal, qty);
-      const lineTotal = subtotal - discountTotal;
-      return { unitPrice: unit, subtotal, discountTotal, lineTotal };
-    };
+  // Pricing helpers (shared)
+  const money = (n: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(n);
+  const computePrice = (date: string, qty: number) => {
+    const unit = unitPriceOf(date);
+    const subtotal = unit * qty;
+    const discountTotal = computeDiscount(subtotal, qty);
+    const lineTotal = subtotal - discountTotal;
+    return { unitPrice: unit, subtotal, discountTotal, lineTotal };
+  };
 
-    const decrement = () => setQuantity((q) => Math.max(1, q - 1));
-    const increment = () => setQuantity((q) => q + 1);
-    const handleQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const next = parseInt(e.target.value, 10);
-      setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
-    };
+  const decrement = () => setQuantity((q) => Math.max(1, q - 1));
+  const increment = () => setQuantity((q) => q + 1);
+  const handleQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = parseInt(e.target.value, 10);
+    setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
+  };
 
-    const pricing = visitDate ? computePrice(visitDate, quantity) : null;
+  const pricing = visitDate ? computePrice(visitDate, quantity) : null;
 
-    const [isAdding, setIsAdding] = useState<boolean>(false);
-    const [toastVisible, setToastVisible] = useState<boolean>(false);
-    const [toastMessage, setToastMessage] = useState<string>("");
-    const [toastVariant, setToastVariant] = useState<"success" | "danger">(
-      "success"
-    );
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [toastVisible, setToastVisible] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastVariant, setToastVariant] = useState<"success" | "danger">(
+    "success"
+  );
 
-    const showToast = (message: string, variant: "success" | "danger") => {
-      setToastMessage(message);
-      setToastVariant(variant);
-      setToastVisible(true);
-      window.setTimeout(() => setToastVisible(false), 2200);
-    };
+  // ✅ thêm state để hiện nút Go to Cart
+  const [added, setAdded] = useState(false);
 
-    const handleAddToCart = () => {
-      if (!visitDate || quantity < 1 || !pricing) {
-        showToast("Please select a date and valid quantity.", "danger");
-        return;
-      }
-      setIsAdding(true);
-      try {
-        const item: CartItem = {
-          zoneCode: zone,
-          visitDate,
-          quantity,
-          unitPrice: pricing.unitPrice,
-          subtotal: pricing.subtotal,
-          discountTotal: pricing.discountTotal,
-          lineTotal: pricing.lineTotal,
-        };
-        const raw = localStorage.getItem("cart") || "[]";
-        const arr: CartItem[] = JSON.parse(raw);
-        arr.push(item);
-        localStorage.setItem("cart", JSON.stringify(arr));
-        showToast("Added to cart", "success");
-      } catch (e) {
-        showToast("Failed to add to cart", "danger");
-      } finally {
-        setIsAdding(false);
-      }
-    };
+  const showToast = (message: string, variant: "success" | "danger") => {
+    setToastMessage(message);
+    setToastVariant(variant);
+    setToastVisible(true);
+    window.setTimeout(() => setToastVisible(false), 2200);
+  };
 
-    return (
-      <div className="card border-0 shadow-sm p-4 position-relative">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="btn-group" role="group" aria-label="Select zone">
-            <button
-              type="button"
-              className={`btn ${
-                zone === "PARK" ? "btn-primary" : "btn-outline-primary"
-              }`}
-              aria-pressed={zone === "PARK"}
-              onClick={() => onZoneChange("PARK")}
-            >
-              Amusement Park
-            </button>
-            <button
-              type="button"
-              className={`btn ${
-                zone === "WATER" ? "btn-primary" : "btn-outline-primary"
-              }`}
-              aria-pressed={zone === "WATER"}
-              onClick={() => onZoneChange("WATER")}
-            >
-              Water Park
-            </button>
-          </div>
-          <span className="badge bg-light text-dark">
-            Zone: {zone === "PARK" ? "Amusement" : "Water"}
-          </span>
-        </div>
+  const handleAddToCart = () => {
+    if (!visitDate || quantity < 1 || !pricing) {
+      showToast("Please select a date and valid quantity.", "danger");
+      return;
+    }
+    setIsAdding(true);
+    try {
+      const item: CartItem = {
+        zoneCode: zone,
+        visitDate,
+        quantity,
+        unitPrice: pricing.unitPrice,
+        subtotal: pricing.subtotal,
+        discountTotal: pricing.discountTotal,
+        lineTotal: pricing.lineTotal,
+      };
+      const raw = localStorage.getItem("cart") || "[]";
+      const arr: CartItem[] = JSON.parse(raw);
+      arr.push(item);
+      localStorage.setItem("cart", JSON.stringify(arr));
+      showToast("Added to cart", "success");
 
-        <div className="row g-3 align-items-end mb-4">
-          <div className="col-md-6">
-            <label className="form-label">Visit date</label>
-            <input
-              type="date"
-              className="form-control"
-              aria-label="Visit date"
-              value={visitDate}
-              onChange={(e) => setVisitDate(e.target.value)}
-            />
-            {!visitDate && (
-              <div className="form-text text-danger">Please select a date</div>
-            )}
-          </div>
-          <div className="col-md-6">
-            <label className="form-label">Quantity</label>
-            <div className="input-group">
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                aria-label="Decrease quantity"
-                onClick={decrement}
-                disabled={quantity === 1}
-              >
-                -
-              </button>
-              <input
-                type="number"
-                className="form-control text-center"
-                aria-label="Ticket quantity"
-                min={1}
-                step={1}
-                inputMode="numeric"
-                value={quantity}
-                onChange={handleQuantityInput}
-                onBlur={(e) => {
-                  const next = parseInt(e.target.value, 10);
-                  setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
-                }}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                aria-label="Increase quantity"
-                onClick={increment}
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
+      // ✅ bật trạng thái đã thêm
+      setAdded(true);
+    } catch (e) {
+      showToast("Failed to add to cart", "danger");
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
-        <div className="row g-3">
-          <div className="col-lg-6">
-            <div className="border rounded p-3 h-100">
-              <h6 className="mb-3">Pricing</h6>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Unit Price</span>
-                {pricing ? (
-                  <strong>{money(pricing.unitPrice)}</strong>
-                ) : (
-                  <strong className="text-muted">—</strong>
-                )}
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Subtotal</span>
-                {pricing ? (
-                  <strong>{money(pricing.subtotal)}</strong>
-                ) : (
-                  <strong className="text-muted">—</strong>
-                )}
-              </div>
-              {pricing && quantity >= GROUP_DISCOUNT_THRESHOLD ? (
-                <div className="d-flex justify-content-between mb-2">
-                  <span>
-                    Discount{" "}
-                    <span className="badge bg-light text-dark ms-1">
-                      10% for ≥10 persons
-                    </span>
-                  </span>
-                  <strong className="text-danger">
-                    - {money(pricing.discountTotal)}
-                  </strong>
-                </div>
-              ) : (
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Discount</span>
-                  <strong className="text-muted">—</strong>
-                </div>
-              )}
-              <div className="d-flex justify-content-between border-top pt-2">
-                <span>Line Total</span>
-                {pricing ? (
-                  <strong>{money(pricing.lineTotal)}</strong>
-                ) : (
-                  <strong className="text-muted">—</strong>
-                )}
-              </div>
-              <div className="mt-2 text-muted small">Group discount: 10% for ≥10 tickets</div>
-            </div>
-          </div>
-          <div className="col-lg-6 d-flex align-items-end">
-            <button
-              type="button"
-              className="btn btn-secondary w-100 py-3"
-              aria-label="Add selected tickets to cart"
-              disabled={!pricing || isAdding}
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
-          </div>
-        </div>
-
-        {/* Toast container (Bootstrap styles) */}
-        <div
-          className="toast-container position-fixed top-0 end-0 p-3"
-          style={{ zIndex: 1080 }}
-        >
-          <div
-            className={`toast ${toastVisible ? "show" : "hide"}`}
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
+  return (
+    <div className="card border-0 shadow-sm p-4 position-relative">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="btn-group" role="group" aria-label="Select zone">
+          <button
+            type="button"
+            className={`btn ${
+              zone === "PARK" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            aria-pressed={zone === "PARK"}
+            onClick={() => onZoneChange("PARK")}
           >
-            <div
-              className={`toast-header ${
-                toastVariant === "success"
-                  ? "bg-success text-white"
-                  : "bg-danger text-white"
-              }`}
+            Amusement Park
+          </button>
+          <button
+            type="button"
+            className={`btn ${
+              zone === "WATER" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            aria-pressed={zone === "WATER"}
+            onClick={() => onZoneChange("WATER")}
+          >
+            Water Park
+          </button>
+        </div>
+        <span className="badge bg-light text-dark">
+          Zone: {zone === "PARK" ? "Amusement" : "Water"}
+        </span>
+      </div>
+
+      <div className="row g-3 align-items-end mb-4">
+        <div className="col-md-6">
+          <label className="form-label">Visit date</label>
+          <input
+            type="date"
+            className="form-control"
+            aria-label="Visit date"
+            value={visitDate}
+            onChange={(e) => setVisitDate(e.target.value)}
+          />
+          {!visitDate && (
+            <div className="form-text text-danger">Please select a date</div>
+          )}
+        </div>
+        <div className="col-md-6">
+          <label className="form-label">Quantity</label>
+          <div className="input-group">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              aria-label="Decrease quantity"
+              onClick={decrement}
+              disabled={quantity === 1}
             >
-              <strong className="me-auto">
-                {toastVariant === "success" ? "Success" : "Error"}
-              </strong>
-              <small>now</small>
-              <button
-                type="button"
-                className="btn-close btn-close-white ms-2 mb-1"
-                aria-label="Close"
-                onClick={() => setToastVisible(false)}
-              ></button>
-            </div>
-            <div className="toast-body">{toastMessage}</div>
+              -
+            </button>
+            <input
+              type="number"
+              className="form-control text-center"
+              aria-label="Ticket quantity"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              value={quantity}
+              onChange={handleQuantityInput}
+              onBlur={(e) => {
+                const next = parseInt(e.target.value, 10);
+                setQuantity(Number.isNaN(next) ? 1 : Math.max(1, next));
+              }}
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              aria-label="Increase quantity"
+              onClick={increment}
+            >
+              +
+            </button>
           </div>
         </div>
       </div>
-    );
-  }
+
+      <div className="row g-3">
+        <div className="col-lg-6">
+          <div className="border rounded p-3 h-100">
+            <h6 className="mb-3">Pricing</h6>
+            <div className="d-flex justify-content-between mb-2">
+              <span>Unit Price</span>
+              {pricing ? (
+                <strong>{money(pricing.unitPrice)}</strong>
+              ) : (
+                <strong className="text-muted">—</strong>
+              )}
+            </div>
+            <div className="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              {pricing ? (
+                <strong>{money(pricing.subtotal)}</strong>
+              ) : (
+                <strong className="text-muted">—</strong>
+              )}
+            </div>
+            {pricing && quantity >= GROUP_DISCOUNT_THRESHOLD ? (
+              <div className="d-flex justify-content-between mb-2">
+                <span>
+                  Discount{" "}
+                  <span className="badge bg-light text-dark ms-1">
+                    10% for ≥10 persons
+                  </span>
+                </span>
+                <strong className="text-danger">
+                  - {money(pricing.discountTotal)}
+                </strong>
+              </div>
+            ) : (
+              <div className="d-flex justify-content-between mb-2">
+                <span>Discount</span>
+                <strong className="text-muted">—</strong>
+              </div>
+            )}
+            <div className="d-flex justify-content-between border-top pt-2">
+              <span>Line Total</span>
+              {pricing ? (
+                <strong>{money(pricing.lineTotal)}</strong>
+              ) : (
+                <strong className="text-muted">—</strong>
+              )}
+            </div>
+            <div className="mt-2 text-muted small">
+              Group discount: 10% for ≥10 tickets
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-6 d-flex align-items-end">
+          <button
+            type="button"
+            className={`btn ${added ? "btn-success" : "btn-secondary"} w-100 py-3`}
+            aria-label="Add selected tickets to cart"
+            disabled={!pricing || isAdding || added}
+            onClick={handleAddToCart}
+          >
+            {added ? "Added ✓" : "Add to Cart"}
+          </button>
+
+          {/* ✅ hiện nút Go to Cart khi đã thêm */}
+          {added && (
+            <Link
+              to="/cart"
+              className="btn btn-outline-primary w-100 mt-2 py-3"
+              aria-label="Go to cart and checkout"
+            >
+              Go to Cart
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Toast container */}
+      <div
+        className="toast-container position-fixed top-0 end-0 p-3"
+        style={{ zIndex: 1080 }}
+      >
+        <div
+          className={`toast ${toastVisible ? "show" : "hide"}`}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <div
+            className={`toast-header ${
+              toastVariant === "success"
+                ? "bg-success text-white"
+                : "bg-danger text-white"
+            }`}
+          >
+            <strong className="me-auto">
+              {toastVariant === "success" ? "Success" : "Error"}
+            </strong>
+            <small>now</small>
+            <button
+              type="button"
+              className="btn-close btn-close-white ms-2 mb-1"
+              aria-label="Close"
+              onClick={() => setToastVisible(false)}
+            ></button>
+          </div>
+          <div className="toast-body">{toastMessage}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 0);

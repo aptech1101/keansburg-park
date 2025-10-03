@@ -367,7 +367,14 @@ const Navbar: React.FC = () => {
                   ))}
                 </div>
               </div>
-
+                  <NavLink 
+                to="/gallery" 
+                className={({ isActive }) => `nav-item nav-link${isActive ? ' active' : ''}`}
+                style={{ padding: '1rem 0' }}
+                onClick={handleNavLinkClick}
+              >
+                Gallery
+              </NavLink>
               <NavLink 
                 to="/service" 
                 className={`nav-item nav-link${isServiceGuideRoute ? ' active' : ''}`}

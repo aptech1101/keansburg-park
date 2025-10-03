@@ -19,7 +19,7 @@ import videoWaterpark from "../assets/vid/waterpark-example.mp4";
 export default function WaterPark() {
   const [reviews, setReviews] = useState<ReviewDisplay[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [currentItemIndex, setCurrentItemIndex] = useState(-1);
   const [attractions, setAttractions] = useState<Array<{
     id: number;
     name: string;
@@ -111,7 +111,10 @@ const staticItems =[
 ];
   // Water park items from DB (filter by zone name containing 'Water')
   const waterParkItems = useMemo(() => {
-    const filtered = attractions.filter(a => (a.zone_name || '').toLowerCase().includes('water'));
+    const filtered = attractions
+          .filter(a => (a.zone_name || '').toLowerCase().includes('water'))
+          .sort((a, b) => a.id - b.id);
+
     const toFeaturesArray = (features: unknown): string[] => {
       if (!features) return [];
       if (Array.isArray(features)) return features.map(String).filter(Boolean);
@@ -141,28 +144,29 @@ const staticItems =[
 
   const allItems = useMemo(() => {
     return [...staticItems, ...waterParkItems];
-  }, [waterParkItems]);
+  }, [staticItems, waterParkItems]);
 
+  // --- Modal handlers ---
   const handleItemClick = (index: number) => {
+    // đảm bảo index hợp lệ trong allItems
+    if (index >= 0 && index < allItems.length) {
     setCurrentItemIndex(index);
     setIsModalOpen(true);
+    }
   };
 
   const handlePrevious = () => {
-    if (currentItemIndex > 0) {
-      setCurrentItemIndex(currentItemIndex - 1);
-    }
-  };
+  setCurrentItemIndex(prev => (prev > 0 ? prev - 1 : prev));
+};
 
-  const handleNext = () => {
-    if (currentItemIndex < allItems.length - 1) {
-      setCurrentItemIndex(currentItemIndex + 1);
-    }
-  };
+const handleNext = () => {
+  setCurrentItemIndex(prev => (prev < allItems.length - 1 ? prev + 1 : prev));
+};
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+  setCurrentItemIndex(-1); // 👉 reset index khi đóng modal
+};
 
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
   const API_CANDIDATES = ['/api', apiUrl, 'http://localhost:8000'].filter(Boolean) as string[];
@@ -787,7 +791,7 @@ const staticItems =[
           {/*Item from database */}
           {waterParkItems.map((item, index) => (
           <div key={item.id} className="col-lg-4 col-md-6 mb-4">
-            <div className="attraction-card h-100" onClick={() => handleItemClick(index)} style={{
+            <div className="attraction-card h-100" onClick={() => handleItemClick(staticItems.length + index)} style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
               borderRadius: '16px',
               overflow: 'hidden',
